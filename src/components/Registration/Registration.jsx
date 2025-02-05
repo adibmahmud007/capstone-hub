@@ -7,12 +7,12 @@ const Registration = () => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [userType, setUserType] = useState('student');
+    // const [userType, setUserType] = useState('student');
 
     const handleSubmit = (e) => {
         e.preventDefault();
         // Handle registration logic here
-        console.log({ email, username, password, userType });
+        console.log({ email, username, password });
     };
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -56,19 +56,6 @@ const Registration = () => {
                         required
                         className="w-full p-2 border border-gray-300 rounded"
                     />
-                </div>
-
-                <div className="mb-4">
-                    <label className="block text-gray-700 mb-2" htmlFor="userType">Register As</label>
-                    <select
-                        id="userType"
-                        value={userType}
-                        onChange={(e) => setUserType(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded"
-                    >
-                        <option value="student">Student</option>
-                        <option value="admin">Admin</option>
-                    </select>
                 </div>
 
                 <button
