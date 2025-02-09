@@ -1,0 +1,7 @@
+.reg-bg{
+    /* display: flex;
+    height: 100vh; */
+    background-image: url('./assets/login_bg.jpg');
+    background-size: cover;
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.262);
+}
