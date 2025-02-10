@@ -33,14 +33,14 @@ const Login = () => {
                     </div>
 
                     {/* Right Side */}
-                    <div className="bg-gray-800 bg-opacity-50 p-6 md:p-10 rounded-xl shadow-lg max-w-lg mx-auto">
+                    <div className="bg-gray-700 bg-opacity-50 p-6 md:p-10 rounded-xl shadow-lg max-w-lg mx-auto">
                         <h2 className="text-white text-2xl font-bold text-center">Sign in</h2>
                         <form className="mt-6" onSubmit={handleSubmit}>
                             <div>
                                 <label className="text-white text-sm font-bold">EMAIL</label>
                                 <input
                                     type="email"
-                                    className="w-full p-2 mt-1 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    className="w-full p-2 mt-1 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                                     placeholder="hello@exampleforyou.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -50,7 +50,7 @@ const Login = () => {
                                 <label className="text-white text-sm font-bold">PASSWORD</label>
                                 <input
                                     type="password"
-                                    className="w-full p-2 mt-1 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    className="w-full p-2 mt-1 bg-gray-800 text-white rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                                     placeholder="********"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
