@@ -54,13 +54,13 @@ const StudentDashboard = () => {
 
             {/* Hamburger Button (Only visible when sidebar is closed) */}
             {!sidebarOpen && (
-                <button onClick={() => setSidebarOpen(true)} className="absolute top-4 left-4 lg:hidden z-20 text-gray-800 bg-gray-200 p-2 rounded-md shadow-md">
+                <button onClick={() => setSidebarOpen(true)} className="absolute top-4 left-4 lg:hidden z-20 text-gray-200 bg-gray-700 p-2 rounded-md shadow-md">
                     <Menu size={24} />
                 </button>
             )}
 
             {/* Main Content (Adjusted to remove white background issue) */}
-            <div className="flex-1 p-4 pt-10 lg:pl-34">
+            <div className="flex-1 p-4 pt-10 lg:pl-28 lg:pt-16">
                 {renderContent()}
             </div>
         </div>
