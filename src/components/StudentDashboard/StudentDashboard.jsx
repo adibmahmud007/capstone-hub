@@ -167,15 +167,170 @@ const CreateProject = () => {
 };
 
 const JoinProject = () => {
-    return <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">Join Project Content</div>;
+    const [searchTerm, setSearchTerm] = useState('');
+    const [teams] = useState([
+        { id: 1, name: "Tech Wizards", joined: false },
+        { id: 2, name: "Code Masters", joined: false },
+        { id: 3, name: "AI Innovators", joined: false },
+        { id: 4, name: "Cyber Guardians", joined: false },
+        { id: 5, name: "Data Scientists", joined: false },
+    ]);
+    const [joinedTeams, setJoinedTeams] = useState({});
+
+    const handleJoin = (id) => {
+        setJoinedTeams(prevState => ({ ...prevState, [id]: true }));
+    };
+
+    const filteredTeams = teams.filter(team =>
+        searchTerm.length > 0 && team.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return (
+        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4">Join a Team</h2>
+
+            {/* Search Input */}
+            <div className="mb-4">
+                <input
+                    type="text"
+                    placeholder="Search for a team..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500"
+                />
+            </div>
+
+            {/* Team List (Only shows results if searchTerm is not empty) */}
+            {filteredTeams.length > 0 ? (
+                <ul className="space-y-4">
+                    {filteredTeams.map(({ id, name }) => (
+                        <li key={id} className="flex items-center justify-between p-3 border rounded-md shadow-sm bg-gray-50">
+                            <span className="text-gray-800 font-medium">{name}</span>
+                            {joinedTeams[id] ? (
+                                <span className="text-green-600 font-semibold">Request Sent ✅</span>
+                            ) : (
+                                <button 
+                                    onClick={() => handleJoin(id)}
+                                    className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                                >
+                                    Join Team
+                                </button>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            ) : searchTerm.length > 0 ? (
+                <p className="text-gray-500">No teams found.</p>
+            ) : null}
+        </div>
+    );
 };
+
+
 
 const ShowTask = () => {
-    return <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">Show Task Content</div>;
+    const [tasks, setTasks] = useState([
+        { id: 1, task: "Complete project proposal", completed: false, remark: "Pending approval" },
+        { id: 2, task: "Research related work", completed: false, remark: "Review needed" },
+        { id: 3, task: "Develop frontend UI", completed: false, remark: "Looks good" },
+        { id: 4, task: "Integrate API", completed: false, remark: "Work in progress" },
+        { id: 5, task: "Test project functionality", completed: false, remark: "Tests required" },
+    ]);
+
+    const toggleCompletion = (id) => {
+        setTasks(tasks.map(task => 
+            task.id === id ? { ...task, completed: !task.completed } : task
+        ));
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4">Project Tasks</h2>
+
+            <div className="overflow-x-auto">
+                <table className="w-full border-collapse border border-gray-300">
+                    <thead>
+                        <tr className="bg-gray-200">
+                            <th className="border border-gray-300 p-2 text-left">Task #</th>
+                            <th className="border border-gray-300 p-2 text-left">Task</th>
+                            <th className="border border-gray-300 p-2 text-center">Status</th>
+                            <th className="border border-gray-300 p-2 text-left">Remark</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tasks.map(({ id, task, completed, remark }) => (
+                            <tr key={id} className="hover:bg-gray-100">
+                                <td className="border border-gray-300 p-2">{id}</td>
+                                <td className="border border-gray-300 p-2">{task}</td>
+                                <td className="border border-gray-300 p-2 text-center">
+                                    <button 
+                                        onClick={() => toggleCompletion(id)}
+                                        className={`px-3 py-1 rounded-md text-white transition ${completed ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+                                    >
+                                        {completed ? "Completed" : "Not Completed"}
+                                    </button>
+                                </td>
+                                <td className="border border-gray-300 p-2">{remark}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
 };
 
+
 const ApproveJoinRequest = () => {
-    return <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">Approve Join Request Content</div>;
+    const [requests, setRequests] = useState([
+        { id: 1, name: "John Doe", status: "pending" },
+        { id: 2, name: "Jane Smith", status: "pending" },
+        { id: 3, name: "Alice Johnson", status: "pending" },
+    ]);
+
+    const handleApprove = (id) => {
+        setRequests(requests.map(req => req.id === id ? { ...req, status: "approved" } : req));
+    };
+
+    const handleDecline = (id) => {
+        setRequests(requests.filter(req => req.id !== id));
+    };
+
+    return (
+        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-4">Approve Join Requests</h2>
+            {requests.length > 0 ? (
+                <ul className="space-y-4">
+                    {requests.map(({ id, name, status }) => (
+                        <li key={id} className="flex items-center justify-between p-3 border rounded-md shadow-sm bg-gray-50">
+                            <span className="text-gray-800 font-medium">{name}</span>
+                            {status === "pending" ? (
+                                <div className="flex space-x-2">
+                                    <button 
+                                        onClick={() => handleApprove(id)} 
+                                        className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                                    >
+                                        Approve
+                                    </button>
+                                    <button 
+                                        onClick={() => handleDecline(id)} 
+                                        className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                                    >
+                                        Decline
+                                    </button>
+                                </div>
+                            ) : (
+                                <span className="text-green-600 font-semibold">Approved ✅</span>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p className="text-gray-500">No pending requests.</p>
+            )}
+        </div>
+    );
 };
+
 
 export default StudentDashboard;
