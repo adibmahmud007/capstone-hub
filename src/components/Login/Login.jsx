@@ -12,7 +12,7 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-200 to-rose-900">
+        <div className="flex items-center justify-center min-h-screen login-bg_main bg-gradient-to-r from-gray-200 to-rose-900">
             <div className="w-full max-w-5xl h-[550px] bg-white shadow-lg rounded-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
                 {/* Left Side - Welcome Message */}
                 <div className="hidden md:flex flex-col justify-center items-start p-10 text-white login-bg ">

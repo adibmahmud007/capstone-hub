@@ -1,14 +1,44 @@
 .reg-bg{
     /* display: flex;
     height: 100vh; */
-    background-image: url('./assets/login_bg.jpg');
+    background-image: url('./assets/login.jpg');
     background-size: cover;
-    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.262);
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.562);
 }
 .login-bg{
     /* display: flex;
     height: 100vh; */
     background-image: url('./assets/login.jpg');
     background-size: cover;
-    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.262);
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.462);
+    /* filter: blur(30px); */
 }
+
+.login-bg_main {
+    position: relative;
+    background-image: url('./assets/login.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.662);
+
+}
+
+/* .login-bg_main::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: inherit; /* Inherit the same background */
+    /* background-size: cover;
+    background-position: center;
+
+    filter: blur(20px); /* Apply blur effect */
+    /* z-index: -1;
+}  */ 
