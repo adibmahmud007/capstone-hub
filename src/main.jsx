@@ -8,6 +8,7 @@ import {
 import Registration from './components/Registration/Registration';
 import Login from './components/Login/Login';
 import StudentDashboard from './components/StudentDashboard/StudentDashboard';
+import TeacherDashBoard from './components/TeacherDashboard/TeacherDashBoard';
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: '/studentDashboard',
     element: <StudentDashboard></StudentDashboard>
+  },
+  {
+    path:"/teacherDashboard",
+    element: <TeacherDashBoard></TeacherDashBoard>
   }
 ]);
 
