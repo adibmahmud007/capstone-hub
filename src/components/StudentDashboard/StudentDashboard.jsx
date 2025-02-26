@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import TeacherDashboard from '../TeacherDashboard/TeacherDashBoard';
 
 const StudentDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('createGroup');
@@ -8,6 +9,8 @@ const StudentDashboard = () => {
 
     // Move groupMembers state to StudentDashboard
     const [groupMembers, setGroupMembers] = useState([]);
+    const isTeacher = window.location.pathname === "/teacherDashboard"; // Example URL check
+
 
     const renderContent = () => {
         switch (activeMenu) {
@@ -60,6 +63,7 @@ const StudentDashboard = () => {
                         </li>
                     ))}
                 </ul>
+                <TeacherDashboard groupMembers={groupMembers}></TeacherDashboard>
             </div>
 
             {/* Hamburger Button */}
