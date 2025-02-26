@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import TeacherDashboard from '../TeacherDashboard/TeacherDashBoard';
+// import TeacherDashboard from '../TeacherDashboard/TeacherDashBoard';
+import { toast } from 'react-toastify';
 
 const StudentDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('createGroup');
@@ -9,7 +10,8 @@ const StudentDashboard = () => {
 
     // Move groupMembers state to StudentDashboard
     const [groupMembers, setGroupMembers] = useState([]);
-    const isTeacher = window.location.pathname === "/teacherDashboard"; // Example URL check
+    console.log(groupMembers);
+    // const isTeacher = window.location.pathname === "/teacherDashboard"; // Example URL check
 
 
     const renderContent = () => {
@@ -63,7 +65,7 @@ const StudentDashboard = () => {
                         </li>
                     ))}
                 </ul>
-                <TeacherDashboard groupMembers={groupMembers}></TeacherDashboard>
+                
             </div>
 
             {/* Hamburger Button */}
@@ -76,6 +78,7 @@ const StudentDashboard = () => {
             {/* Main Content */}
             <div className="flex-1 p-4 pt-10 lg:pl-28 lg:pt-16">
                 {renderContent()}
+                {/* <TeacherDashboard groupMembers={groupMembers} setGroupMembers={setGroupMembers}></TeacherDashboard> */}
             </div>
         </div>
     );
@@ -100,6 +103,7 @@ const CreateGroup = ({ groupMembers, setGroupMembers }) => {
         e.preventDefault();
         setGroupMembers([...groupMembers, member]); // Update global state
         setMember({ name: '', intake: '', section: '', department: '', email: '', phone: '' });
+        toast.success("Member Added Successful")
     };
 
     return (
@@ -341,11 +345,25 @@ const ShowTask = () => {
         { id: 5, task: "Test project functionality", completed: false, remark: "Tests required" },
     ]);
 
+
     const toggleCompletion = (id) => {
-        setTasks(tasks.map(task => 
-            task.id === id ? { ...task, completed: !task.completed } : task
-        ));
+        setTasks(tasks.map(task => {
+            if (task.id === id) {
+                const updatedTask = { ...task, completed: !task.completed };
+                
+                // Show toast based on completion status
+                if (updatedTask.completed) {
+                    toast.success('Task completed successfully!'); // Success toast
+                } else {
+                    toast.error('Task is not completed!'); // Error toast
+                }
+                
+                return updatedTask;
+            }
+            return task;
+        }));
     };
+    
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
