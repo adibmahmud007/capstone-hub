@@ -1,16 +1,16 @@
 .reg-bg{
     /* display: flex;
     height: 100vh; */
-    background-image: url('./assets/login.jpg');
+    background-image: url('./assets/reg.jpg');
     background-size: cover;
-    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.562);
+    /* box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.062); */
 }
 .login-bg{
     /* display: flex;
     height: 100vh; */
-    background-image: url('./assets/login.jpg');
+    background-image: url('./assets/login2.jpg');
     background-size: cover;
-    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.462);
+    box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.062);
     /* filter: blur(30px); */
 }
 

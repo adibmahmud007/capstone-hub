@@ -17,7 +17,7 @@ const Registration = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen ">
+        <div className="flex items-center bg-gradient-to-t from-slate-100 via-slate-200 to-slate-300  justify-center min-h-screen ">
             <div className="w-full max-w-5xl h-[550px] bg-white shadow-lg rounded-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
                 {/* Left Side - Welcome Message */}
                 <div className="hidden md:flex flex-col justify-center items-start p-10 text-white reg-bg ">
@@ -35,7 +35,7 @@ const Registration = () => {
                             </span>
                             <input
                                 type="text"
-                                className="w-full pl-10 p-3 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full pl-10 p-3 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Your Username"
                                 value={email}
                                 onChange={(e) => setUsername(e.target.value)}
@@ -47,7 +47,7 @@ const Registration = () => {
                             </span>
                             <input
                                 type="email"
-                                className="w-full pl-10 p-3 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full pl-10 p-3 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Your Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -59,7 +59,7 @@ const Registration = () => {
                             </span>
                             <input
                                 type="password"
-                                className="w-full pl-10 p-3 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                className="w-full pl-10 p-3 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 placeholder="Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -74,12 +74,12 @@ const Registration = () => {
                         
                         <button
                             type="submit"
-                            className="w-full mt-6 bg-gradient-to-r from-rose-500 to-rose-900 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                            className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-900 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
                         >
                             Signup
                         </button>
                         <div>
-                            <p className="font-semibold text-gray-500 pt-6 pb-4">Already have an account? Please Login Here <Link to='/login'><button className=" cursor-pointer text-green-500 font-light rounded-lg hover:text-green-600">
+                            <p className="font-normal text-gray-500 pt-6 pb-4">Already have an account? Please Login Here <Link to='/login'><button className=" cursor-pointer text-green-500 font-semibold rounded-lg hover:text-green-600">
                                 Login
                             </button></Link></p>
 

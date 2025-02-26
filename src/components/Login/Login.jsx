@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import "../../App.css";
+import { Link } from "react-router-dom";
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -12,19 +13,16 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen login-bg_main bg-gradient-to-r from-gray-200 to-rose-900">
+        <div className="flex bg-gradient-to-t from-slate-100 via-slate-200 to-slate-300  items-center justify-center min-h-screen ">
             <div className="w-full max-w-5xl h-[550px] bg-white shadow-lg rounded-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
                 {/* Left Side - Welcome Message */}
                 <div className="hidden md:flex flex-col justify-center items-start p-10 text-white login-bg ">
-                    <h1 className="text-4xl font-bold">Welcome to Website</h1>
-                    <p className="mt-3 text-lg">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
-                    </p>
+                    
                 </div>
 
                 {/* Right Side - Login Form */}
                 <div className="flex flex-col justify-center items-center p-8 md:p-12 bg-white">
-                    <h2 className="text-2xl font-bold text-gray-800 text-center">USER LOGIN</h2>
+                    <h2 className="text-2xl font-bold text-gray-800 text-center">Login To OpenSpace</h2>
                     <form className="w-full mt-6" onSubmit={handleSubmit}>
                         <div className="relative mb-4">
                             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
@@ -62,6 +60,12 @@ const Login = () => {
                         >
                             LOGIN
                         </button>
+                        <div>
+                            <p className="font-normal text-gray-500 pt-6 pb-4">Dont have an account? Please Signup Here <Link to='/'><button className=" cursor-pointer text-blue-500 font-semibold rounded-lg hover:text-blue-600">
+                                Signup
+                            </button></Link></p>
+
+                        </div>
                     </form>
                 </div>
             </div>
