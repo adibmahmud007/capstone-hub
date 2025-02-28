@@ -71,7 +71,7 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
                         value={assignTask}
                         onChange={(e) => setAssignTask(e.target.value)}
                         placeholder="Enter task"
-                        className="p-2 border border-gray-300 w-[500px] rounded mr-2"
+                        className="p-2 border border-gray-300 md:w-[350px] lg:w-[500px] rounded mr-2"
                     />
                     <button 
                         onClick={handleAssignTask}
@@ -92,7 +92,7 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
                         value={remarks}
                         onChange={(e) => setRemarksInput(e.target.value)}
                         placeholder="Enter remarks"
-                        className="p-2 border border-gray-300 w-[500px] rounded mr-2"
+                        className="p-2 border border-gray-300 md:w-[350px] lg:w-[500px] rounded mr-2"
                     />
                     <button 
                         onClick={handleSendRemarks}
