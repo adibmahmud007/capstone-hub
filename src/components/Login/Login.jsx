@@ -54,12 +54,12 @@ const Login = () => {
                             </label>
                             <a href="#" className="hover:text-purple-500">Forgot password?</a>
                         </div>
-                        <button
+                        <Link to='/studentDashboard'><button
                             type="submit"
                             className="w-full bg-gradient-to-r from-rose-500 to-rose-900 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
                         >
                             LOGIN
-                        </button>
+                        </button></Link>
                         <div>
                             <p className="font-normal text-gray-500 pt-6 pb-4">Dont have an account? Please Signup Here <Link to='/'><button className=" cursor-pointer text-blue-500 font-semibold rounded-lg hover:text-blue-600">
                                 Signup

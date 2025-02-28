@@ -1,7 +1,7 @@
 import './index.css'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom/client'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 import {
   createBrowserRouter,
