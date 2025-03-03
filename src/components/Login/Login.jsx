@@ -1,28 +1,53 @@
 import { useState } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import "../../App.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Email:", email);
-        console.log("Password:", password);
+        setError("");
+        try {
+            const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+            console.log(response);
+            if (response.ok) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("role", data.role);
+                if (data.role === "student") {
+                    navigate("/studentDashboard");
+                } else if (data.role === "admin") {
+                    navigate("/adminDashboard");
+                } else {
+                    navigate("/defaultDashboard");
+                }
+            } else {
+                setError(data.message || "Invalid credentials");
+            }
+        } catch (err) {
+            setError("Something went wrong. Please try again.");
+        }
     };
 
     return (
-        <div className="flex bg-gradient-to-t from-slate-100 via-slate-200 to-slate-300  items-center justify-center min-h-screen ">
+        <div className="flex bg-gradient-to-t from-slate-100 via-slate-200 to-slate-300 items-center justify-center min-h-screen ">
             <div className="w-full max-w-5xl h-[550px] bg-white shadow-lg rounded-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
-                {/* Left Side - Welcome Message */}
-                <div className="hidden md:flex flex-col justify-center items-start p-10 text-white login-bg ">
-                    
-                </div>
-
-                {/* Right Side - Login Form */}
+                <div className="hidden md:flex flex-col justify-center items-start p-10 text-white login-bg "></div>
                 <div className="flex flex-col justify-center items-center p-8 md:p-12 bg-white">
                     <h2 className="text-2xl font-bold text-gray-800 text-center">Login To OpenSpace</h2>
+                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                     <form className="w-full mt-6" onSubmit={handleSubmit}>
                         <div className="relative mb-4">
                             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
@@ -54,17 +79,20 @@ const Login = () => {
                             </label>
                             <a href="#" className="hover:text-purple-500">Forgot password?</a>
                         </div>
-                        <Link to='/studentDashboard'><button
+                        <button
                             type="submit"
                             className="w-full bg-gradient-to-r from-rose-500 to-rose-900 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
                         >
                             LOGIN
-                        </button></Link>
+                        </button>
                         <div>
-                            <p className="font-normal text-gray-500 pt-6 pb-4">Dont have an account? Please Signup Here <Link to='/'><button className=" cursor-pointer text-blue-500 font-semibold rounded-lg hover:text-blue-600">
-                                Signup
-                            </button></Link></p>
-
+                            <p className="font-normal text-gray-500 pt-6 pb-4">Dont have an account? Please Signup Here 
+                                <Link to='/signup'>
+                                    <button className="cursor-pointer text-blue-500 font-semibold rounded-lg hover:text-blue-600">
+                                        Signup
+                                    </button>
+                                </Link>
+                            </p>
                         </div>
                     </form>
                 </div>
