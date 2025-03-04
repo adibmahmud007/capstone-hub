@@ -2,6 +2,8 @@ import { useState } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import "../../App.css";
 import { Link, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -22,16 +24,24 @@ const Login = () => {
             });
 
             const data = await response.json();
-            console.log(response);
+            console.log(data);
+
+            const token = data.acesstoken;
+            const decoded = jwtDecode(token);
+            const role=decoded.role;
+            console.log(decoded,'from jwt token decoded');
+            console.log(role,'from token getting the role');
+
+
             if (response.ok) {
-                localStorage.setItem("token", data.token);
-                localStorage.setItem("role", data.role);
-                if (data.role === "student") {
+                localStorage.setItem("token", data.acesstoken);
+                // localStorage.setItem("role", role);
+                if (role === "student") {
                     navigate("/studentDashboard");
-                } else if (data.role === "admin") {
-                    navigate("/adminDashboard");
+                } else if (role === "teacher") {
+                    navigate("/teacherDashboard");
                 } else {
-                    navigate("/defaultDashboard");
+                    navigate("/adminDashboard");
                 }
             } else {
                 setError(data.message || "Invalid credentials");
@@ -86,7 +96,7 @@ const Login = () => {
                             LOGIN
                         </button>
                         <div>
-                            <p className="font-normal text-gray-500 pt-6 pb-4">Dont have an account? Please Signup Here 
+                            <p className="font-normal text-gray-500 pt-6 pb-4">Dont have an account? Please Signup Here
                                 <Link to='/signup'>
                                     <button className="cursor-pointer text-blue-500 font-semibold rounded-lg hover:text-blue-600">
                                         Signup
