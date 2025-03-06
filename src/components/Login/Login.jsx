@@ -3,6 +3,7 @@ import { FaUser, FaLock } from "react-icons/fa";
 import "../../App.css";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 
 
 const Login = () => {
@@ -37,17 +38,20 @@ const Login = () => {
                 localStorage.setItem("token", data.acesstoken);
                 // localStorage.setItem("role", role);
                 if (role === "student") {
-                    navigate("/studentDashboard");
+                    toast.success("Singing in to Student Portal");
+                    navigate("/studentHome");
                 } else if (role === "teacher") {
                     navigate("/teacherDashboard");
                 } else {
                     navigate("/adminDashboard");
                 }
             } else {
-                setError(data.message || "Invalid credentials");
+                // setError(data.message || "Invalid credentials");
+                toast.error(data.message || "Invalid credentials")
             }
         } catch (err) {
-            setError("Something went wrong. Please try again.");
+            // setError("Something went wrong. Please try again.");
+            toast.error("Something went wrong. Please try again.");
         }
     };
 
@@ -57,7 +61,7 @@ const Login = () => {
                 <div className="hidden md:flex flex-col justify-center items-start p-10 text-white login-bg "></div>
                 <div className="flex flex-col justify-center items-center p-8 md:p-12 bg-white">
                     <h2 className="text-2xl font-bold text-gray-800 text-center">Login To OpenSpace</h2>
-                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                    {/* {error && <p className="text-red-500 text-sm mt-2">{error}</p>} */}
                     <form className="w-full mt-6" onSubmit={handleSubmit}>
                         <div className="relative mb-4">
                             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
