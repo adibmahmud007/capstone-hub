@@ -11,6 +11,7 @@ import Registration from './components/Registration/Registration';
 import Login from './components/Login/Login';
 import StudentDashboard from './components/StudentDashboard/StudentDashboard';
 import TeacherDashBoard from './components/TeacherDashboard/TeacherDashBoard';
+import StudentHome from './components/StudentHome/StudentHome';
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,11 @@ const router = createBrowserRouter([
   {
     path: 'login',
     element: <Login />
+  },
+  {
+    path:'/studentHome',
+    element: <StudentHome></StudentHome>
+
   },
   {
     path: '/studentDashboard',
