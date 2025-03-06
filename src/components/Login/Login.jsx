@@ -9,12 +9,12 @@ import { toast } from "react-toastify";
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+    // const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
+        // setError("");
         try {
             const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/auth/login", {
                 method: "POST",
@@ -38,7 +38,7 @@ const Login = () => {
                 localStorage.setItem("token", data.acesstoken);
                 // localStorage.setItem("role", role);
                 if (role === "student") {
-                    toast.success("Singing in to Student Portal");
+                    toast.success("Signed in to Student Portal");
                     navigate("/studentHome");
                 } else if (role === "teacher") {
                     navigate("/teacherDashboard");
@@ -51,7 +51,7 @@ const Login = () => {
             }
         } catch (err) {
             // setError("Something went wrong. Please try again.");
-            toast.error("Something went wrong. Please try again.");
+            toast.error("Something went wrong. Please try again.",err);
         }
     };
 
