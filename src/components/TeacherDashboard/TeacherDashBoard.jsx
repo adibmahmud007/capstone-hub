@@ -4,42 +4,87 @@ import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote } from "react-icons/
 import { Menu, X } from 'lucide-react';
 
 // Default Props for groupMembers to prevent undefined error
+
+
 const TeamDetails = () => {
-    // Hardcoding the team members data instead of passing it through props
-    const membersData = [
-        { id: 21224103072, name: 'Adib Mahmud', intake: '48', section: '3' },
-        { id: 21224103065, name: 'Md. Zahidul Islam Mollik', intake: '48', section: '3' },
-        { id: 21224103077, name: 'Meher Afroz Binu', intake: '48', section: '3' },
-        { id: 21224103078, name: 'Tasnia Sultana Hema', intake: '48', section: '3' },
-        { id: 21224103062, name: 'Sohan Reza', intake: '48', section: '3' }
+    // All team data
+    const teams = [
+        {
+            name: 'Intake 48',
+            members: [
+                { id: 21224103072, name: 'Adib Mahmud', intake: '48', section: '3' },
+                { id: 21224103065, name: 'Md. Zahidul Islam Mollik', intake: '48', section: '3' }
+            ]
+        },
+        {
+            name: 'Intake 49',
+            members: [
+                { id: 21224103077, name: 'Meher Afroz Binu', intake: '48', section: '3' },
+                { id: 21224103078, name: 'Tasnia Sultana Hema', intake: '48', section: '3' }
+            ]
+        },
+        {
+            name: 'Intake 47',
+            members: [
+                { id: 21224103062, name: 'Sohan Reza', intake: '48', section: '3' }
+            ]
+        }
     ];
 
+    // Track which dropdown is open
+    const [openDropdown, setOpenDropdown] = useState(null);
+
+    // Toggle dropdown
+    const toggleDropdown = (index) => {
+        setOpenDropdown(openDropdown === index ? null : index);
+    };
+
     return (
-        <div className="team-details-container">
-            <h2 className="text-xl font-bold mb-4">Team Details</h2>
-            <table className="min-w-full table-auto">
-                <thead>
-                    <tr>
-                        <th className="px-4 py-2 text-left">Name</th>
-                        <th className="px-4 py-2 text-left">ID</th>
-                        <th className="px-4 py-2 text-left">Intake</th>
-                        <th className="px-4 py-2 text-left">Section</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {membersData.map(member => (
-                        <tr key={member.id} className="border-b">
-                            <td className="px-4 py-2">{member.name}</td>
-                            <td className="px-4 py-2">{member.id}</td>
-                            <td className="px-4 py-2">{member.intake}</td>
-                            <td className="px-4 py-2">{member.section}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+        <div className="team-details-wrapper max-w-3xl mx-auto mt-10">
+            <h2 className="text-2xl font-bold mb-6 text-center">Team Details</h2>
+            {teams.map((team, index) => (
+                <div key={index} className="mb-6 border rounded-lg shadow">
+                    <button
+                        onClick={() => toggleDropdown(index)}
+                        className="w-full flex justify-between items-center px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-t-lg"
+                    >
+                        <span>{team.name}</span>
+                        <span className="text-xl">{openDropdown === index ? '⬆️' : '⬇️'}</span>
+                    </button>
+                    {openDropdown === index && (
+                        <div className="p-4 bg-white">
+                            <table className="min-w-full table-auto">
+                                <thead>
+                                    <tr>
+                                        <th className="px-4 py-2 text-left">Name</th>
+                                        <th className="px-4 py-2 text-left">ID</th>
+                                        <th className="px-4 py-2 text-left">Intake</th>
+                                        <th className="px-4 py-2 text-left">Section</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {team.members.map(member => (
+                                        <tr key={member.id} className="border-b">
+                                            <td className="px-4 py-2">{member.name}</td>
+                                            <td className="px-4 py-2">{member.id}</td>
+                                            <td className="px-4 py-2">{member.intake}</td>
+                                            <td className="px-4 py-2">{member.section}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            ))}
         </div>
     );
 };
+
+
+
+
+
 
 const AssignTask = ({ setAssignedTask, setRemarks }) => {
     const [assignTask, setAssignTask] = useState('');
