@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import {  useState } from "react";
+import {  useState,useEffect } from "react";
 import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote } from "react-icons/fa";
 import { Menu, X } from 'lucide-react';
 
@@ -83,33 +83,53 @@ const TeamDetails = () => {
 
 
 
-
-
-
 const AssignTask = ({ setAssignedTask, setRemarks }) => {
     const [assignTask, setAssignTask] = useState('');
     const [remarks, setRemarksInput] = useState('');
+    const [selectedTeam, setSelectedTeam] = useState('');  // new state for dropdown
+
+    const teamOptions = ['Intake 1', 'Intake 2', 'Intake 3', 'Intake 4'];
 
     // Handle task assignment
     const handleAssignTask = () => {
+        if (!selectedTeam) {
+            alert('Please select a team before assigning a task.');
+            return;
+        }
         setAssignedTask(assignTask);
-        setAssignTask('');  // Reset input field after assigning
+        setAssignTask('');
     };
 
     // Handle remarks submission
     const handleSendRemarks = () => {
         setRemarks(remarks);
-        setRemarksInput('');  // Reset input field after sending remarks
+        setRemarksInput('');
     };
 
     return (
         <div className="assign-task-container">
             <h2 className="text-xl font-bold mb-4">Assign Task to Student</h2>
 
+            {/* Team Dropdown */}
+            <div className="mb-4">
+                <label htmlFor="team-select" className="block text-sm font-medium">Select Team</label>
+                <select
+                    id="team-select"
+                    value={selectedTeam}
+                    onChange={(e) => setSelectedTeam(e.target.value)}
+                    className="p-2 border border-gray-300 md:w-[350px] lg:w-[500px] rounded"
+                >
+                    <option value="">-- Select Team --</option>
+                    {teamOptions.map((team, index) => (
+                        <option key={index} value={team}>{team}</option>
+                    ))}
+                </select>
+            </div>
+
             {/* Assign Task */}
-            <div className="mb-4 ">
+            <div className="mb-4">
                 <label htmlFor="task" className="block text-sm font-medium">Assign Task</label>
-                <div className="flex  items-center">
+                <div className="flex items-center">
                     <input
                         id="task"
                         type="text"
@@ -153,63 +173,77 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
 
 
 
-const ShowTask = ({ assignTask, remarks }) => {
-    const [tasks, setTasks] = useState([
-        { taskNumber: 1, assignedTask: assignTask, remarks: remarks },
-    ]);
 
-    // Delete a task by its task number
+
+
+
+const ShowTask = ({ assignedTask, remarks, team }) => {
+    const [tasks, setTasks] = useState([]);
+
+    // Whenever assignedTask, remarks, or team change, add a new task
+    useEffect(() => {
+        if (assignedTask && remarks && team) {
+            const newTask = {
+                taskNumber: tasks.length + 1,
+                assignedTask,
+                remarks,
+                team,
+            };
+            setTasks((prevTasks) => [...prevTasks, newTask]);
+        }
+    }, [assignedTask, remarks, tasks.length, team]);
+
     const deleteTask = (taskNumber) => {
-        const filteredTasks = tasks.filter(task => task.taskNumber !== taskNumber);
-        setTasks(filteredTasks);
+        const filtered = tasks.filter((task) => task.taskNumber !== taskNumber);
+        setTasks(filtered);
     };
 
     return (
-        <div className="show-task-container">
+        <div className="show-task-container mt-10">
             <h2 className="text-xl font-bold mb-4">Assigned Tasks</h2>
 
-            {/* Table for displaying assigned tasks and remarks */}
             <table className="min-w-full table-auto border-collapse border border-gray-300">
                 <thead>
                     <tr>
-                        <th className="px-4 py-2 border border-gray-300 text-left">Task Number</th>
+                        <th className="px-4 py-2 border border-gray-300 text-left">#</th>
+                        <th className="px-4 py-2 border border-gray-300 text-left">Team</th>
                         <th className="px-4 py-2 border border-gray-300 text-left">Assigned Task</th>
                         <th className="px-4 py-2 border border-gray-300 text-left">Remarks</th>
-                        <th className="px-4 py-2 border border-gray-300 text-left">Actions</th>
+                        <th className="px-4 py-2 border border-gray-300 text-left">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {tasks.map((task) => (
-                        <tr key={task.taskNumber}>
-                            <td className="px-4 py-2 border border-gray-300">{task.taskNumber}</td>
-                            <td className="px-4 py-2 border border-gray-300">{task.assignedTask}</td>
-                            <td className="px-4 py-2 border border-gray-300">{task.remarks}</td>
-                            <td className="px-4 py-2 border border-gray-300">
-                                {/* Delete Button */}
-                                <button
-                                    onClick={() => deleteTask(task.taskNumber)}
-                                    className="bg-red-500 text-white p-1 rounded"
-                                >
-                                    Delete
-                                </button>
+                    {tasks.length === 0 ? (
+                        <tr>
+                            <td colSpan="5" className="text-center py-4 text-gray-500">
+                                No tasks assigned yet.
                             </td>
                         </tr>
-                    ))}
+                    ) : (
+                        tasks.map((task) => (
+                            <tr key={task.taskNumber}>
+                                <td className="px-4 py-2 border border-gray-300">{task.taskNumber}</td>
+                                <td className="px-4 py-2 border border-gray-300">{task.team}</td>
+                                <td className="px-4 py-2 border border-gray-300">{task.assignedTask}</td>
+                                <td className="px-4 py-2 border border-gray-300">{task.remarks}</td>
+                                <td className="px-4 py-2 border border-gray-300">
+                                    <button
+                                        onClick={() => deleteTask(task.taskNumber)}
+                                        className="bg-red-500 text-white px-2 py-1 rounded"
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    )}
                 </tbody>
             </table>
-
-            {/* For adding a new task */}
-            <div className="mt-4">
-                <button
-                    onClick={() => setTasks([...tasks, { taskNumber: tasks.length + 1, assignedTask: "New Task", remarks: "New Remarks" }])}
-                    className="bg-blue-500 text-white p-2 rounded"
-                >
-                    Add Task
-                </button>
-            </div>
         </div>
     );
 };
+
+
 
 
 
