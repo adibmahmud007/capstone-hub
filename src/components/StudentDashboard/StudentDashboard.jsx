@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 // import TeacherDashboard from '../TeacherDashboard/TeacherDashBoard';
@@ -229,7 +229,7 @@ const CreateGroup = () => {
     );
 };
 
-// eslint-disable-next-line no-unused-vars
+
 
 const MyTeam = () => {
     const [groupMembers, setGroupMembers] = useState([]);
