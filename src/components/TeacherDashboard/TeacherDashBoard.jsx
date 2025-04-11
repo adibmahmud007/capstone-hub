@@ -251,60 +251,81 @@ const ShowTask = ({ assignedTask, remarks, team }) => {
 const AddNotice = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
+    const [selectedTeam, setSelectedTeam] = useState('');
 
-    // Handle notice submission
+    const teamOptions = ['intake1', 'intake2', 'intake3'];
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (title && content) {
-            // Here, you can send the data to a server or update the state
-            console.log("Notice added:", { title, content });
-            setTitle(''); // Clear input field after submission
-            setContent(''); // Clear input field after submission
-        } else {
-            alert('Please fill in both title and content.');
+
+        if (!selectedTeam) {
+            alert("Please select a team.");
+            return;
         }
+
+        const noticeData = {
+            title,
+            content,
+            team: selectedTeam,
+        };
+
+        console.log("Notice added:", noticeData);
+        // Reset form
+        setTitle('');
+        setContent('');
+        setSelectedTeam('');
     };
 
     return (
-        <div className="add-notice-container">
-            <h2 className="text-xl font-bold mb-4">Add a Notice</h2>
+        <div className=" mx-auto p-6 bg-white rounded-lg shadow-md">
+            <h2 className="text-2xl font-bold mb-6">Add Notice</h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Notice Title */}
+            {/* Team Dropdown at the Top */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Select Team</label>
+                <select
+                    name="team"
+                    value={selectedTeam}
+                    onChange={(e) => setSelectedTeam(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    required
+                >
+                    <option value="">-- Select Team --</option>
+                    {teamOptions.map((team, index) => (
+                        <option key={index} value={team}>{team}</option>
+                    ))}
+                </select>
+            </div>
+
+            {/* Existing Form */}
+            <form onSubmit={handleSubmit}>
                 <div className="mb-4">
-                    <label htmlFor="title" className="block text-sm font-medium">Title</label>
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
                     <input
-                        id="title"
                         type="text"
+                        id="title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Enter notice title"
-                        className="p-2 border border-gray-300 w-full rounded"
+                        className="w-full p-2 border rounded"
+                        required
                     />
                 </div>
 
-                {/* Notice Content */}
                 <div className="mb-4">
-                    <label htmlFor="content" className="block text-sm font-medium">Content</label>
+                    <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
                     <textarea
                         id="content"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        placeholder="Enter notice content"
+                        className="w-full p-2 border rounded"
                         rows="6"
-                        className="p-2 border border-gray-300 w-full rounded"
+                        required
                     ></textarea>
                 </div>
 
-                {/* Submit Button */}
-                <div>
-                    <button
-                        type="submit"
-                        className="bg-green-500 text-white p-2 rounded"
-                    >
-                        Add Notice
-                    </button>
-                </div>
+                <button type="submit" className="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition">
+                    Add Notice
+                </button>
             </form>
         </div>
     );
