@@ -88,12 +88,12 @@ const Registration = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
-                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                        {/* <div className="flex justify-between text-sm text-gray-600 mb-2">
                             <label className="flex items-center">
                                 <input type="checkbox" className="mr-2" /> Remember
                             </label>
                             <a href="#" className="hover:text-purple-500">Forgot password?</a>
-                        </div>
+                        </div> */}
                         
                         <button
                             type="submit"
