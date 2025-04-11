@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 // import TeacherDashboard from '../TeacherDashboard/TeacherDashBoard';
 import { toast } from 'react-toastify';
+import { useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode'; // ✅ CORRECT
+
 
 const StudentDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('createGroup');
@@ -125,40 +128,37 @@ const CreateGroup = () => {
 
     const handleCreateGroup = async () => {
         console.log(groupMembers)
-        // if (groupMembers.length !== 5) {
-        //     toast.error("Exactly 5 members are required to create a group");
-        //     return;
-        // }
+        if (groupMembers.length !== 5) {
+            toast.error("Exactly 5 members are required to create a group");
+            return;
+        }
 
-        // if (!teamName) {
-        //     toast.error("Team name is required");
-        //     return;
-        // }
+        if (!teamName) {
+            toast.error("Team name is required");
+            return;
+        }
+        const teamData={teamName,members: groupMembers}
+        try {
+            const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/student/groups/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(teamData)
+            });
 
-        // try {
-        //     const response = await fetch('/api/group/create', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         },
-        //         body: JSON.stringify({
-        //             teamName,
-        //             members: groupMembers
-        //         })
-        //     });
-
-        //     const data = await response.json();
-
-        //     if (response.ok) {
-        //         toast.success(data.message);
-        //         setGroupMembers([]);
-        //         setTeamName('');
-        //     } else {
-        //         toast.error(data.message || "Something went wrong");
-        //     }
-        // } catch (error) {
-        //     toast.error("Something went wrong",error);
-        // }
+            const data = await response.json();
+            console.log(data)
+            if (response.ok) {
+                toast.success(data.message);
+                setGroupMembers([]);
+                setTeamName('');
+            } else {
+                toast.error(data.message || "Something went wrong");
+            }
+        } catch (error) {
+            toast.error(error);
+        }
     };
 
     return (
@@ -230,19 +230,59 @@ const CreateGroup = () => {
 };
 
 // eslint-disable-next-line no-unused-vars
-const MyTeam = ({ groupMembers, supervisor }) => {
+
+const MyTeam = () => {
+    const [groupMembers, setGroupMembers] = useState([]);
+    const[teamName,setTeamName]=useState('')
+    const [supervisor, setSupervisor] = useState("Saifur Rahman"); // You can update this dynamically if needed
+    
+    useEffect(() => {
+        const fetchTeamData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.error("No token found.");
+                    return;
+                }
+
+                const decoded = jwtDecode(token);
+                const educationalMail = decoded.email;
+                console.log(educationalMail,'mail')
+
+                const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/student/groups/myteam/${educationalMail}`);
+                const data = await response.json();
+                
+                console.log(data)
+                if (response.ok) {
+                    setGroupMembers(data.data[0].members);
+                    setTeamName(data.data[0].teamName);
+                    setSupervisor(data.data.supervisor || "Saifur Rahman"); // Optional dynamic update
+                } else {
+                    console.error(data.message || "Failed to fetch team");
+                }
+            } catch (error) {
+                console.error("Error fetching team:", error.message);
+            }
+        };
+
+        fetchTeamData();
+    }, []);
+
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
             <h1 className="text-3xl font-bold mb-4 text-center">OpenSpace - Capstone Repository System</h1>
-            <h2 className="text-xl font-semibold mb-4">Supervisor: Saifur Rahman</h2>
-            <h2 className="text-2xl font-bold mb-6">My Team</h2>
+            <h2 className="text-xl font-semibold mb-4">Supervisor: {supervisor}</h2>
+            <div>
+            <h2 className="text-2xl font-bold mb-6">My Team: {teamName}</h2>
+            {/* <h2></h2> */}
+            </div>
             {groupMembers.length === 0 ? (
                 <p className="text-gray-500">No members added yet.</p>
             ) : (
                 <ul className="mt-2 border p-4 rounded bg-gray-100">
                     {groupMembers.map((member, index) => (
                         <li key={index} className="border-b py-2">
-                            {member.name} - {member.intake} {member.section} - {member.department} - {member.email} - {member.phone}
+                            {member.username} - {member.intake} {member.section} - {member.department} - {member.educationalMail} - {member.phone}
                         </li>
                     ))}
                 </ul>
