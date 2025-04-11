@@ -85,13 +85,16 @@ const StudentDashboard = () => {
 };
 
 
-const CreateGroup = ({ groupMembers, setGroupMembers }) => {
+
+const CreateGroup = () => {
+    const [teamName, setTeamName] = useState('');
+    const [groupMembers, setGroupMembers] = useState([]);
     const [member, setMember] = useState({
-        name: '',
+        username: '',
         intake: '',
         section: '',
         department: '',
-        email: '',
+        educationalMail: '',
         phone: ''
     });
 
@@ -99,20 +102,86 @@ const CreateGroup = ({ groupMembers, setGroupMembers }) => {
         setMember({ ...member, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleAddMember = (e) => {
         e.preventDefault();
-        setGroupMembers([...groupMembers, member]); // Update global state
-        setMember({ name: '', intake: '', section: '', department: '', email: '', phone: '' });
-        toast.success("Member Added Successful")
+
+        if (groupMembers.length >= 5) {
+            toast.error("A group can have only 5 members");
+            return;
+        }
+
+        setGroupMembers([...groupMembers, member]);
+        setMember({
+            username: '',
+            intake: '',
+            section: '',
+            department: '',
+            educationalMail: '',
+            phone: ''
+        });
+
+        toast.success("Member added successfully");
+    };
+
+    const handleCreateGroup = async () => {
+        console.log(groupMembers)
+        // if (groupMembers.length !== 5) {
+        //     toast.error("Exactly 5 members are required to create a group");
+        //     return;
+        // }
+
+        // if (!teamName) {
+        //     toast.error("Team name is required");
+        //     return;
+        // }
+
+        // try {
+        //     const response = await fetch('/api/group/create', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify({
+        //             teamName,
+        //             members: groupMembers
+        //         })
+        //     });
+
+        //     const data = await response.json();
+
+        //     if (response.ok) {
+        //         toast.success(data.message);
+        //         setGroupMembers([]);
+        //         setTeamName('');
+        //     } else {
+        //         toast.error(data.message || "Something went wrong");
+        //     }
+        // } catch (error) {
+        //     toast.error("Something went wrong",error);
+        // }
     };
 
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-6">Create Group</h2>
-            <form onSubmit={handleSubmit}>
+
+            {/* Team Name Input */}
+            <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
+                <input
+                    type="text"
+                    className="w-full p-2 border rounded"
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    required
+                />
+            </div>
+
+            {/* Member Form */}
+            <form onSubmit={handleAddMember}>
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input type="text" name="name" value={member.name} onChange={handleChange} className="w-full p-2 border rounded" required />
+                    <input type="text" name="username" value={member.username} onChange={handleChange} className="w-full p-2 border rounded" required />
                 </div>
                 <div className="flex gap-4 mb-4">
                     <div className="flex-1">
@@ -135,14 +204,27 @@ const CreateGroup = ({ groupMembers, setGroupMembers }) => {
                 </div>
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Education Mail</label>
-                    <input type="email" name="email" value={member.email} onChange={handleChange} className="w-full p-2 border rounded" required />
+                    <input type="email" name="educationalMail" value={member.educationalMail} onChange={handleChange} className="w-full p-2 border rounded" required />
                 </div>
                 <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                     <input type="text" name="phone" value={member.phone} onChange={handleChange} className="w-full p-2 border rounded" required />
                 </div>
-                <button type="submit" className="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition">Add Member</button>
+
+                <button type="submit" className="w-full bg-green-600 text-white font-bold py-2 rounded-md hover:bg-green-700 transition">
+                    Add Member ({groupMembers.length}/5)
+                </button>
             </form>
+
+            {/* Final Submit */}
+            <div className="mt-6">
+                <button
+                    className="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition"
+                    onClick={handleCreateGroup}
+                >
+                    Create Group
+                </button>
+            </div>
         </div>
     );
 };
