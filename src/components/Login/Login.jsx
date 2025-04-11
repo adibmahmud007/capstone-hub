@@ -4,6 +4,7 @@ import "../../App.css";
 import { Link, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
+import ForgotPassword from "../ForgotPassword/ForgotPassword";
 
 
 const Login = () => {
@@ -11,6 +12,7 @@ const Login = () => {
     const [password, setPassword] = useState("");
     // const [error, setError] = useState("");
     const navigate = useNavigate();
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,15 +29,15 @@ const Login = () => {
             const data = await response.json();
             console.log(data);
 
-            const token = data.acesstoken;
+            const token = data.accesstoken;
             const decoded = jwtDecode(token);
-            const role=decoded.role;
-            console.log(decoded,'from jwt token decoded');
-            console.log(role,'from token getting the role');
+            const role = decoded.role;
+            console.log(decoded, 'from jwt token decoded');
+            console.log(role, 'from token getting the role');
 
 
             if (response.ok) {
-                localStorage.setItem("token", data.acesstoken);
+                localStorage.setItem("token", data.accesstoken);
                 // localStorage.setItem("role", role);
                 if (role === "student") {
                     toast.success("Signed in to Student Portal");
@@ -51,7 +53,7 @@ const Login = () => {
             }
         } catch (err) {
             // setError("Something went wrong. Please try again.");
-            toast.error("Something went wrong. Please try again.",err);
+            toast.error("Something went wrong. Please try again.", err);
         }
     };
 
@@ -91,7 +93,18 @@ const Login = () => {
                             <label className="flex items-center">
                                 <input type="checkbox" className="mr-2" /> Remember
                             </label>
-                            <a href="#" className="hover:text-purple-500">Forgot password?</a>
+                            <span
+                                onClick={() => setShowForgotPassword(true)}
+                                className="hover:text-purple-500 cursor-pointer"
+                            >
+                                Forgot password?
+                            </span>
+                        </div>
+                        <div>
+                            {/* Forgot Password Modal */}
+                            {showForgotPassword && (
+                                <ForgotPassword onClose={() => setShowForgotPassword(false)} />
+                            )}
                         </div>
                         <button
                             type="submit"
@@ -101,7 +114,7 @@ const Login = () => {
                         </button>
                         <div>
                             <p className="font-normal text-gray-500 pt-6 pb-4">Dont have an account? Please Signup Here
-                                <Link to='/signup'>
+                                <Link to='/'>
                                     <button className="cursor-pointer text-blue-500 font-semibold rounded-lg hover:text-blue-600">
                                         Signup
                                     </button>
