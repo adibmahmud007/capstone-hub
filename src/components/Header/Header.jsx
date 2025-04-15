@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { Menu, X } from "lucide-react";
@@ -72,7 +72,7 @@ const Header = () => {
         </div>
         <ul className="flex flex-col space-y-2">
           <li><a href="/" className="block py-2 hover:text-gray-300">Home</a></li>
-          <li><a href="/studentDashboard" className="block py-2 hover:text-gray-300">Student Dashboard</a></li>
+          <li><Link to='/studentDashboard'><a href="/studentDashboard" className="block py-2 hover:text-gray-300">Student Dashboard</a></Link></li>
           <li><a href="/about" className="block py-2 hover:text-gray-300">About Us</a></li>
           <li><a href="/contact" className="block py-2 hover:text-gray-300">Contact</a></li>
           <li><a href="/help" className="block py-2 hover:text-gray-300">Help</a></li>
