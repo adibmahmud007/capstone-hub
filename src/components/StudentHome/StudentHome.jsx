@@ -20,26 +20,32 @@ const Home = () => {
     );
 
     return (
-        <section>
+        <section className="bg-gray-100 h-screen">
             <div className="mb-6">
-                <Header></Header>
+                <Header />
             </div>
             <div className="container mx-auto mb-4 p-6">
                 {/* Search Bar */}
                 <div className="flex justify-center mb-[80px]">
-                    <input
-                        type="text"
-                        placeholder="Search for projects..."
-                        className="w-[700px] max-w-full p-4 border border-gray-500 hover:border-gray-800 hover:border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    <div className="relative w-[700px] max-w-full">
+                        
+                        <input
+                            type="text"
+                            placeholder="Search for projects..."
+                            className="w-full pl-12 p-4 border border-gray-500 hover:border-gray-800 hover:border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
+                            🔍
+                        </span>
+                    </div>
                 </div>
 
                 {/* Projects Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {filteredProjects.map((project) => (
-                        <div key={project.id} className="bg-white p-4 rounded-lg shadow-md border">
+                        <div key={project.id} className="bg-white p-4 rounded-lg shadow-lg">
                             <h3 className="text-lg font-semibold">{project.name}</h3>
                             <p className="text-gray-600 mt-2">{project.details}</p>
                             <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
