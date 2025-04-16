@@ -48,7 +48,7 @@ const Header = () => {
 
       {/* Desktop Nav Menu */}
       <nav className="hidden lg:flex space-x-6 ml-10">
-        <Link to="/" className="hover:text-gray-300">Home</Link>
+        <Link to="/studentHome" className="hover:text-gray-300">Home</Link>
         <Link to="/studentDashboard" className="hover:text-gray-300">Student Dashboard</Link>
         <Link to="/about" className="hover:text-gray-300">About Us</Link>
         <Link to="/contact" className="hover:text-gray-300">Contact</Link>
