@@ -37,7 +37,7 @@ const StudentDashboard = () => {
     };
 
     return (
-        <div className="flex h-screen bg-gray-100">
+        <div className="flex h-screen bg-white lg:bg-gray-100">
             {/* Sidebar */}
             <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white p-4 transition-transform duration-300 lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="flex justify-between items-center lg:hidden">
@@ -79,7 +79,7 @@ const StudentDashboard = () => {
             )}
 
             {/* Main Content */}
-            <div className="flex-1 p-4 pt-10 lg:pl-28 lg:pt-16">
+            <div className="flex-1 overflow-y-auto p-4 pt-10 lg:pl-28 lg:pt-16">
                 {renderContent()}
                 {/* <TeacherDashboard groupMembers={groupMembers} setGroupMembers={setGroupMembers}></TeacherDashboard> */}
             </div>
@@ -127,7 +127,6 @@ const CreateGroup = () => {
     };
 
     const handleCreateGroup = async () => {
-        console.log(groupMembers)
         if (groupMembers.length !== 5) {
             toast.error("Exactly 5 members are required to create a group");
             return;
@@ -137,7 +136,9 @@ const CreateGroup = () => {
             toast.error("Team name is required");
             return;
         }
-        const teamData={teamName,members: groupMembers}
+
+        const teamData = { teamName, members: groupMembers };
+
         try {
             const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/student/groups/', {
                 method: 'POST',
@@ -148,7 +149,6 @@ const CreateGroup = () => {
             });
 
             const data = await response.json();
-            console.log(data)
             if (response.ok) {
                 toast.success(data.message);
                 setGroupMembers([]);
@@ -157,70 +157,125 @@ const CreateGroup = () => {
                 toast.error(data.message || "Something went wrong");
             }
         } catch (error) {
-            toast.error(error);
+            toast.error(error.message || "Error submitting group");
         }
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-6">Create Group</h2>
+        <div className="max-w-3xl mx-auto mt-10 bg-white lg:shadow-xl rounded-2xl p-2 lg:p-8">
+            <h2 className="text-3xl font-bold text-center mb-8 text-blue-700">Create Capstone Group</h2>
 
-            {/* Team Name Input */}
+            {/* Team Name */}
             <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Team Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Team Name</label>
                 <input
                     type="text"
-                    className="w-full p-2 border rounded"
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
-                    required
+                    placeholder="Enter your team name"
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </div>
 
             {/* Member Form */}
-            <form onSubmit={handleAddMember}>
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input type="text" name="username" value={member.username} onChange={handleChange} className="w-full p-2 border rounded" required />
+            <form onSubmit={handleAddMember} className="space-y-4">
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">Add Member ({groupMembers.length}/5)</h3>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input
+                        type="text"
+                        name="username"
+                        value={member.username}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="John Doe"
+                        required
+                    />
                 </div>
-                <div className="flex gap-4 mb-4">
+
+                <div className="flex gap-4">
                     <div className="flex-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Intake</label>
-                        <input type="text" name="intake" value={member.intake} onChange={handleChange} className="w-full p-2 border rounded" required />
+                        <input
+                            type="text"
+                            name="intake"
+                            value={member.intake}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g., 54"
+                            required
+                        />
                     </div>
                     <div className="flex-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
-                        <input type="text" name="section" value={member.section} onChange={handleChange} className="w-full p-2 border rounded" required />
+                        <input
+                            type="text"
+                            name="section"
+                            value={member.section}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g., A"
+                            required
+                        />
                     </div>
                 </div>
-                <div className="mb-4">
+
+                <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                    <select name="department" value={member.department} onChange={handleChange} className="w-full p-2 border rounded" required>
+                    <select
+                        name="department"
+                        value={member.department}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                    >
                         <option value="">Select Department</option>
                         <option value="CSE">CSE</option>
                         <option value="EEE">EEE</option>
                         <option value="BBA">BBA</option>
                     </select>
                 </div>
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Education Mail</label>
-                    <input type="email" name="educationalMail" value={member.educationalMail} onChange={handleChange} className="w-full p-2 border rounded" required />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                    <input type="text" name="phone" value={member.phone} onChange={handleChange} className="w-full p-2 border rounded" required />
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Education Email</label>
+                    <input
+                        type="email"
+                        name="educationalMail"
+                        value={member.educationalMail}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="example@student.university.edu"
+                        required
+                    />
                 </div>
 
-                <button type="submit" className="w-full bg-green-600 text-white font-bold py-2 rounded-md hover:bg-green-700 transition">
-                    Add Member ({groupMembers.length}/5)
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input
+                        type="text"
+                        name="phone"
+                        value={member.phone}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="01XXXXXXXXX"
+                        required
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    className="w-full bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700 transition"
+                >
+                    Add Member
                 </button>
             </form>
 
-            {/* Final Submit */}
-            <div className="mt-6">
+            {/* Group Submit */}
+            <div className="mt-8">
                 <button
-                    className="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition"
                     onClick={handleCreateGroup}
+                    className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition"
                 >
                     Create Group
                 </button>
@@ -231,11 +286,13 @@ const CreateGroup = () => {
 
 
 
+
+
 const MyTeam = () => {
     const [groupMembers, setGroupMembers] = useState([]);
-    const[teamName,setTeamName]=useState('')
-    const [supervisor, setSupervisor] = useState("Saifur Rahman"); // You can update this dynamically if needed
-    
+    const [teamName, setTeamName] = useState('');
+    const [supervisor, setSupervisor] = useState("Saifur Rahman");
+
     useEffect(() => {
         const fetchTeamData = async () => {
             try {
@@ -247,16 +304,16 @@ const MyTeam = () => {
 
                 const decoded = jwtDecode(token);
                 const educationalMail = decoded.email;
-                console.log(educationalMail,'mail')
+                console.log(educationalMail, 'mail');
 
                 const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/student/groups/myteam/${educationalMail}`);
                 const data = await response.json();
-                
-                console.log(data)
+
+                console.log(data);
                 if (response.ok) {
                     setGroupMembers(data.data[0].members);
                     setTeamName(data.data[0].teamName);
-                    setSupervisor(data.data.supervisor || "Saifur Rahman"); // Optional dynamic update
+                    setSupervisor(data.data.supervisor || "Saifur Rahman");
                 } else {
                     console.error(data.message || "Failed to fetch team");
                 }
@@ -269,27 +326,50 @@ const MyTeam = () => {
     }, []);
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-            <h1 className="text-3xl font-bold mb-4 text-center">OpenSpace - Capstone Repository System</h1>
-            <h2 className="text-xl font-semibold mb-4">Supervisor: {supervisor}</h2>
-            <div>
-            <h2 className="text-2xl font-bold mb-6">My Team: {teamName}</h2>
-            {/* <h2></h2> */}
+        <div className="max-w-5xl mx-auto p-2 lg:p-8 bg-white rounded-lg lg:shadow-lg">
+            <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">OpenSpace - Capstone Repository System</h1>
+            <div className="mb-4">
+                <h2 className="text-2xl text-center font-bold">Supervisor: <span className="text-gray-700">{supervisor}</span></h2>
+                <h2 className="text-xl text-center font-semibold mt-2">Team Name: <span className="text-gray-800">{teamName}</span></h2>
             </div>
+
             {groupMembers.length === 0 ? (
-                <p className="text-gray-500">No members added yet.</p>
+                <p className="text-gray-500 text-center">No members added yet.</p>
             ) : (
-                <ul className="mt-2 border p-4 rounded bg-gray-100">
-                    {groupMembers.map((member, index) => (
-                        <li key={index} className="border-b py-2">
-                            {member.username} - {member.intake} {member.section} - {member.department} - {member.educationalMail} - {member.phone}
-                        </li>
-                    ))}
-                </ul>
+                <div className="overflow-x-auto mt-6">
+                    <table className="min-w-full border border-gray-300 text-sm text-left">
+                        <thead className="bg-blue-100 text-gray-800 font-semibold">
+                            <tr>
+                                <th className="px-4 py-3 border">#</th>
+                                <th className="px-4 py-3 border">Name</th>
+                                <th className="px-4 py-3 border">Intake</th>
+                                <th className="px-4 py-3 border">Section</th>
+                                <th className="px-4 py-3 border">Department</th>
+                                <th className="px-4 py-3 border">Email</th>
+                                <th className="px-4 py-3 border">Phone</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {groupMembers.map((member, index) => (
+                                <tr key={index} className="bg-white even:bg-gray-50">
+                                    <td className="px-4 py-3 border">{index + 1}</td>
+                                    <td className="px-4 py-3 border">{member.username}</td>
+                                    <td className="px-4 py-3 border">{member.intake}</td>
+                                    <td className="px-4 py-3 border">{member.section}</td>
+                                    <td className="px-4 py-3 border">{member.department}</td>
+                                    <td className="px-4 py-3 border">{member.educationalMail}</td>
+                                    <td className="px-4 py-3 border">{member.phone}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );
 };
+
+
 
 
 
@@ -324,7 +404,7 @@ const CreateProject = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg lg:shadow-md">
             <h2 className="text-2xl font-bold mb-6">Create Project</h2>
             <form onSubmit={handleSubmit}>
                 <div className="mb-4">
@@ -488,7 +568,7 @@ const ShowTask = () => {
     
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg lg:shadow-md">
             <h2 className="text-2xl font-bold mb-4">Project Tasks</h2>
 
             <div className="overflow-x-auto">
