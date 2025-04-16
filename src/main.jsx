@@ -13,6 +13,7 @@ import StudentDashboard from './components/StudentDashboard/StudentDashboard';
 import TeacherDashBoard from './components/TeacherDashboard/TeacherDashBoard';
 import StudentHome from './components/StudentHome/StudentHome';
 import PlagiarismChecker from './components/PlagiarismChecker/PlagiarismChecker';
+import Footer from './components/Footer/Footer';
 
 const router = createBrowserRouter([
   {
@@ -43,6 +44,7 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
+  
   <React.StrictMode>
     <ToastContainer
       position="top-center"
@@ -58,5 +60,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       // transition={Bounce}
     />
     <RouterProvider router={router} />
+    <Footer></Footer>
   </React.StrictMode>,
 );
