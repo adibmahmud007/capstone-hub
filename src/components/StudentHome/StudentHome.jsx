@@ -20,42 +20,63 @@ const Home = () => {
     );
 
     return (
-        <section className="bg-gray-100 h-screen">
-            <div className="mb-6">
-                <Header />
-            </div>
-            <div className="container mx-auto mb-4 p-6">
-                {/* Search Bar */}
-                <div className="flex justify-center mb-[80px]">
-                    <div className="relative w-[700px] max-w-full">
-                        
+        <div className="min-h-screen bg-gray-100 flex flex-col">
+            {/* Header */}
+            <Header />
+
+            {/* Content */}
+            <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                {/* Search */}
+                <div className="flex justify-center mb-12">
+                    <div className="relative bg-gradient-to-r from-[#4a4d59] via-[#70718c] to-[#f6f6f8] rounded-xl  w-full max-w-2xl">
                         <input
                             type="text"
                             placeholder="Search for projects..."
-                            className="w-full pl-12 p-4 border border-gray-500 hover:border-gray-800 hover:border-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full pl-12 pr-4 py-3 text-white text-lg placeholder:text-white placeholder:text-lg  border-2 border-gray-800 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-500">
-                            🔍
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-white">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="w-6 h-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M11 4a7 7 0 015.657 11.313l4.243 4.243a1 1 0 01-1.414 1.414l-4.243-4.243A7 7 0 1111 4z"
+                                />
+                            </svg>
                         </span>
+
+
                     </div>
                 </div>
 
-                {/* Projects Grid */}
+                {/* Projects */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {filteredProjects.map((project) => (
-                        <div key={project.id} className="bg-white p-4 rounded-lg shadow-lg">
-                            <h3 className="text-lg font-semibold">{project.name}</h3>
-                            <p className="text-gray-600 mt-2">{project.details}</p>
-                            <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">
-                                See More
-                            </button>
-                        </div>
-                    ))}
+                    {filteredProjects.length > 0 ? (
+                        filteredProjects.map((project) => (
+                            <div key={project.id} className="bg-white p-6 rounded-xl shadow hover:shadow-xl transition duration-300">
+                                <h3 className="text-xl font-semibold text-gray-800">{project.name}</h3>
+                                <p className="text-gray-600 mt-2 text-sm">{project.details}</p>
+                                <button className="mt-4 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-300">
+                                    See More
+                                </button>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-500 col-span-full text-center">No matching projects found.</p>
+                    )}
                 </div>
-            </div>
-        </section>
+            </main>
+
+
+        </div>
     );
 };
 
