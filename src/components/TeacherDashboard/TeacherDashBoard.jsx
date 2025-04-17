@@ -2,77 +2,121 @@
 import {  useState,useEffect } from "react";
 import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote } from "react-icons/fa";
 import { Menu, X } from 'lucide-react';
+// import { Link } from "react-router-dom";
 
 // Default Props for groupMembers to prevent undefined error
 
 
+
 const TeamDetails = () => {
-    // All team data
     const teams = [
         {
             name: 'Intake 48',
-            members: [
-                { id: 21224103072, name: 'Adib Mahmud', intake: '48', section: '3' },
-                { id: 21224103065, name: 'Md. Zahidul Islam Mollik', intake: '48', section: '3' }
-            ]
+            sections: {
+                section1: [
+                    { id: 21224103072, name: 'Adib Mahmud', intake: '48', section: '3' },
+                    { id: 21224103065, name: 'Md. Zahidul Islam Mollik', intake: '48', section: '3' }
+                ]
+            }
         },
         {
             name: 'Intake 49',
-            members: [
-                { id: 21224103077, name: 'Meher Afroz Binu', intake: '48', section: '3' },
-                { id: 21224103078, name: 'Tasnia Sultana Hema', intake: '48', section: '3' }
-            ]
+            sections: {
+                section1: [
+                    { id: 21224103077, name: 'Meher Afroz Binu', intake: '48', section: '3' }
+                ],
+                section2: [
+                    { id: 21224103078, name: 'Tasnia Sultana Hema', intake: '48', section: '3' }
+                ]
+            }
         },
         {
             name: 'Intake 47',
-            members: [
-                { id: 21224103062, name: 'Sohan Reza', intake: '48', section: '3' }
-            ]
+            sections: {
+                section1: [
+                    { id: 21224103062, name: 'Sohan Reza', intake: '48', section: '3' }
+                ]
+            }
         }
     ];
 
-    // Track which dropdown is open
-    const [openDropdown, setOpenDropdown] = useState(null);
+    const [openIntake, setOpenIntake] = useState(null);
+    const [openSections, setOpenSections] = useState({});
 
-    // Toggle dropdown
-    const toggleDropdown = (index) => {
-        setOpenDropdown(openDropdown === index ? null : index);
+    const toggleIntake = (index) => {
+        setOpenIntake(openIntake === index ? null : index);
+        setOpenSections({});
+    };
+
+    const toggleSection = (intakeIndex, sectionKey) => {
+        const key = `${intakeIndex}-${sectionKey}`;
+        setOpenSections((prev) => ({
+            ...prev,
+            [key]: !prev[key],
+        }));
     };
 
     return (
-        <div className="team-details-wrapper max-w-3xl mx-auto mt-10">
-            <h2 className="text-2xl font-bold mb-6 text-center">Team Details</h2>
-            {teams.map((team, index) => (
-                <div key={index} className="mb-6 border rounded-lg shadow">
+        <div className="max-w-5xl mx-auto mt-12 p-6 bg-white rounded-xl shadow-lg">
+            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">👥 Team Overview</h2>
+
+            {teams.map((team, intakeIndex) => (
+                <div key={intakeIndex} className="mb-6 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    {/* Intake Header */}
                     <button
-                        onClick={() => toggleDropdown(index)}
-                        className="w-full flex justify-between items-center px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-t-lg"
+                        onClick={() => toggleIntake(intakeIndex)}
+                        className="w-full flex justify-between items-center px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold transition"
                     >
                         <span>{team.name}</span>
-                        <span className="text-xl">{openDropdown === index ? '⬆️' : '⬇️'}</span>
+                        <span className="text-xl">{openIntake === intakeIndex ? '▲' : '▼'}</span>
                     </button>
-                    {openDropdown === index && (
-                        <div className="p-4 bg-white">
-                            <table className="min-w-full table-auto">
-                                <thead>
-                                    <tr>
-                                        <th className="px-4 py-2 text-left">Name</th>
-                                        <th className="px-4 py-2 text-left">ID</th>
-                                        <th className="px-4 py-2 text-left">Intake</th>
-                                        <th className="px-4 py-2 text-left">Section</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {team.members.map(member => (
-                                        <tr key={member.id} className="border-b">
-                                            <td className="px-4 py-2">{member.name}</td>
-                                            <td className="px-4 py-2">{member.id}</td>
-                                            <td className="px-4 py-2">{member.intake}</td>
-                                            <td className="px-4 py-2">{member.section}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+
+                    {/* Sections inside intake */}
+                    {openIntake === intakeIndex && (
+                        <div className="bg-gray-50 px-4 py-4">
+                            {Object.entries(team.sections).map(([sectionKey, members], sectionIndex) => {
+                                const key = `${intakeIndex}-${sectionKey}`;
+                                const isOpen = openSections[key];
+
+                                return (
+                                    <div key={sectionKey} className="mb-4">
+                                        {/* Section Header */}
+                                        <button
+                                            onClick={() => toggleSection(intakeIndex, sectionKey)}
+                                            className="w-full flex justify-between items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md font-medium text-gray-700 transition"
+                                        >
+                                            <span>📘 Section {sectionIndex + 1}</span>
+                                            <span>{isOpen ? '−' : '+'}</span>
+                                        </button>
+
+                                        {/* Section Content */}
+                                        {isOpen && (
+                                            <div className="mt-2 bg-white rounded-md shadow p-4">
+                                                <table className="w-full table-auto text-sm">
+                                                    <thead>
+                                                        <tr className="bg-gray-100 text-gray-700">
+                                                            <th className="text-left px-4 py-2">Name</th>
+                                                            <th className="text-left px-4 py-2">ID</th>
+                                                            <th className="text-left px-4 py-2">Intake</th>
+                                                            <th className="text-left px-4 py-2">Section</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {members.map((member) => (
+                                                            <tr key={member.id} className="border-t hover:bg-gray-50 transition">
+                                                                <td className="px-4 py-2">{member.name}</td>
+                                                                <td className="px-4 py-2">{member.id}</td>
+                                                                <td className="px-4 py-2">{member.intake}</td>
+                                                                <td className="px-4 py-2">{member.section}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -83,14 +127,21 @@ const TeamDetails = () => {
 
 
 
+
+
+
 const AssignTask = ({ setAssignedTask, setRemarks }) => {
     const [assignTask, setAssignTask] = useState('');
     const [remarks, setRemarksInput] = useState('');
-    const [selectedTeam, setSelectedTeam] = useState('');  // new state for dropdown
+    const [selectedTeam, setSelectedTeam] = useState('');
 
-    const teamOptions = ['Intake 1', 'Intake 2', 'Intake 3', 'Intake 4'];
+    const teams = [
+        { name: 'Team Alpha' },
+        { name: 'Team Bravo' },
+        { name: 'Team Delta' },
+        { name: 'Team Sigma' }
+    ];
 
-    // Handle task assignment
     const handleAssignTask = () => {
         if (!selectedTeam) {
             alert('Please select a team before assigning a task.');
@@ -100,70 +151,69 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
         setAssignTask('');
     };
 
-    // Handle remarks submission
     const handleSendRemarks = () => {
         setRemarks(remarks);
         setRemarksInput('');
     };
 
     return (
-        <div className="assign-task-container">
-            <h2 className="text-xl font-bold mb-4">Assign Task to Student</h2>
+        <div className="max-w-4xl mx-auto mt-10 p-6 lg:bg-white lg:shadow-xl rounded-xl">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">📋 Assign Task to Team</h2>
 
-            {/* Team Dropdown */}
-            <div className="mb-4">
-                <label htmlFor="team-select" className="block text-sm font-medium">Select Team</label>
+            {/* Select Team */}
+            <div className="mb-5">
+                <label htmlFor="team-select" className="block text-sm font-semibold text-gray-700 mb-1">Select Team</label>
                 <select
                     id="team-select"
                     value={selectedTeam}
                     onChange={(e) => setSelectedTeam(e.target.value)}
-                    className="p-2 border border-gray-300 md:w-[350px] lg:w-[500px] rounded"
+                    className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                    <option value="">-- Select Team --</option>
-                    {teamOptions.map((team, index) => (
-                        <option key={index} value={team}>{team}</option>
+                    <option value="">-- Choose Team --</option>
+                    {teams.map((team, index) => (
+                        <option key={index} value={team.name}>{team.name}</option>
                     ))}
                 </select>
             </div>
 
-            {/* Assign Task */}
-            <div className="mb-4">
-                <label htmlFor="task" className="block text-sm font-medium">Assign Task</label>
-                <div className="flex items-center">
+            {/* Assign Task Input */}
+            <div className="mb-5">
+                <label htmlFor="task" className="block text-sm font-semibold text-gray-700 mb-1">Assign Task</label>
+                <div className="flex gap-2">
                     <input
                         id="task"
                         type="text"
                         value={assignTask}
                         onChange={(e) => setAssignTask(e.target.value)}
-                        placeholder="Enter task"
-                        className="p-2 border border-gray-300 md:w-[350px] lg:w-[500px] rounded mr-2"
+                        placeholder="Enter task..."
+                        className="flex-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
-                    <button 
+                    <button
                         onClick={handleAssignTask}
-                        className="bg-blue-500 text-white p-2 rounded"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition"
                     >
-                        Assign Task
+                        Assign
                     </button>
                 </div>
             </div>
 
-            {/* Remarks */}
-            <div className="mb-4">
-                <label htmlFor="remarks" className="block text-sm font-medium">Remarks</label>
-                <div className="flex items-center">
+            {/* Remarks Input */}
+            <div className="mb-2">
+                <label htmlFor="remarks" className="block text-sm font-semibold text-gray-700 mb-1">Remarks</label>
+                <div className="flex gap-2">
                     <input
                         id="remarks"
                         type="text"
                         value={remarks}
                         onChange={(e) => setRemarksInput(e.target.value)}
-                        placeholder="Enter remarks"
-                        className="p-2 border border-gray-300 md:w-[350px] lg:w-[500px] rounded mr-2"
+                        placeholder="Write a note or feedback..."
+                        className="flex-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                     />
-                    <button 
+                    <button
                         onClick={handleSendRemarks}
-                        className="bg-green-500 text-white p-2 rounded"
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition"
                     >
-                        Send Remarks
+                        Send
                     </button>
                 </div>
             </div>
@@ -180,7 +230,6 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
 const ShowTask = ({ assignedTask, remarks, team }) => {
     const [tasks, setTasks] = useState([]);
 
-    // Whenever assignedTask, remarks, or team change, add a new task
     useEffect(() => {
         if (assignedTask && remarks && team) {
             const newTask = {
@@ -199,46 +248,48 @@ const ShowTask = ({ assignedTask, remarks, team }) => {
     };
 
     return (
-        <div className="show-task-container mt-10">
-            <h2 className="text-xl font-bold mb-4">Assigned Tasks</h2>
+        <div className="max-w-4xl mx-auto mt-12 p-6 lg:overflow-x-hidden overflow-x-scroll bg-white rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">📌 Assigned Tasks</h2>
 
-            <table className="min-w-full table-auto border-collapse border border-gray-300">
-                <thead>
-                    <tr>
-                        <th className="px-4 py-2 border border-gray-300 text-left">#</th>
-                        <th className="px-4 py-2 border border-gray-300 text-left">Team</th>
-                        <th className="px-4 py-2 border border-gray-300 text-left">Assigned Task</th>
-                        <th className="px-4 py-2 border border-gray-300 text-left">Remarks</th>
-                        <th className="px-4 py-2 border border-gray-300 text-left">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {tasks.length === 0 ? (
+            <div className="overflow-x-auto">
+                <table className="min-w-full text-sm text-left text-gray-600">
+                    <thead className="text-xs uppercase bg-gray-100 text-gray-700 border-b">
                         <tr>
-                            <td colSpan="5" className="text-center py-4 text-gray-500">
-                                No tasks assigned yet.
-                            </td>
+                            <th className="px-4 py-3">#</th>
+                            <th className="px-4 py-3">Team</th>
+                            <th className="px-4 py-3">Assigned Task</th>
+                            <th className="px-4 py-3">Remarks</th>
+                            <th className="px-4 py-3 text-center">Action</th>
                         </tr>
-                    ) : (
-                        tasks.map((task) => (
-                            <tr key={task.taskNumber}>
-                                <td className="px-4 py-2 border border-gray-300">{task.taskNumber}</td>
-                                <td className="px-4 py-2 border border-gray-300">{task.team}</td>
-                                <td className="px-4 py-2 border border-gray-300">{task.assignedTask}</td>
-                                <td className="px-4 py-2 border border-gray-300">{task.remarks}</td>
-                                <td className="px-4 py-2 border border-gray-300">
-                                    <button
-                                        onClick={() => deleteTask(task.taskNumber)}
-                                        className="bg-red-500 text-white px-2 py-1 rounded"
-                                    >
-                                        Delete
-                                    </button>
+                    </thead>
+                    <tbody>
+                        {tasks.length === 0 ? (
+                            <tr>
+                                <td colSpan="5" className="text-center py-6 text-gray-400 italic">
+                                    No tasks assigned yet.
                                 </td>
                             </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+                        ) : (
+                            tasks.map((task) => (
+                                <tr key={task.taskNumber} className="border-b hover:bg-gray-50 transition">
+                                    <td className="px-4 py-3 font-medium text-gray-700">{task.taskNumber}</td>
+                                    <td className="px-4 py-3">{task.team}</td>
+                                    <td className="px-4 py-3">{task.assignedTask}</td>
+                                    <td className="px-4 py-3">{task.remarks}</td>
+                                    <td className="px-4 py-3 text-center">
+                                        <button
+                                            onClick={() => deleteTask(task.taskNumber)}
+                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition"
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
@@ -253,7 +304,7 @@ const AddNotice = () => {
     const [content, setContent] = useState('');
     const [selectedTeam, setSelectedTeam] = useState('');
 
-    const teamOptions = ['intake1', 'intake2', 'intake3'];
+    const teamOptions = ['Team Alpha', 'Team Bravo', 'Team Delta'];
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -270,66 +321,74 @@ const AddNotice = () => {
         };
 
         console.log("Notice added:", noticeData);
-        // Reset form
+
         setTitle('');
         setContent('');
         setSelectedTeam('');
     };
 
     return (
-        <div className=" mx-auto p-6 bg-white rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-6">Add Notice</h2>
+        <div className="max-w-4xl mx-auto mt-2 p-4 bg-white rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">📢 Add New Notice</h2>
 
-            {/* Team Dropdown at the Top */}
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Select Team</label>
-                <select
-                    name="team"
-                    value={selectedTeam}
-                    onChange={(e) => setSelectedTeam(e.target.value)}
-                    className="w-full p-2 border rounded"
-                    required
-                >
-                    <option value="">-- Select Team --</option>
-                    {teamOptions.map((team, index) => (
-                        <option key={index} value={team}>{team}</option>
-                    ))}
-                </select>
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Team Dropdown */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Select Team</label>
+                    <select
+                        name="team"
+                        value={selectedTeam}
+                        onChange={(e) => setSelectedTeam(e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                    >
+                        <option value="">-- Select Team --</option>
+                        {teamOptions.map((team, index) => (
+                            <option key={index} value={team}>{team}</option>
+                        ))}
+                    </select>
+                </div>
 
-            {/* Existing Form */}
-            <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                {/* Title Input */}
+                <div>
+                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">Notice Title</label>
                     <input
                         type="text"
                         id="title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full p-2 border rounded"
+                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter notice title"
                         required
                     />
                 </div>
 
-                <div className="mb-4">
-                    <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                {/* Content Textarea */}
+                <div>
+                    <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">Notice Content</label>
                     <textarea
                         id="content"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className="w-full p-2 border rounded"
+                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         rows="6"
+                        placeholder="Write the full notice content here..."
                         required
                     ></textarea>
                 </div>
 
-                <button type="submit" className="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition">
+                {/* Submit Button */}
+                <button
+                    type="submit"
+                    className="w-full bg-blue-600 text-white font-semibold py-3 rounded-md hover:bg-blue-700 transition duration-200"
+                >
                     Add Notice
                 </button>
             </form>
         </div>
     );
 };
+
 
 
 
@@ -357,7 +416,7 @@ const TeacherDashboard = () => {
     return (
         <div className="flex h-screen">
             {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white p-4 transition-transform duration-300 lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-lg text-white p-4 transition-transform duration-300 lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="flex justify-between items-center lg:hidden">
                     <h2 className="text-lg font-bold">Menu</h2>
                     <button onClick={() => setSidebarOpen(false)} className="text-white">
@@ -391,6 +450,9 @@ const TeacherDashboard = () => {
                     >
                         <FaRegStickyNote /> Add Notice
                     </li>
+                    {/* <li className="p-3 cursor-pointer flex items-center gap-2">
+                      <Link to='/'>Home</Link>
+                    </li> */}
                 </ul>
             </div>
 
@@ -402,7 +464,7 @@ const TeacherDashboard = () => {
             )}
 
             {/* Content Area */}
-            <div className="flex-1 p-5 mt-20 mx-3 bg-gray-100">{renderContent()}</div>
+            <div className="flex-1 p-5 pt-20 px-3 bg-gray-100">{renderContent()}</div>
         </div>
     );
 };
