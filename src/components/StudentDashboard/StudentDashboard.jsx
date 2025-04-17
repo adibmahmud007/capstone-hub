@@ -538,6 +538,9 @@ const CreateProject = () => {
 
 
 
+
+
+
 const ShowTask = () => {
     const [tasks, setTasks] = useState([
         { id: 1, task: "Complete project proposal", completed: false, remark: "Pending approval" },
@@ -547,54 +550,54 @@ const ShowTask = () => {
         { id: 5, task: "Test project functionality", completed: false, remark: "Tests required" },
     ]);
 
-
     const toggleCompletion = (id) => {
         setTasks(tasks.map(task => {
             if (task.id === id) {
                 const updatedTask = { ...task, completed: !task.completed };
-                
-                // Show toast based on completion status
-                if (updatedTask.completed) {
-                    toast.success('Task completed successfully!'); // Success toast
-                } else {
-                    toast.error('Task is not completed!'); // Error toast
-                }
-                
+                updatedTask.completed
+                    ? toast.success('Task completed successfully!')
+                    : toast.error('Task is not completed!');
                 return updatedTask;
             }
             return task;
         }));
     };
-    
 
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg lg:shadow-md">
-            <h2 className="text-2xl font-bold mb-4">Project Tasks</h2>
+        <div className="max-w-5xl mx-auto mt-8 p-8 bg-white rounded-2xl shadow-lg transition-all">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-6">📋 Project Task Manager</h2>
 
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse border border-gray-300">
-                    <thead>
-                        <tr className="bg-gray-200">
-                            <th className="border border-gray-300 p-2 text-left">Task #</th>
-                            <th className="border border-gray-300 p-2 text-left">Task</th>
-                            <th className="border border-gray-300 p-2 text-center">Status</th>
-                            <th className="border border-gray-300 p-2 text-left">Remark</th>
+            <div className="overflow-x-auto rounded-lg">
+                <table className="min-w-full divide-y divide-gray-500">
+                    <thead className="bg-gray-100">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Task #</th>
+                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Task</th>
+                            <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600">Status</th>
+                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Remark</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="bg-white divide-y divide-gray-300">
                         {tasks.map(({ id, task, completed, remark }) => (
-                            <tr key={id} className="hover:bg-gray-100">
-                                <td className="border border-gray-300 p-2">{id}</td>
-                                <td className="border border-gray-300 p-2">{task}</td>
-                                <td className="border border-gray-300 p-2 text-center">
-                                    <button 
-                                        onClick={() => toggleCompletion(id)}
-                                        className={`px-3 py-1 rounded-md text-white transition ${completed ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
-                                    >
-                                        {completed ? "Completed" : "Not Completed"}
-                                    </button>
+                            <tr key={id} className="hover:bg-gray-50 transition-all">
+                                <td className="px-6 py-4 text-sm text-gray-700">{id}</td>
+                                <td className={`px-6 py-4 text-sm ${completed ? "text-gray-400 line-through italic" : "text-gray-800"}`}>
+                                    {task}
                                 </td>
-                                <td className="border border-gray-300 p-2">{remark}</td>
+                                <td className="px-6 py-4 text-center">
+                                    <label className="inline-flex items-center space-x-2 cursor-pointer">
+                                        <input 
+                                            type="checkbox"
+                                            checked={completed}
+                                            onChange={() => toggleCompletion(id)}
+                                            className="form-checkbox h-5 w-5 text-green-500 rounded transition duration-300"
+                                        />
+                                        <span className={`text-sm font-medium ${completed ? "text-green-600" : "text-red-500"}`}>
+                                            {completed ? "Completed" : "Not Completed"}
+                                        </span>
+                                    </label>
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-600">{remark}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -603,6 +606,11 @@ const ShowTask = () => {
         </div>
     );
 };
+
+
+
+
+
 
 
 // const ApproveJoinRequest = () => {
