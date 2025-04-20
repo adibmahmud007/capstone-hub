@@ -2,6 +2,7 @@
 import {  useState,useEffect } from "react";
 import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote } from "react-icons/fa";
 import { Menu, X } from 'lucide-react';
+import { toast } from "react-toastify";
 // import { Link } from "react-router-dom";
 
 // Default Props for groupMembers to prevent undefined error
@@ -134,6 +135,7 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
     const [assignTask, setAssignTask] = useState('');
     const [remarks, setRemarksInput] = useState('');
     const [selectedTeam, setSelectedTeam] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const teams = [
         { name: 'Team Alpha' },
@@ -142,18 +144,49 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
         { name: 'Team Sigma' }
     ];
 
-    const handleAssignTask = () => {
-        if (!selectedTeam) {
-            alert('Please select a team before assigning a task.');
+    const API_URL = 'https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task';
+
+    const handleAssignTask = async () => {
+        if (!selectedTeam || !assignTask) {
+            alert('Please select a team and enter a task before assigning.');
             return;
         }
-        setAssignedTask(assignTask);
-        setAssignTask('');
-    };
 
-    const handleSendRemarks = () => {
-        setRemarks(remarks);
-        setRemarksInput('');
+        const payload = {
+            teamId: selectedTeam,
+            assignedTask: assignTask,
+            remarks : remarks
+        };
+
+        try {
+            setLoading(true);
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success('Task assigned successful');
+                setAssignedTask(assignTask);
+                setRemarks(remarks);
+                setAssignTask('');
+                setRemarksInput('');
+                setSelectedTeam('');
+            } else {
+                toast.error(data);
+                toast.error('Failed to assign task.');
+            }
+        } catch (error) {
+            toast.error('Error:', error);
+            toast.error('Something went wrong.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -188,17 +221,11 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
                         placeholder="Enter task..."
                         className="flex-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
-                    <button
-                        onClick={handleAssignTask}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition"
-                    >
-                        Assign
-                    </button>
                 </div>
             </div>
 
             {/* Remarks Input */}
-            <div className="mb-2">
+            <div className="mb-5">
                 <label htmlFor="remarks" className="block text-sm font-semibold text-gray-700 mb-1">Remarks</label>
                 <div className="flex gap-2">
                     <input
@@ -209,13 +236,18 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
                         placeholder="Write a note or feedback..."
                         className="flex-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400"
                     />
-                    <button
-                        onClick={handleSendRemarks}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition"
-                    >
-                        Send
-                    </button>
                 </div>
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex justify-end">
+                <button
+                    onClick={handleAssignTask}
+                    disabled={loading}
+                    className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition ${loading && 'opacity-50 cursor-not-allowed'}`}
+                >
+                    {loading ? 'Assigning...' : 'Assign Task'}
+                </button>
             </div>
         </div>
     );
@@ -227,23 +259,32 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
 
 
 
-const ShowTask = ({ assignedTask, remarks, team }) => {
+const ShowTask = () => {
     const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (assignedTask && remarks && team) {
-            const newTask = {
-                taskNumber: tasks.length + 1,
-                assignedTask,
-                remarks,
-                team,
-            };
-            setTasks((prevTasks) => [...prevTasks, newTask]);
-        }
-    }, [assignedTask, remarks, tasks.length, team]);
+        const fetchTasks = async () => {
+            try {
+                const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch tasks");
+                }
+                const data = await response.json();
+                console.log(data)
+                setTasks(data.data); // assuming the response is an array of tasks
+            } catch (error) {
+                console.error("Error fetching tasks:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const deleteTask = (taskNumber) => {
-        const filtered = tasks.filter((task) => task.taskNumber !== taskNumber);
+        fetchTasks();
+    }, []);
+
+    const deleteTask = (taskId) => {
+        const filtered = tasks.filter((task) => task._id !== taskId); // assuming `_id` is the unique identifier
         setTasks(filtered);
     };
 
@@ -251,48 +292,53 @@ const ShowTask = ({ assignedTask, remarks, team }) => {
         <div className="max-w-4xl mx-auto mt-12 p-6 lg:overflow-x-hidden overflow-x-scroll bg-white rounded-xl shadow-lg">
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">📌 Assigned Tasks</h2>
 
-            <div className="overflow-x-auto">
-                <table className="min-w-full text-sm text-left text-gray-600">
-                    <thead className="text-xs uppercase bg-gray-100 text-gray-700 border-b">
-                        <tr>
-                            <th className="px-4 py-3">#</th>
-                            <th className="px-4 py-3">Team</th>
-                            <th className="px-4 py-3">Assigned Task</th>
-                            <th className="px-4 py-3">Remarks</th>
-                            <th className="px-4 py-3 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {tasks.length === 0 ? (
+            {loading ? (
+                <p className="text-center text-gray-500">Loading tasks...</p>
+            ) : (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm text-left text-gray-600">
+                        <thead className="text-xs uppercase bg-gray-100 text-gray-700 border-b">
                             <tr>
-                                <td colSpan="5" className="text-center py-6 text-gray-400 italic">
-                                    No tasks assigned yet.
-                                </td>
+                                <th className="px-4 py-3">#</th>
+                                <th className="px-4 py-3">Team</th>
+                                <th className="px-4 py-3">Assigned Task</th>
+                                <th className="px-4 py-3">Remarks</th>
+                                <th className="px-4 py-3 text-center">Action</th>
                             </tr>
-                        ) : (
-                            tasks.map((task) => (
-                                <tr key={task.taskNumber} className="border-b hover:bg-gray-50 transition">
-                                    <td className="px-4 py-3 font-medium text-gray-700">{task.taskNumber}</td>
-                                    <td className="px-4 py-3">{task.team}</td>
-                                    <td className="px-4 py-3">{task.assignedTask}</td>
-                                    <td className="px-4 py-3">{task.remarks}</td>
-                                    <td className="px-4 py-3 text-center">
-                                        <button
-                                            onClick={() => deleteTask(task.taskNumber)}
-                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition"
-                                        >
-                                            Delete
-                                        </button>
+                        </thead>
+                        <tbody>
+                            {tasks.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="text-center py-6 text-gray-400 italic">
+                                        No tasks assigned yet.
                                     </td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            ) : (
+                                tasks.map((task, index) => (
+                                    <tr key={task._id} className="border-b hover:bg-gray-50 transition">
+                                        <td className="px-4 py-3 font-medium text-gray-700">{index + 1}</td>
+                                        <td className="px-4 py-3">{task.team}</td>
+                                        <td className="px-4 py-3">{task.assignedTask}</td>
+                                        <td className="px-4 py-3">{task.remarks}</td>
+                                        <td className="px-4 py-3 text-center">
+                                            <button
+                                                onClick={() => deleteTask(task._id)}
+                                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 };
+
 
 
 
