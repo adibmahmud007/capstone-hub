@@ -262,30 +262,79 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
 const ShowTask = () => {
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [editingTask, setEditingTask] = useState(null);
+    const [editForm, setEditForm] = useState({ assignedTask: '', remarks: '' });
 
     useEffect(() => {
         const fetchTasks = async () => {
             try {
                 const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task");
-                if (!response.ok) {
-                    throw new Error("Failed to fetch tasks");
-                }
+                if (!response.ok) throw new Error("Failed to fetch tasks");
                 const data = await response.json();
-                console.log(data)
-                setTasks(data.data); // assuming the response is an array of tasks
+                setTasks(data.data);
             } catch (error) {
                 console.error("Error fetching tasks:", error);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchTasks();
     }, []);
 
-    const deleteTask = (taskId) => {
-        const filtered = tasks.filter((task) => task._id !== taskId); // assuming `_id` is the unique identifier
-        setTasks(filtered);
+    const deleteTask = async (taskId) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this task?");
+        if (!confirmDelete) return;
+
+        try {
+            const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${taskId}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) throw new Error("Failed to delete task");
+            toast.success('Task deleted Successfully');
+            setTasks(tasks.filter((task) => task._id !== taskId));
+        } catch (error) {
+            console.error("Error deleting task:", error);
+            toast.error("Failed to delete task. Please try again.");
+        }
+    };
+
+    const handleEditClick = (task) => {
+        setEditingTask(task);
+        setEditForm({ assignedTask: task.assignedTask, remarks: task.remarks });
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditForm({ ...editForm, [name]: value });
+    };
+
+    const handleEditSubmit = async () => {
+        try {
+            const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${editingTask._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    assignedTask: editForm.assignedTask,
+                    remarks: editForm.remarks,
+                    status: 'Updated'
+                })
+            });
+
+            if (!response.ok) throw new Error("Failed to update task");
+
+            const updatedTasks = tasks.map((task) =>
+                task._id === editingTask._id ? { ...task, ...editForm, status: 'Updated' } : task
+            );
+            setTasks(updatedTasks);
+            toast.success("Task updated successfully!");
+            setEditingTask(null);
+        } catch (error) {
+            console.error("Error updating task:", error);
+            toast.error("Failed to update task.");
+        }
     };
 
     return (
@@ -303,7 +352,7 @@ const ShowTask = () => {
                                 <th className="px-4 py-3">Team</th>
                                 <th className="px-4 py-3">Assigned Task</th>
                                 <th className="px-4 py-3">Remarks</th>
-                                <th className="px-4 py-3 text-center">Action</th>
+                                <th className="px-4 py-3 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -320,12 +369,18 @@ const ShowTask = () => {
                                         <td className="px-4 py-3">{task.team}</td>
                                         <td className="px-4 py-3">{task.assignedTask}</td>
                                         <td className="px-4 py-3">{task.remarks}</td>
-                                        <td className="px-4 py-3 text-center">
+                                        <td className="px-4 py-3 text-center space-x-2">
                                             <button
                                                 onClick={() => deleteTask(task._id)}
                                                 className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition"
                                             >
                                                 Delete
+                                            </button>
+                                            <button
+                                                onClick={() => handleEditClick(task)}
+                                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition"
+                                            >
+                                                Edit
                                             </button>
                                         </td>
                                     </tr>
@@ -333,6 +388,48 @@ const ShowTask = () => {
                             )}
                         </tbody>
                     </table>
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {editingTask && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-md shadow-md w-full max-w-md">
+                        <h3 className="text-lg font-bold mb-4 text-gray-800">Edit Task</h3>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium mb-1">Assigned Task</label>
+                            <input
+                                type="text"
+                                name="assignedTask"
+                                value={editForm.assignedTask}
+                                onChange={handleEditChange}
+                                className="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium mb-1">Remarks</label>
+                            <textarea
+                                name="remarks"
+                                value={editForm.remarks}
+                                onChange={handleEditChange}
+                                className="w-full border px-3 py-2 rounded-md focus:outline-none focus:ring"
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={() => setEditingTask(null)}
+                                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-md"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleEditSubmit}
+                                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
+                            >
+                                Save
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
@@ -352,7 +449,7 @@ const AddNotice = () => {
 
     const teamOptions = ['Team Alpha', 'Team Bravo', 'Team Delta'];
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!selectedTeam) {
@@ -361,16 +458,35 @@ const AddNotice = () => {
         }
 
         const noticeData = {
-            title,
-            content,
-            team: selectedTeam,
+            teamName: selectedTeam,
+            noticeTitle: title,
+            noticeDetails: content,
         };
 
-        console.log("Notice added:", noticeData);
+        try {
+            const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(noticeData),
+            });
 
-        setTitle('');
-        setContent('');
-        setSelectedTeam('');
+            if (!response.ok) {
+                throw new Error("Failed to create notice");
+            }
+
+            console.log(response)
+            toast.success("Notice added successfully!");
+
+            // Clear form fields
+            setTitle('');
+            setContent('');
+            setSelectedTeam('');
+        } catch (error) {
+            console.error("Error creating notice:", error);
+            toast.error("Failed to add notice. Please try again.");
+        }
     };
 
     return (
@@ -378,7 +494,6 @@ const AddNotice = () => {
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">📢 Add New Notice</h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Team Dropdown */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Select Team</label>
                     <select
@@ -395,7 +510,6 @@ const AddNotice = () => {
                     </select>
                 </div>
 
-                {/* Title Input */}
                 <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">Notice Title</label>
                     <input
@@ -409,7 +523,6 @@ const AddNotice = () => {
                     />
                 </div>
 
-                {/* Content Textarea */}
                 <div>
                     <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">Notice Content</label>
                     <textarea
@@ -423,7 +536,6 @@ const AddNotice = () => {
                     ></textarea>
                 </div>
 
-                {/* Submit Button */}
                 <button
                     type="submit"
                     className="w-full bg-blue-600 text-white font-semibold py-3 rounded-md hover:bg-blue-700 transition duration-200"
@@ -431,6 +543,169 @@ const AddNotice = () => {
                     Add Notice
                 </button>
             </form>
+        </div>
+    );
+};
+const ShowNotice = () => {
+    const [notices, setNotices] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [editingNotice, setEditingNotice] = useState(null);
+
+    const [editTitle, setEditTitle] = useState('');
+    const [editDetails, setEditDetails] = useState('');
+
+    useEffect(() => {
+        fetchNotices();
+    }, []);
+
+    const fetchNotices = async () => {
+        try {
+            const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice");
+            if (!response.ok) throw new Error("Failed to fetch notices");
+            const data = await response.json();
+            setNotices(data.data);
+        } catch (error) {
+            console.error("Error fetching notices:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this notice?");
+        if (!confirmDelete) return;
+
+        try {
+            const res = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice/${id}`, {
+                method: 'DELETE',
+            });
+            if (!res.ok) throw new Error("Failed to delete");
+
+            setNotices(prev => prev.filter(notice => notice._id !== id));
+            toast.success("Notice deleted successfully.");
+        } catch (error) {
+            console.error("Error deleting notice:", error);
+            toast.error("Error deleting notice.");
+        }
+    };
+
+    const handleEditClick = (notice) => {
+        setEditingNotice(notice);
+        setEditTitle(notice.noticeTitle);
+        setEditDetails(notice.noticeDetails);
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice/${editingNotice._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    teamName: editingNotice.teamName,
+                    noticeTitle: editTitle,
+                    noticeDetails: editDetails,
+                }),
+            });
+
+            if (!response.ok) throw new Error("Failed to update notice");
+
+            const updatedNotices = notices.map(n =>
+                n._id === editingNotice._id ? { ...n, noticeTitle: editTitle, noticeDetails: editDetails } : n
+            );
+
+            setNotices(updatedNotices);
+            setEditingNotice(null);
+        } catch (error) {
+            console.error("Error updating notice:", error);
+            alert("Error updating notice.");
+        }
+    };
+
+    return (
+        <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">📃 All Notices</h2>
+
+            {loading ? (
+                <p className="text-center text-gray-500">Loading notices...</p>
+            ) : notices.length === 0 ? (
+                <p className="text-center text-gray-400 italic">No notices available.</p>
+            ) : (
+                <div className="space-y-6">
+                    {notices.map((notice) => (
+                        <div key={notice._id} className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
+                            <div className="flex justify-between items-center mb-2">
+                                <h3 className="text-lg font-semibold text-blue-600">{notice.noticeTitle}</h3>
+                                <span className="text-sm text-gray-500">📌 {notice.teamName}</span>
+                            </div>
+                            <p className="text-gray-700 whitespace-pre-line">{notice.noticeDetails}</p>
+                            <div className="flex gap-2 mt-4">
+                                <button
+                                    onClick={() => handleDelete(notice._id)}
+                                    className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                                >
+                                    Delete
+                                </button>
+                                <button
+                                    onClick={() => handleEditClick(notice)}
+                                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                                >
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Edit Modal */}
+            {editingNotice && (
+                <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+                        <h3 className="text-xl font-bold text-gray-800 mb-4">✏️ Edit Notice</h3>
+                        <form onSubmit={handleEditSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Title</label>
+                                <input
+                                    type="text"
+                                    value={editTitle}
+                                    onChange={(e) => setEditTitle(e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Details</label>
+                                <textarea
+                                    value={editDetails}
+                                    onChange={(e) => setEditDetails(e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                    rows="4"
+                                    required
+                                />
+                            </div>
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingNotice(null)}
+                                    className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                >
+                                    Update
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -454,6 +729,8 @@ const TeacherDashboard = () => {
                 return <ShowTask assignTask={assignTask} remarks={remarks} />;
             case "notice":
                 return <AddNotice />;
+            case "shownotice":
+            return <ShowNotice></ShowNotice>;
             default:
                 return <TeamDetails />;
         }
@@ -495,6 +772,12 @@ const TeacherDashboard = () => {
                         onClick={() => setSelectedMenu("notice")}
                     >
                         <FaRegStickyNote /> Add Notice
+                    </li>
+                    <li
+                        className={`p-3 cursor-pointer flex items-center gap-2 ${selectedMenu === "shownotice" ? "bg-gray-700" : ""}`}
+                        onClick={() => setSelectedMenu("shownotice")}
+                    >
+                        <FaRegStickyNote /> Show Notice
                     </li>
                     {/* <li className="p-3 cursor-pointer flex items-center gap-2">
                       <Link to='/'>Home</Link>
