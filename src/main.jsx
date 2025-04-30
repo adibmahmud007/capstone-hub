@@ -14,6 +14,7 @@ import TeacherDashBoard from './components/TeacherDashboard/TeacherDashBoard';
 import StudentHome from './components/StudentHome/StudentHome';
 import PlagiarismChecker from './components/PlagiarismChecker/PlagiarismChecker';
 import Footer from './components/Footer/Footer';
+import AdminDashboard from './components/AdminDashboard/AdminDashboard';
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
   {
     path:"/plagiarism",
     element: <PlagiarismChecker></PlagiarismChecker>
+  },
+  {
+    path: "/adminDashboard",
+    element: <AdminDashboard></AdminDashboard>
   }
 ]);
 
