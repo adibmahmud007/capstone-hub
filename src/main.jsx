@@ -15,6 +15,7 @@ import StudentHome from './components/StudentHome/StudentHome';
 import PlagiarismChecker from './components/PlagiarismChecker/PlagiarismChecker';
 import Footer from './components/Footer/Footer';
 import AdminDashboard from './components/AdminDashboard/AdminDashboard';
+import TeacherHome from './components/TeacherHome/TeacherHome';
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
   {
     path: "/adminDashboard",
     element: <AdminDashboard></AdminDashboard>
+  },
+  {
+    path:"/teacherHome",
+    element: <TeacherHome></TeacherHome>
   }
 ]);
 
