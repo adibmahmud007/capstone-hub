@@ -20,7 +20,7 @@ const Home = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gray-100 flex flex-col">
+        <div className="min-h-screen bg-gray-200 flex flex-col">
             {/* Header */}
             <Header />
 
@@ -28,15 +28,15 @@ const Home = () => {
             <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* Search */}
                 <div className="flex justify-center mb-12">
-                    <div className="relative bg-gradient-to-r from-[#4a4d59] via-[#70718c] to-[#f6f6f8] rounded-xl  w-full max-w-2xl">
+                    <div className="relative bg-white rounded-2xl w-full max-w-2xl">
                         <input
                             type="text"
                             placeholder="Search for projects..."
-                            className="w-full pl-12 pr-4 py-3 text-white text-lg placeholder:text-white placeholder:text-lg  border-2 border-gray-800 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                            className="w-full pl-12 pr-4 py-3 text-black text-lg placeholder:text-black placeholder:text-lg  rounded-2xl shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-white">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-black">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="w-6 h-6"
