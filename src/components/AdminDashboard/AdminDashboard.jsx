@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { FaUsers, FaPlus, FaEdit, FaTachometerAlt, FaMemory, FaBug } from "react-icons/fa";
+import {
+  FaUsers,
+  FaPlus,
+  FaEdit,
+  FaTachometerAlt,
+  FaMemory,
+  FaBug,
+} from "react-icons/fa";
 
 const AdminDashboard = () => {
   const [activeModal, setActiveModal] = useState(null);
@@ -30,6 +37,134 @@ const AdminDashboard = () => {
     setNewTeacher({ shortName: "", email: "", fullName: "", password: "default123" });
     setActiveModal(null);
   };
+
+  const TeamList = () => (
+    <div className="fixed inset-0 flex justify-center items-center z-50">
+      <div className="bg-white w-1/2 rounded-xl shadow-xl p-6 relative max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl font-semibold mb-4">Team List by Intake</h2>
+
+        <select
+          className="border p-2 rounded w-full mb-4"
+          value={selectedIntake}
+          onChange={(e) => setSelectedIntake(e.target.value)}
+        >
+          <option value="">Select Intake</option>
+          {intakes.map((intake, i) => (
+            <option key={i} value={intake}>
+              {intake}
+            </option>
+          ))}
+        </select>
+
+        {selectedIntake && (
+          <div className="space-y-3">
+            {teams[selectedIntake]?.map((team, idx) => (
+              <div key={idx} className="flex justify-between items-center border-b py-2">
+                <span>{team}</span>
+                <button
+                  onClick={() => setEditTeam(team)}
+                  className="bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1"
+                >
+                  <FaEdit /> Edit
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {editTeam && (
+          <div className="mt-6 border-t pt-4">
+            <h3 className="text-lg font-semibold mb-3">Assign Teachers to {editTeam}</h3>
+            {teacherList.length === 0 ? (
+              <p className="text-gray-500">No teachers added yet.</p>
+            ) : (
+              teacherList.map((teacher, i) => (
+                <div key={i} className="flex justify-between items-center mb-2">
+                  <div>
+                    <p>{teacher.fullName}</p>
+                    <p className="text-sm text-gray-500">{teacher.email}</p>
+                  </div>
+                  <button className="bg-blue-600 text-white px-3 py-1 rounded">
+                    Assign
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={() => {
+            setActiveModal(null);
+            setEditTeam("");
+          }}
+          className="absolute top-2 right-4 text-2xl text-gray-400 hover:text-black"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
+
+  const TeacherAdd = () => (
+    <div className="fixed inset-0 flex justify-center items-center z-50">
+      <div className="bg-white w-1/2 rounded-xl shadow-xl p-6 relative max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl font-semibold mb-4">Add Teacher</h2>
+
+        <div className="space-y-3">
+          <input
+            type="text"
+            placeholder="Short Name"
+            value={newTeacher.shortName}
+            onChange={(e) =>
+              setNewTeacher({ ...newTeacher, shortName: e.target.value })
+            }
+            className="border p-2 w-full rounded"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={newTeacher.email}
+            onChange={(e) =>
+              setNewTeacher({ ...newTeacher, email: e.target.value })
+            }
+            className="border p-2 w-full rounded"
+          />
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={newTeacher.fullName}
+            onChange={(e) =>
+              setNewTeacher({ ...newTeacher, fullName: e.target.value })
+            }
+            className="border p-2 w-full rounded"
+          />
+          <input
+            type="text"
+            placeholder="Default Password"
+            value={newTeacher.password}
+            onChange={(e) =>
+              setNewTeacher({ ...newTeacher, password: e.target.value })
+            }
+            className="border p-2 w-full rounded"
+          />
+          <button
+            onClick={handleAddTeacher}
+            className="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            Add Teacher
+          </button>
+        </div>
+
+        <button
+          onClick={() => setActiveModal(null)}
+          className="absolute top-2 right-4 text-2xl text-gray-400 hover:text-black"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-6">
@@ -90,135 +225,9 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Team Modal */}
-      {activeModal === "team" && (
-        <div className="fixed inset-0 flex justify-center items-center z-50">
-          <div className="bg-white w-1/2 rounded-xl shadow-xl p-6 relative max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4">Team List by Intake</h2>
-
-            <select
-              className="border p-2 rounded w-full mb-4"
-              value={selectedIntake}
-              onChange={(e) => setSelectedIntake(e.target.value)}
-            >
-              <option value="">Select Intake</option>
-              {intakes.map((intake, i) => (
-                <option key={i} value={intake}>
-                  {intake}
-                </option>
-              ))}
-            </select>
-
-            {selectedIntake && (
-              <div className="space-y-3">
-                {teams[selectedIntake]?.map((team, idx) => (
-                  <div key={idx} className="flex justify-between items-center border-b py-2">
-                    <span>{team}</span>
-                    <button
-                      onClick={() => setEditTeam(team)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded flex items-center gap-1"
-                    >
-                      <FaEdit /> Edit
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {editTeam && (
-              <div className="mt-6 border-t pt-4">
-                <h3 className="text-lg font-semibold mb-3">Assign Teachers to {editTeam}</h3>
-                {teacherList.length === 0 ? (
-                  <p className="text-gray-500">No teachers added yet.</p>
-                ) : (
-                  teacherList.map((teacher, i) => (
-                    <div key={i} className="flex justify-between items-center mb-2">
-                      <div>
-                        <p>{teacher.fullName}</p>
-                        <p className="text-sm text-gray-500">{teacher.email}</p>
-                      </div>
-                      <button className="bg-blue-600 text-white px-3 py-1 rounded">
-                        Assign
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            <button
-              onClick={() => {
-                setActiveModal(null);
-                setEditTeam("");
-              }}
-              className="absolute top-2 right-4 text-2xl text-gray-400 hover:text-black"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Add Teacher Modal */}
-      {activeModal === "teacher" && (
-        <div className="fixed inset-0 flex justify-center items-center z-50">
-          <div className="bg-white w-1/2 rounded-xl shadow-xl p-6 relative max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4">Add Teacher</h2>
-
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Short Name"
-                value={newTeacher.shortName}
-                onChange={(e) =>
-                  setNewTeacher({ ...newTeacher, shortName: e.target.value })
-                }
-                className="border p-2 w-full rounded"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={newTeacher.email}
-                onChange={(e) =>
-                  setNewTeacher({ ...newTeacher, email: e.target.value })
-                }
-                className="border p-2 w-full rounded"
-              />
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={newTeacher.fullName}
-                onChange={(e) =>
-                  setNewTeacher({ ...newTeacher, fullName: e.target.value })
-                }
-                className="border p-2 w-full rounded"
-              />
-              <input
-                type="text"
-                placeholder="Default Password"
-                value={newTeacher.password}
-                onChange={(e) =>
-                  setNewTeacher({ ...newTeacher, password: e.target.value })
-                }
-                className="border p-2 w-full rounded"
-              />
-              <button
-                onClick={handleAddTeacher}
-                className="bg-green-600 text-white px-4 py-2 rounded"
-              >
-                Add Teacher
-              </button>
-            </div>
-
-            <button
-              onClick={() => setActiveModal(null)}
-              className="absolute top-2 right-4 text-2xl text-gray-400 hover:text-black"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Conditional Modals */}
+      {activeModal === "team" && <TeamList />}
+      {activeModal === "teacher" && <TeacherAdd />}
     </div>
   );
 };
