@@ -140,7 +140,7 @@ const CreateGroup = () => {
         const teamData = { teamName, members: groupMembers };
 
         try {
-            const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/student/groups/', {
+            const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -306,7 +306,7 @@ const MyTeam = () => {
                 const educationalMail = decoded.email;
                 console.log(educationalMail, 'mail');
 
-                const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/student/groups/myteam/${educationalMail}`);
+                const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/myteam/${educationalMail}`);
                 const data = await response.json();
 
                 console.log(data);
