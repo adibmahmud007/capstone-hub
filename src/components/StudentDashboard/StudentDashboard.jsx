@@ -127,7 +127,7 @@ const CreateGroup = () => {
     };
 
     const handleCreateGroup = async () => {
-        if (groupMembers.length !== 5) {
+        if (groupMembers.length > 5) {
             toast.error("Exactly 5 members are required to create a group");
             return;
         }
