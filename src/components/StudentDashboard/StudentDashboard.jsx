@@ -1,15 +1,20 @@
+/* eslint-disable react/prop-types */
+// /* eslint-disable react/prop-types */
 
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 // import TeacherDashboard from '../TeacherDashboard/TeacherDashBoard';
 import { toast } from 'react-toastify';
 import { useEffect } from 'react';
+import axios from "axios";
 import { jwtDecode } from 'jwt-decode'; // ✅ CORRECT
 
 
 const StudentDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('createGroup');
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [teamName, setTeamName] = useState(''); // Fixed: Consistent naming
+
 
     // Move groupMembers state to StudentDashboard
     const [groupMembers, setGroupMembers] = useState([]);
@@ -22,13 +27,13 @@ const StudentDashboard = () => {
             case 'createGroup':
                 return <CreateGroup groupMembers={groupMembers} setGroupMembers={setGroupMembers} />;
             case 'myTeam':
-                return <MyTeam groupMembers={groupMembers} />;
+                return <MyTeam setTeamName={setTeamName} />; // Fixed: Passing the correct setter
             case 'createProject':
                 return <CreateProject />;
             // case 'joinProject':
                 // return <JoinProject />;
             case 'showTask':
-                return <ShowTask />;
+                return <ShowTask teamName={teamName} />;
             // case 'approveJoinRequest':
                 // return <ApproveJoinRequest />;
             default:
@@ -288,9 +293,10 @@ const CreateGroup = () => {
 
 
 
-const MyTeam = () => {
+const MyTeam = ({ setTeamName }) => { // Fixed: Updated prop name
     const [groupMembers, setGroupMembers] = useState([]);
-    const [teamName, setTeamName] = useState('');
+    const [teamName, setLocalTeamName] = useState(''); // Fixed: Use local state for display
+
     const [supervisor, setSupervisor] = useState("Saifur Rahman");
 
     useEffect(() => {
@@ -312,7 +318,9 @@ const MyTeam = () => {
                 console.log(data);
                 if (response.ok) {
                     setGroupMembers(data.data[0].members);
-                    setTeamName(data.data[0].teamName);
+                    setLocalTeamName(data.data[0].teamName);
+                    setTeamName(data.data[0].teamName); // Fixed: Update parent component state
+
                     setSupervisor(data.data.supervisor || "Saifur Rahman");
                 } else {
                     console.error(data.message || "Failed to fetch team");
@@ -323,7 +331,7 @@ const MyTeam = () => {
         };
 
         fetchTeamData();
-    }, []);
+    }, [setTeamName]); // Fixed: Add dependency
 
     return (
         <div className="max-w-5xl mx-auto p-2 lg:p-8 bg-white rounded-lg lg:shadow-lg">
@@ -541,14 +549,32 @@ const CreateProject = () => {
 
 
 
-const ShowTask = () => {
-    const [tasks, setTasks] = useState([
-        { id: 1, task: "Complete project proposal", completed: false, remark: "Pending approval" },
-        { id: 2, task: "Research related work", completed: false, remark: "Review needed" },
-        { id: 3, task: "Develop frontend UI", completed: false, remark: "Looks good" },
-        { id: 4, task: "Integrate API", completed: false, remark: "Work in progress" },
-        { id: 5, task: "Test project functionality", completed: false, remark: "Tests required" },
-    ]);
+const ShowTask = ({ teamName }) => {
+    const [tasks, setTasks] = useState([]);
+    console.log(teamName,'from show task')
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const response = await axios.get(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${teamName}`);
+                const fetchedTasks = response.data.data || [];
+                console.log(response.data,'from show task')
+                // Assuming the API returns: [{ task: "...", remark: "..." }]
+                const mappedTasks = fetchedTasks.map((taskObj, index) => ({
+                    id: index + 1,
+                    task: taskObj.assignedTask,
+                    completed: taskObj.status, // Default to false as API doesn't provide it
+                    remark: taskObj.remarks,
+                }));
+
+                setTasks(mappedTasks);
+            } catch (error) {
+                toast.error("Failed to fetch tasks");
+                console.error("Error fetching tasks:", error);
+            }
+        };
+
+        if (teamName) fetchTasks();
+    }, [teamName]);
 
     const toggleCompletion = (id) => {
         setTasks(tasks.map(task => {
