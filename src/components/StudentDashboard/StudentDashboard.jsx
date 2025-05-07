@@ -17,9 +17,47 @@ const StudentDashboard = () => {
 
 
     // Move groupMembers state to StudentDashboard
-    const [groupMembers, setGroupMembers] = useState([]);
-    console.log(groupMembers);
+    // const [groupMembers, setGroupMembers] = useState([]);
+    // console.log(groupMembers);
     // const isTeacher = window.location.pathname === "/teacherDashboard"; // Example URL check
+    const [groupMembers, setGroupMembers] = useState([]);
+    // const [teamName, setLocalTeamName] = useState(''); // Fixed: Use local state for display
+
+    const [supervisor, setSupervisor] = useState("Saifur Rahman");
+
+    useEffect(() => {
+        const fetchTeamData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    console.error("No token found.");
+                    return;
+                }
+
+                const decoded = jwtDecode(token);
+                const educationalMail = decoded.email;
+                console.log(educationalMail, 'mail');
+
+                const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/myteam/${educationalMail}`);
+                const data = await response.json();
+
+                console.log(data);
+                if (response.ok) {
+                    setGroupMembers(data.data[0].members);
+                    // setLocalTeamName(data.data[0].teamName);
+                    setTeamName(data.data[0].teamName); // Fixed: Update parent component state
+
+                    setSupervisor(data.data[0].supervisor || "");
+                } else {
+                    console.error(data.message || "Failed to fetch team");
+                }
+            } catch (error) {
+                console.error("Error fetching team:", error.message);
+            }
+        };
+
+        fetchTeamData();
+    }, [setTeamName]);
 
 
     const renderContent = () => {
@@ -27,7 +65,7 @@ const StudentDashboard = () => {
             case 'createGroup':
                 return <CreateGroup groupMembers={groupMembers} setGroupMembers={setGroupMembers} />;
             case 'myTeam':
-                return <MyTeam setTeamName={setTeamName} />; // Fixed: Passing the correct setter
+                return <MyTeam teamName={teamName} supervisor={supervisor} groupMembers={groupMembers} />; // Fixed: Passing the correct setter
             case 'createProject':
                 return <CreateProject />;
             // case 'joinProject':
@@ -293,45 +331,8 @@ const CreateGroup = () => {
 
 
 
-const MyTeam = ({ setTeamName }) => { // Fixed: Updated prop name
-    const [groupMembers, setGroupMembers] = useState([]);
-    const [teamName, setLocalTeamName] = useState(''); // Fixed: Use local state for display
-
-    const [supervisor, setSupervisor] = useState("Saifur Rahman");
-
-    useEffect(() => {
-        const fetchTeamData = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    console.error("No token found.");
-                    return;
-                }
-
-                const decoded = jwtDecode(token);
-                const educationalMail = decoded.email;
-                console.log(educationalMail, 'mail');
-
-                const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/myteam/${educationalMail}`);
-                const data = await response.json();
-
-                console.log(data);
-                if (response.ok) {
-                    setGroupMembers(data.data[0].members);
-                    setLocalTeamName(data.data[0].teamName);
-                    setTeamName(data.data[0].teamName); // Fixed: Update parent component state
-
-                    setSupervisor(data.data.supervisor || "Saifur Rahman");
-                } else {
-                    console.error(data.message || "Failed to fetch team");
-                }
-            } catch (error) {
-                console.error("Error fetching team:", error.message);
-            }
-        };
-
-        fetchTeamData();
-    }, [setTeamName]); // Fixed: Add dependency
+const MyTeam = ({ teamName,supervisor,groupMembers }) => { // Fixed: Updated prop name
+     // Fixed: Add dependency
 
     return (
         <div className="max-w-5xl mx-auto p-2 lg:p-8 bg-white rounded-lg lg:shadow-lg">
