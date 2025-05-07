@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import {  useState,useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote } from "react-icons/fa";
 import { Menu, X } from 'lucide-react';
 import { toast } from "react-toastify";
@@ -9,115 +9,130 @@ import { toast } from "react-toastify";
 
 
 
+
+
 const TeamDetails = () => {
-    const teams = [
-        {
-            name: 'Intake 48',
-            sections: {
-                section1: [
-                    { id: 21224103072, name: 'Adib Mahmud', intake: '48', section: '3' },
-                    { id: 21224103065, name: 'Md. Zahidul Islam Mollik', intake: '48', section: '3' }
-                ]
-            }
-        },
-        {
-            name: 'Intake 49',
-            sections: {
-                section1: [
-                    { id: 21224103077, name: 'Meher Afroz Binu', intake: '48', section: '3' }
-                ],
-                section2: [
-                    { id: 21224103078, name: 'Tasnia Sultana Hema', intake: '48', section: '3' }
-                ]
-            }
-        },
-        {
-            name: 'Intake 47',
-            sections: {
-                section1: [
-                    { id: 21224103062, name: 'Sohan Reza', intake: '48', section: '3' }
-                ]
-            }
-        }
-    ];
+    const [teamData, setTeamData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const [openIntake, setOpenIntake] = useState(null);
-    const [openSections, setOpenSections] = useState({});
+    const [openSection, setOpenSection] = useState({});
+    const [openTeam, setOpenTeam] = useState({});
 
-    const toggleIntake = (index) => {
-        setOpenIntake(openIntake === index ? null : index);
-        setOpenSections({});
-    };
+    useEffect(() => {
+        const fetchTeamData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/by-teacher", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                const data = await response.json();
+                setTeamData(data.data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching team data:", error);
+                setLoading(false);
+            }
+        };
 
-    const toggleSection = (intakeIndex, sectionKey) => {
-        const key = `${intakeIndex}-${sectionKey}`;
-        setOpenSections((prev) => ({
-            ...prev,
-            [key]: !prev[key],
-        }));
-    };
+        fetchTeamData();
+    }, []);
+
+    const groupedData = useMemo(() => {
+        const grouped = {};
+        teamData.forEach(team => {
+            const { teamName, members } = team;
+            const { intake, section } = members[0] || {};
+
+            if (!intake || !section) return;
+
+            if (!grouped[intake]) grouped[intake] = {};
+            if (!grouped[intake][section]) grouped[intake][section] = {};
+            grouped[intake][section][teamName] = members;
+        });
+        return grouped;
+    }, [teamData]);
+
+    if (loading) {
+        return <div className="text-center text-lg mt-10">Loading team data...</div>;
+    }
 
     return (
-        <div className="max-w-5xl mx-auto mt-12 p-6 bg-white rounded-xl shadow-lg">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">👥 Team Overview</h2>
+        <div className="max-w-5xl max-h-[75vh] sm:max-h-[80vh] overflow-y-auto mx-auto mt-6 p-4 sm:p-6 bg-white rounded-xl shadow-lg">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-gray-800">👥 Team Overview</h2>
 
-            {teams.map((team, intakeIndex) => (
-                <div key={intakeIndex} className="mb-6 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                    {/* Intake Header */}
+            {Object.entries(groupedData).map(([intake, sections]) => (
+                <div key={intake} className="mb-6 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                     <button
-                        onClick={() => toggleIntake(intakeIndex)}
-                        className="w-full flex justify-between items-center px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold transition"
+                        onClick={() => setOpenIntake(openIntake === intake ? null : intake)}
+                        className="w-full flex justify-between items-center px-4 sm:px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold transition"
                     >
-                        <span>{team.name}</span>
-                        <span className="text-xl">{openIntake === intakeIndex ? '▲' : '▼'}</span>
+                        <span>🎓 Intake {intake}</span>
+                        <span className="text-xl">{openIntake === intake ? '▲' : '▼'}</span>
                     </button>
 
-                    {/* Sections inside intake */}
-                    {openIntake === intakeIndex && (
+                    {openIntake === intake && (
                         <div className="bg-gray-50 px-4 py-4">
-                            {Object.entries(team.sections).map(([sectionKey, members], sectionIndex) => {
-                                const key = `${intakeIndex}-${sectionKey}`;
-                                const isOpen = openSections[key];
+                            {Object.entries(sections).map(([section, teams]) => (
+                                <div key={section} className="mb-4">
+                                    <button
+                                        onClick={() => setOpenSection(prev => ({
+                                            ...prev,
+                                            [`${intake}-${section}`]: !prev[`${intake}-${section}`]
+                                        }))}
+                                        className="w-full flex justify-between items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md font-medium text-gray-700 transition"
+                                    >
+                                        <span>📘 Section {section}</span>
+                                        <span>{openSection[`${intake}-${section}`] ? '−' : '+'}</span>
+                                    </button>
 
-                                return (
-                                    <div key={sectionKey} className="mb-4">
-                                        {/* Section Header */}
-                                        <button
-                                            onClick={() => toggleSection(intakeIndex, sectionKey)}
-                                            className="w-full flex justify-between items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md font-medium text-gray-700 transition"
-                                        >
-                                            <span>📘 Section {sectionIndex + 1}</span>
-                                            <span>{isOpen ? '−' : '+'}</span>
-                                        </button>
+                                    {openSection[`${intake}-${section}`] && (
+                                        <div className="ml-4 sm:ml-6 mt-2">
+                                            {Object.entries(teams).map(([teamName, members]) => (
+                                                <div key={teamName} className="mb-3">
+                                                    <button
+                                                        onClick={() => setOpenTeam(prev => ({
+                                                            ...prev,
+                                                            [`${intake}-${section}-${teamName}`]: !prev[`${intake}-${section}-${teamName}`]
+                                                        }))}
+                                                        className="w-full flex justify-between items-center px-4 py-2 bg-yellow-100 hover:bg-yellow-200 rounded-md text-gray-800 font-medium transition"
+                                                    >
+                                                        <span>👨‍👩‍👧‍👦 Team: {teamName}</span>
+                                                        <span>{openTeam[`${intake}-${section}-${teamName}`] ? '−' : '+'}</span>
+                                                    </button>
 
-                                        {/* Section Content */}
-                                        {isOpen && (
-                                            <div className="mt-2 bg-white rounded-md shadow p-4">
-                                                <table className="w-full table-auto text-sm">
-                                                    <thead>
-                                                        <tr className="bg-gray-100 text-gray-700">
-                                                            <th className="text-left px-4 py-2">Name</th>
-                                                            <th className="text-left px-4 py-2">ID</th>
-                                                            <th className="text-left px-4 py-2">Intake</th>
-                                                            <th className="text-left px-4 py-2">Section</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {members.map((member) => (
-                                                            <tr key={member.id} className="border-t hover:bg-gray-50 transition">
-                                                                <td className="px-4 py-2">{member.name}</td>
-                                                                <td className="px-4 py-2">{member.id}</td>
-                                                                <td className="px-4 py-2">{member.intake}</td>
-                                                                <td className="px-4 py-2">{member.section}</td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                                    {openTeam[`${intake}-${section}-${teamName}`] && (
+                                                        <div className="mt-2 bg-white rounded-md shadow p-4 overflow-x-auto">
+                                                            <table className="min-w-[500px] w-full text-sm">
+                                                                <thead>
+                                                                    <tr className="bg-gray-100 text-gray-700">
+                                                                        <th className="text-left px-4 py-2">Name</th>
+                                                                        <th className="text-left px-4 py-2">Mail</th>
+                                                                        <th className="text-left px-4 py-2">Intake</th>
+                                                                        <th className="text-left px-4 py-2">Section</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {members.map(member => (
+                                                                        <tr key={member.id} className="border-t hover:bg-gray-50 transition">
+                                                                            <td className="px-4 py-2">{member.username}</td>
+                                                                            <td className="px-4 py-2">{member.educationalMail}</td>
+                                                                            <td className="px-4 py-2">{member.intake}</td>
+                                                                            <td className="px-4 py-2">{member.section}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
@@ -125,6 +140,10 @@ const TeamDetails = () => {
         </div>
     );
 };
+
+
+
+
 
 
 
@@ -155,7 +174,7 @@ const AssignTask = ({ setAssignedTask, setRemarks }) => {
         const payload = {
             teamId: selectedTeam,
             assignedTask: assignTask,
-            remarks : remarks
+            remarks: remarks
         };
 
         try {
@@ -730,7 +749,7 @@ const TeacherDashboard = () => {
             case "notice":
                 return <AddNotice />;
             case "shownotice":
-            return <ShowNotice></ShowNotice>;
+                return <ShowNotice></ShowNotice>;
             default:
                 return <TeamDetails />;
         }
@@ -747,7 +766,7 @@ const TeacherDashboard = () => {
                     </button>
                 </div>
                 <h2 className="text-lg font-bold mb-4 hidden lg:block">Teacher Dashboard Menu</h2>
-                
+
                 <ul>
                     <li
                         className={`p-3 cursor-pointer flex items-center gap-2 ${selectedMenu === "team" ? "bg-gray-700" : ""}`}
