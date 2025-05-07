@@ -23,7 +23,7 @@ const Login = () => {
         setLoading(true);
 
         // Optional: simulate delay for visual feedback
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // await new Promise((resolve) => setTimeout(resolve, 1500));
 
         try {
             const response = await fetch(
