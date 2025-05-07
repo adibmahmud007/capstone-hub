@@ -8,6 +8,7 @@ const Registration = () => {
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false)
     const [OtpCode, setOtp] = useState("");
     const [isOtpSent, setIsOtpSent] = useState(false);
 
@@ -43,7 +44,7 @@ const Registration = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        setLoading(true)
         const userData = {
             email,
             username,
@@ -70,6 +71,8 @@ const Registration = () => {
         } catch (error) {
             console.error("Error during registration:", error);
             toast.error("An error occurred. Please try again later.");
+        }finally{
+            setLoading(false)
         }
     };
 
@@ -150,7 +153,9 @@ const Registration = () => {
                             type="submit"
                             className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-900 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
                         >
-                            Signup
+                            {
+                                loading ? 'Signing Up...' : 'Signup'
+                            }
                         </button>
 
                         <div>
