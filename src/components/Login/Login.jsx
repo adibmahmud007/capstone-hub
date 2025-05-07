@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaUser, FaLock } from "react-icons/fa";
 import "../../App.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,33 +10,46 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [showForgotPassword, setShowForgotPassword] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log("Loading state changed:", loading);
+    }, [loading]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+
+        // Optional: simulate delay for visual feedback
+        await new Promise((resolve) => setTimeout(resolve, 5500));
+
         try {
-            const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/auth/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password, rememberMe }) // ✅ rememberMe sent to API
-            });
+            const response = await fetch(
+                "https://capstone-repo-2933d2307df0.herokuapp.com/api/auth/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, password, rememberMe }),
+                }
+            );
 
             const data = await response.json();
-            console.log(data);
-
             const token = data.accesstoken;
-            const decoded = jwtDecode(token);
-            const role = decoded.role;
-            console.log(decoded, 'from jwt token decoded');
-            console.log(role, 'from token getting the role');
 
-            if (response.ok) {
-                localStorage.setItem("token", data.accesstoken);
+            if (response.ok && token) {
+                const decoded = jwtDecode(token);
+                const role = decoded.role;
+
+                localStorage.setItem("token", token);
+                toast.success(
+                    `Signed in to ${role.charAt(0).toUpperCase() + role.slice(1)} Portal`
+                );
+
                 if (role === "student") {
-                    toast.success("Signed in to Student Portal");
                     navigate("/studentHome");
                 } else if (role === "teacher") {
                     navigate("/teacherDashboard");
@@ -44,10 +57,12 @@ const Login = () => {
                     navigate("/adminDashboard");
                 }
             } else {
-                toast.error(data.message || "Invalid credentials")
+                toast.error(data.message || "Invalid credentials");
             }
         } catch (err) {
-            toast.error("Something went wrong. Please try again.", err);
+            toast.error("Something went wrong. Please try again.",err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -68,6 +83,7 @@ const Login = () => {
                                 placeholder="Your Email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                required
                             />
                         </div>
                         <div className="relative mb-4">
@@ -80,6 +96,7 @@ const Login = () => {
                                 placeholder="Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                required
                             />
                         </div>
                         <div className="flex justify-between text-sm text-gray-600 mb-6">
@@ -88,7 +105,7 @@ const Login = () => {
                                     type="checkbox"
                                     className="mr-2"
                                     checked={rememberMe}
-                                    onChange={(e) => setRememberMe(e.target.checked)} // ✅ handle change
+                                    onChange={(e) => setRememberMe(e.target.checked)}
                                 />
                                 Remember
                             </label>
@@ -99,27 +116,52 @@ const Login = () => {
                                 Forgot password?
                             </span>
                         </div>
-                        <div>
-                            {showForgotPassword && (
-                                <ForgotPassword onClose={() => setShowForgotPassword(false)} />
-                            )}
-                        </div>
+                        {showForgotPassword && (
+                            <ForgotPassword onClose={() => setShowForgotPassword(false)} />
+                        )}
                         <button
                             type="submit"
-                            className="w-full bg-gradient-to-r from-rose-500 to-rose-900 text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
+                            disabled={loading}
+                            className={`w-full bg-gradient-to-r from-rose-500 to-rose-900 text-white py-3 rounded-lg font-semibold transition ${
+                                loading
+                                    ? "opacity-70 cursor-not-allowed"
+                                    : "hover:opacity-90 hover:cursor-pointer"
+                            }`}
                         >
-                            LOGIN
+                            {loading ? (
+                                <div className="flex items-center justify-center gap-2">
+                                    <svg
+                                        className="animate-spin h-5 w-5 text-white"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8v8z"
+                                        ></path>
+                                    </svg>
+                                    Logging in...
+                                </div>
+                            ) : (
+                                "LOGIN"
+                            )}
                         </button>
-                        <div>
-                            <p className="font-normal text-gray-500 pt-6 pb-4">
-                                Dont have an account? Please Signup Here
-                                <Link to='/'>
-                                    <button className="cursor-pointer text-blue-500 font-semibold rounded-lg hover:text-blue-600">
-                                        Signup
-                                    </button>
-                                </Link>
-                            </p>
-                        </div>
+                        <p className="font-normal text-gray-500 pt-6 pb-4">
+                            Don’t have an account? Please Signup Here{" "}
+                            <Link to="/">
+                                <button className="text-blue-500 font-semibold hover:text-blue-600">
+                                    Signup
+                                </button>
+                            </Link>
+                        </p>
                     </form>
                 </div>
             </div>
