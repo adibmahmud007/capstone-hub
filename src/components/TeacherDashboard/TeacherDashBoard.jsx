@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useMemo } from "react";
 import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote } from "react-icons/fa";
@@ -150,124 +151,211 @@ const TeamDetails = () => {
 
 
 
-const AssignTask = ({ setAssignedTask, setRemarks }) => {
-    const [assignTask, setAssignTask] = useState('');
-    const [remarks, setRemarksInput] = useState('');
-    const [selectedTeam, setSelectedTeam] = useState('');
-    const [loading, setLoading] = useState(false);
+const AssignTask = () => {
+    const [teamData, setTeamData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const teams = [
-        { name: 'Team Alpha' },
-        { name: 'Team Bravo' },
-        { name: 'Team Delta' },
-        { name: 'Team Sigma' }
-    ];
+    const [openIntake, setOpenIntake] = useState(null);
+    const [openSection, setOpenSection] = useState({});
+    const [openTeam, setOpenTeam] = useState({});
+    const [selectedTeam, setSelectedTeam] = useState(null);
 
-    const API_URL = 'https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task';
+    const [task, setTask] = useState('');
+    const [remark, setRemark] = useState('');
 
-    const handleAssignTask = async () => {
-        if (!selectedTeam || !assignTask) {
-            alert('Please select a team and enter a task before assigning.');
-            return;
-        }
-
-        const payload = {
-            teamId: selectedTeam,
-            assignedTask: assignTask,
-            remarks: remarks
+    useEffect(() => {
+        const fetchTeamData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/by-teacher", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                const data = await response.json();
+                setTeamData(data.data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching team data:", error);
+                setLoading(false);
+            }
         };
 
-        try {
-            setLoading(true);
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
+        fetchTeamData();
+    }, []);
 
-            const data = await response.json();
+    const groupedData = useMemo(() => {
+        const grouped = {};
+        teamData.forEach(team => {
+            const { teamName, members } = team;
+            const { intake, section } = members[0] || {};
 
-            if (response.ok) {
-                toast.success('Task assigned successful');
-                setAssignedTask(assignTask);
-                setRemarks(remarks);
-                setAssignTask('');
-                setRemarksInput('');
-                setSelectedTeam('');
-            } else {
-                toast.error(data);
-                toast.error('Failed to assign task.');
-            }
-        } catch (error) {
-            toast.error('Error:', error);
-            toast.error('Something went wrong.');
-        } finally {
-            setLoading(false);
-        }
+            if (!intake || !section) return;
+
+            if (!grouped[intake]) grouped[intake] = {};
+            if (!grouped[intake][section]) grouped[intake][section] = {};
+            grouped[intake][section][teamName] = members;
+        });
+        return grouped;
+    }, [teamData]);
+
+    const handleTeamClick = (intake, section, teamName) => {
+        const key = `${intake}-${section}-${teamName}`;
+        setOpenTeam(prev => ({
+            ...prev,
+            [key]: !prev[key],
+        }));
+
+        setSelectedTeam(prev => (
+            prev?.intake === intake && prev?.section === section && prev?.teamName === teamName
+                ? null
+                : { intake, section, teamName }
+        ));
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+    
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("❌ Token missing. Please login again.");
+            return;
+        }
+    
+        const payload = {
+           
+            teamName: selectedTeam.teamName,
+            assignedTask: task,
+            remarks: remark,
+        };
+        console.log(selectedTeam.teamName)
+    
+        try {
+            const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+    
+            const result = await response.json();
+    
+            if (response.ok) {
+                alert("✅ Task and remarks assigned successfully!");
+                setTask('');
+                setRemark('');
+            } else {
+                alert(`❌ Failed: ${result?.message || 'Unknown error occurred.'}`);
+            }
+        } catch (error) {
+            console.error("Error assigning task:", error);
+            alert("❌ Network error. Please try again.");
+        }
+    };
+    
+
+    if (loading) {
+        return <div className="text-center text-lg mt-10">Loading team data...</div>;
+    }
+
     return (
-        <div className="max-w-4xl mx-auto mt-10 p-6 lg:bg-white lg:shadow-xl rounded-xl">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">📋 Assign Task to Team</h2>
+        <div className="max-w-5xl max-h-[75vh] sm:max-h-[80vh] overflow-y-auto mx-auto mt-6 p-4 sm:p-6 bg-white rounded-xl shadow-lg">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-gray-800">👥 Assign Task to Teams</h2>
 
-            {/* Select Team */}
-            <div className="mb-5">
-                <label htmlFor="team-select" className="block text-sm font-semibold text-gray-700 mb-1">Select Team</label>
-                <select
-                    id="team-select"
-                    value={selectedTeam}
-                    onChange={(e) => setSelectedTeam(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                    <option value="">-- Choose Team --</option>
-                    {teams.map((team, index) => (
-                        <option key={index} value={team.name}>{team.name}</option>
-                    ))}
-                </select>
-            </div>
+            {Object.entries(groupedData).map(([intake, sections]) => (
+                <div key={intake} className="mb-6 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <button
+                        onClick={() => setOpenIntake(openIntake === intake ? null : intake)}
+                        className="w-full flex justify-between items-center px-4 sm:px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold transition"
+                    >
+                        <span>🎓 Intake {intake}</span>
+                        <span className="text-xl">{openIntake === intake ? '▲' : '▼'}</span>
+                    </button>
 
-            {/* Assign Task Input */}
-            <div className="mb-5">
-                <label htmlFor="task" className="block text-sm font-semibold text-gray-700 mb-1">Assign Task</label>
-                <div className="flex gap-2">
-                    <input
-                        id="task"
-                        type="text"
-                        value={assignTask}
-                        onChange={(e) => setAssignTask(e.target.value)}
-                        placeholder="Enter task..."
-                        className="flex-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
+                    {openIntake === intake && (
+                        <div className="bg-gray-50 px-4 py-4">
+                            {Object.entries(sections).map(([section, teams]) => (
+                                <div key={section} className="mb-4">
+                                    <button
+                                        onClick={() => setOpenSection(prev => ({
+                                            ...prev,
+                                            [`${intake}-${section}`]: !prev[`${intake}-${section}`]
+                                        }))}
+                                        className="w-full flex justify-between items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md font-medium text-gray-700 transition"
+                                    >
+                                        <span>📘 Section {section}</span>
+                                        <span>{openSection[`${intake}-${section}`] ? '−' : '+'}</span>
+                                    </button>
+
+                                    {openSection[`${intake}-${section}`] && (
+                                        <div className="ml-4 sm:ml-6 mt-2">
+                                            {Object.entries(teams).map(([teamName]) => {
+                                                const teamKey = `${intake}-${section}-${teamName}`;
+                                                return (
+                                                    <div key={teamName} className="mb-3">
+                                                        <button
+                                                            onClick={() => handleTeamClick(intake, section, teamName)}
+                                                            className={`w-full flex justify-between items-center px-4 py-2 rounded-md font-medium transition ${
+                                                                selectedTeam?.teamName === teamName &&
+                                                                selectedTeam?.intake === intake &&
+                                                                selectedTeam?.section === section
+                                                                    ? 'bg-yellow-300 text-gray-900'
+                                                                    : 'bg-yellow-100 hover:bg-yellow-200 text-gray-800'
+                                                            }`}
+                                                        >
+                                                            <span>👨‍👩‍👧‍👦 Team: {teamName}</span>
+                                                            <span>{openTeam[teamKey] ? '−' : '+'}</span>
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            </div>
+            ))}
 
-            {/* Remarks Input */}
-            <div className="mb-5">
-                <label htmlFor="remarks" className="block text-sm font-semibold text-gray-700 mb-1">Remarks</label>
-                <div className="flex gap-2">
-                    <input
-                        id="remarks"
-                        type="text"
-                        value={remarks}
-                        onChange={(e) => setRemarksInput(e.target.value)}
-                        placeholder="Write a note or feedback..."
-                        className="flex-1 p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-                    />
-                </div>
-            </div>
+            {/* Assign Task & Remark Section */}
+            {selectedTeam && (
+                <form onSubmit={handleSubmit} className="mt-8 border-t pt-6">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">📝 Assign Task and Remark</h3>
 
-            {/* Submit Button */}
-            <div className="flex justify-end">
-                <button
-                    onClick={handleAssignTask}
-                    disabled={loading}
-                    className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition ${loading && 'opacity-50 cursor-not-allowed'}`}
-                >
-                    {loading ? 'Assigning...' : 'Assign Task'}
-                </button>
-            </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-1">Task</label>
+                        <input
+                            type="text"
+                            value={task}
+                            onChange={(e) => setTask(e.target.value)}
+                            placeholder="Enter task..."
+                            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-1">Remark</label>
+                        <textarea
+                            value={remark}
+                            onChange={(e) => setRemark(e.target.value)}
+                            placeholder="Add a remark..."
+                            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            rows="3"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-md transition"
+                    >
+                        ✅ Assign Task
+                    </button>
+                </form>
+            )}
         </div>
     );
 };
@@ -290,6 +378,7 @@ const ShowTask = () => {
                 const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task");
                 if (!response.ok) throw new Error("Failed to fetch tasks");
                 const data = await response.json();
+                console.log(data.data)
                 setTasks(data.data);
             } catch (error) {
                 console.error("Error fetching tasks:", error);
@@ -385,7 +474,7 @@ const ShowTask = () => {
                                 tasks.map((task, index) => (
                                     <tr key={task._id} className="border-b hover:bg-gray-50 transition">
                                         <td className="px-4 py-3 font-medium text-gray-700">{index + 1}</td>
-                                        <td className="px-4 py-3">{task.team}</td>
+                                        <td className="px-4 py-3">{task.teamName}</td>
                                         <td className="px-4 py-3">{task.assignedTask}</td>
                                         <td className="px-4 py-3">{task.remarks}</td>
                                         <td className="px-4 py-3 text-center space-x-2">
@@ -461,13 +550,177 @@ const ShowTask = () => {
 
 
 
+// const AddNotice = () => {
+//     const [title, setTitle] = useState('');
+//     const [content, setContent] = useState('');
+//     const [selectedTeam, setSelectedTeam] = useState('');
+
+//     const teamOptions = ['Team Alpha', 'Team Bravo', 'Team Delta'];
+
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
+
+//         if (!selectedTeam) {
+//             alert("Please select a team.");
+//             return;
+//         }
+
+//         const noticeData = {
+//             teamName: selectedTeam,
+//             noticeTitle: title,
+//             noticeDetails: content,
+//         };
+
+//         try {
+//             const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice", {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 },
+//                 body: JSON.stringify(noticeData),
+//             });
+
+//             if (!response.ok) {
+//                 throw new Error("Failed to create notice");
+//             }
+
+//             console.log(response)
+//             toast.success("Notice added successfully!");
+
+//             // Clear form fields
+//             setTitle('');
+//             setContent('');
+//             setSelectedTeam('');
+//         } catch (error) {
+//             console.error("Error creating notice:", error);
+//             toast.error("Failed to add notice. Please try again.");
+//         }
+//     };
+
+//     return (
+//         <div className="max-w-4xl mx-auto mt-2 p-4 bg-white rounded-xl shadow-lg">
+//             <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">📢 Add New Notice</h2>
+
+//             <form onSubmit={handleSubmit} className="space-y-6">
+//                 <div>
+//                     <label className="block text-sm font-medium text-gray-700 mb-2">Select Team</label>
+//                     <select
+//                         name="team"
+//                         value={selectedTeam}
+//                         onChange={(e) => setSelectedTeam(e.target.value)}
+//                         className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                         required
+//                     >
+//                         <option value="">-- Select Team --</option>
+//                         {teamOptions.map((team, index) => (
+//                             <option key={index} value={team}>{team}</option>
+//                         ))}
+//                     </select>
+//                 </div>
+
+//                 <div>
+//                     <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">Notice Title</label>
+//                     <input
+//                         type="text"
+//                         id="title"
+//                         value={title}
+//                         onChange={(e) => setTitle(e.target.value)}
+//                         className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                         placeholder="Enter notice title"
+//                         required
+//                     />
+//                 </div>
+
+//                 <div>
+//                     <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">Notice Content</label>
+//                     <textarea
+//                         id="content"
+//                         value={content}
+//                         onChange={(e) => setContent(e.target.value)}
+//                         className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+//                         rows="6"
+//                         placeholder="Write the full notice content here..."
+//                         required
+//                     ></textarea>
+//                 </div>
+
+//                 <button
+//                     type="submit"
+//                     className="w-full bg-blue-600 text-white font-semibold py-3 rounded-md hover:bg-blue-700 transition duration-200"
+//                 >
+//                     Add Notice
+//                 </button>
+//             </form>
+//         </div>
+//     );
+// };
+
+
 const AddNotice = () => {
+    const [teamData, setTeamData] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
-    const [selectedTeam, setSelectedTeam] = useState('');
 
-    const teamOptions = ['Team Alpha', 'Team Bravo', 'Team Delta'];
+    const [openIntake, setOpenIntake] = useState(null);
+    const [openSection, setOpenSection] = useState({});
+    const [openTeam, setOpenTeam] = useState({});
+    const [selectedTeam, setSelectedTeam] = useState(null);
 
+    const [task, setTask] = useState('');
+    const [remark, setRemark] = useState('');
+
+    useEffect(() => {
+        const fetchTeamData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/by-teacher", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                const data = await response.json();
+                setTeamData(data.data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching team data:", error);
+                setLoading(false);
+            }
+        };
+
+        fetchTeamData();
+    }, []);
+
+    const groupedData = useMemo(() => {
+        const grouped = {};
+        teamData.forEach(team => {
+            const { teamName, members } = team;
+            const { intake, section } = members[0] || {};
+
+            if (!intake || !section) return;
+
+            if (!grouped[intake]) grouped[intake] = {};
+            if (!grouped[intake][section]) grouped[intake][section] = {};
+            grouped[intake][section][teamName] = members;
+        });
+        return grouped;
+    }, [teamData]);
+
+    const handleTeamClick = (intake, section, teamName) => {
+        const key = `${intake}-${section}-${teamName}`;
+        setOpenTeam(prev => ({
+            ...prev,
+            [key]: !prev[key],
+        }));
+
+        setSelectedTeam(prev => (
+            prev?.intake === intake && prev?.section === section && prev?.teamName === teamName
+                ? null
+                : { intake, section, teamName }
+        ));
+    };
+
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -477,7 +730,7 @@ const AddNotice = () => {
         }
 
         const noticeData = {
-            teamName: selectedTeam,
+            teamName: selectedTeam.teamName,
             noticeTitle: title,
             noticeDetails: content,
         };
@@ -507,64 +760,113 @@ const AddNotice = () => {
             toast.error("Failed to add notice. Please try again.");
         }
     };
+    
+
+    if (loading) {
+        return <div className="text-center text-lg mt-10">Loading team data...</div>;
+    }
 
     return (
-        <div className="max-w-4xl mx-auto mt-2 p-4 bg-white rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">📢 Add New Notice</h2>
+        <div className="max-w-5xl max-h-[75vh] sm:max-h-[80vh] overflow-y-auto mx-auto mt-6 p-4 sm:p-6 bg-white rounded-xl shadow-lg">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-gray-800">👥 Assign Task to Teams</h2>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Select Team</label>
-                    <select
-                        name="team"
-                        value={selectedTeam}
-                        onChange={(e) => setSelectedTeam(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
+            {Object.entries(groupedData).map(([intake, sections]) => (
+                <div key={intake} className="mb-6 border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                    <button
+                        onClick={() => setOpenIntake(openIntake === intake ? null : intake)}
+                        className="w-full flex justify-between items-center px-4 sm:px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold transition"
                     >
-                        <option value="">-- Select Team --</option>
-                        {teamOptions.map((team, index) => (
-                            <option key={index} value={team}>{team}</option>
-                        ))}
-                    </select>
-                </div>
+                        <span>🎓 Intake {intake}</span>
+                        <span className="text-xl">{openIntake === intake ? '▲' : '▼'}</span>
+                    </button>
 
-                <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">Notice Title</label>
-                    <input
-                        type="text"
-                        id="title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter notice title"
-                        required
-                    />
-                </div>
+                    {openIntake === intake && (
+                        <div className="bg-gray-50 px-4 py-4">
+                            {Object.entries(sections).map(([section, teams]) => (
+                                <div key={section} className="mb-4">
+                                    <button
+                                        onClick={() => setOpenSection(prev => ({
+                                            ...prev,
+                                            [`${intake}-${section}`]: !prev[`${intake}-${section}`]
+                                        }))}
+                                        className="w-full flex justify-between items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md font-medium text-gray-700 transition"
+                                    >
+                                        <span>📘 Section {section}</span>
+                                        <span>{openSection[`${intake}-${section}`] ? '−' : '+'}</span>
+                                    </button>
 
-                <div>
-                    <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">Notice Content</label>
-                    <textarea
-                        id="content"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        rows="6"
-                        placeholder="Write the full notice content here..."
-                        required
-                    ></textarea>
+                                    {openSection[`${intake}-${section}`] && (
+                                        <div className="ml-4 sm:ml-6 mt-2">
+                                            {Object.entries(teams).map(([teamName]) => {
+                                                const teamKey = `${intake}-${section}-${teamName}`;
+                                                return (
+                                                    <div key={teamName} className="mb-3">
+                                                        <button
+                                                            onClick={() => handleTeamClick(intake, section, teamName)}
+                                                            className={`w-full flex justify-between items-center px-4 py-2 rounded-md font-medium transition ${
+                                                                selectedTeam?.teamName === teamName &&
+                                                                selectedTeam?.intake === intake &&
+                                                                selectedTeam?.section === section
+                                                                    ? 'bg-yellow-300 text-gray-900'
+                                                                    : 'bg-yellow-100 hover:bg-yellow-200 text-gray-800'
+                                                            }`}
+                                                        >
+                                                            <span>👨‍👩‍👧‍👦 Team: {teamName}</span>
+                                                            <span>{openTeam[teamKey] ? '−' : '+'}</span>
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
+            ))}
 
-                <button
-                    type="submit"
-                    className="w-full bg-blue-600 text-white font-semibold py-3 rounded-md hover:bg-blue-700 transition duration-200"
-                >
-                    Add Notice
-                </button>
-            </form>
+            {/* Assign Task & Remark Section */}
+            {selectedTeam && (
+                <form onSubmit={handleSubmit} className="mt-8 border-t pt-6">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">📝 Assign Notice Title & Details to {selectedTeam.teamName}</h3>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-1">Notice Title</label>
+                        <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Enter task..."
+                            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-medium mb-1">Notice Details</label>
+                        <textarea
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            placeholder="Add a remark..."
+                            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            rows="3"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-md transition"
+                    >
+                        ✅ Add Notice
+                    </button>
+                </form>
+            )}
         </div>
     );
 };
+
+
 const ShowNotice = () => {
     const [notices, setNotices] = useState([]);
     const [loading, setLoading] = useState(true);
