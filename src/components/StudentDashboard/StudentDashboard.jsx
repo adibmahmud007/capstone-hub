@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 // import TeacherDashboard from '../TeacherDashboard/TeacherDashBoard';
 import { toast } from 'react-toastify';
-import { useEffect } from 'react';
+import { useEffect,useRef } from 'react';
 import axios from "axios";
 import { jwtDecode } from 'jwt-decode'; // ✅ CORRECT
 
@@ -47,7 +47,7 @@ const StudentDashboard = () => {
                     // setLocalTeamName(data.data[0].teamName);
                     setTeamName(data.data[0].teamName); // Fixed: Update parent component state
 
-                    setSupervisor(data.data[0].supervisor || "");
+                    setSupervisor(data.data[0].assignedTeacher || "");
                 } else {
                     console.error(data.message || "Failed to fetch team");
                 }
@@ -67,11 +67,13 @@ const StudentDashboard = () => {
             case 'myTeam':
                 return <MyTeam teamName={teamName} supervisor={supervisor} groupMembers={groupMembers} />; // Fixed: Passing the correct setter
             case 'createProject':
-                return <CreateProject />;
+                return <CreateProject teamName={teamName} supervisor={supervisor}/>;
             // case 'joinProject':
                 // return <JoinProject />;
             case 'showTask':
                 return <ShowTask teamName={teamName} />;
+            case 'showNotice':
+                return <ShowNotice teamName={teamName} />;
             // case 'approveJoinRequest':
                 // return <ApproveJoinRequest />;
             default:
@@ -97,6 +99,7 @@ const StudentDashboard = () => {
                         { key: 'createProject', label: 'Create Project' },
                         // { key: 'joinProject', label: 'Join Project' },
                         { key: 'showTask', label: 'Show Task' },
+                        { key: 'showNotice', label: 'Show Notice' },
                         // { key: 'approveJoinRequest', label: 'Approve Join Request' }
                     ].map(({ key, label }) => (
                         <li
@@ -382,108 +385,431 @@ const MyTeam = ({ teamName,supervisor,groupMembers }) => { // Fixed: Updated pro
 
 
 
-
-
-
-
-const CreateProject = () => {
+const CreateProject = ({teamName,supervisor}) => {
     const [projectTitle, setProjectTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [teamMembers, setTeamMembers] = useState(['']);
-    const [zipFile, setZipFile] = useState(null);
+    const [abstract, setAbstract] = useState('');
+    const [projectType, setProjectType] = useState('Software');
+    const [keywords, setKeywords] = useState([]);
+    const [technologies, setTechnologies] = useState([]);
+    const [furtherImprovement, setFurtherImprovement] = useState('');
+    const [department, setDepartment] = useState('');
+    const [completionDate, setCompletionDate] = useState('');
+    const [authors, setAuthors] = useState('');
+    const [projectCategory, setProjectCategory] = useState('Thesis');
 
-    const handleTeamMemberChange = (index, value) => {
-        const newTeamMembers = [...teamMembers];
-        newTeamMembers[index] = value;
-        setTeamMembers(newTeamMembers);
+    // Tag input states
+    const [keywordInput, setKeywordInput] = useState('');
+    const [technologyInput, setTechnologyInput] = useState('');
+    const [keywordSuggestions, setKeywordSuggestions] = useState([]);
+    const [technologySuggestions, setTechnologySuggestions] = useState([]);
+    const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
+    const [showTechnologySuggestions, setShowTechnologySuggestions] = useState(false);
+
+    const keywordInputRef = useRef(null);
+    const technologyInputRef = useRef(null);
+
+    // Common keywords and technologies
+    const commonKeywords = [
+        'Machine Learning', 'Artificial Intelligence', 'Data Science', 'Web Development',
+        'Mobile Development', 'Database', 'Algorithm', 'Security', 'Cloud Computing',
+        'DevOps', 'Frontend', 'Backend', 'Full Stack', 'API', 'Microservices',
+        'Blockchain', 'IoT', 'Computer Vision', 'Natural Language Processing',
+        'Deep Learning', 'Neural Networks', 'Big Data', 'Analytics'
+    ];
+
+    const commonTechnologies = [
+        'React', 'Node.js', 'Python', 'JavaScript', 'TypeScript', 'Java',
+        'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin',
+        'Flutter', 'React Native', 'Vue.js', 'Angular', 'Express.js',
+        'Django', 'Flask', 'Spring Boot', 'MongoDB', 'PostgreSQL',
+        'MySQL', 'Redis', 'Docker', 'Kubernetes', 'AWS', 'Azure',
+        'Firebase', 'TensorFlow', 'PyTorch', 'OpenCV', 'Git'
+    ];
+
+    // Filter suggestions based on input
+    const filterSuggestions = (input, suggestions) => {
+        return suggestions.filter(item => 
+            item.toLowerCase().includes(input.toLowerCase()) && 
+            !getCurrentTags(input === keywordInput ? 'keywords' : 'technologies').includes(item)
+        );
     };
 
-    const addTeamMember = () => {
-        setTeamMembers([...teamMembers, '']);
+    const getCurrentTags = (type) => {
+        return type === 'keywords' ? keywords : technologies;
+    };
+
+    const handleKeywordInputChange = (e) => {
+        const value = e.target.value;
+        setKeywordInput(value);
+        if (value.trim()) {
+            setKeywordSuggestions(filterSuggestions(value, commonKeywords));
+            setShowKeywordSuggestions(true);
+        } else {
+            setShowKeywordSuggestions(false);
+        }
+    };
+
+    const handleTechnologyInputChange = (e) => {
+        const value = e.target.value;
+        setTechnologyInput(value);
+        if (value.trim()) {
+            setTechnologySuggestions(filterSuggestions(value, commonTechnologies));
+            setShowTechnologySuggestions(true);
+        } else {
+            setShowTechnologySuggestions(false);
+        }
+    };
+
+    const addKeyword = (keyword) => {
+        if (keyword && !keywords.includes(keyword)) {
+            setKeywords([...keywords, keyword]);
+            setKeywordInput('');
+            setShowKeywordSuggestions(false);
+        }
+    };
+
+    const addTechnology = (technology) => {
+        if (technology && !technologies.includes(technology)) {
+            setTechnologies([...technologies, technology]);
+            setTechnologyInput('');
+            setShowTechnologySuggestions(false);
+        }
+    };
+
+    const removeKeyword = (keywordToRemove) => {
+        setKeywords(keywords.filter(keyword => keyword !== keywordToRemove));
+    };
+
+    const removeTechnology = (technologyToRemove) => {
+        setTechnologies(technologies.filter(technology => technology !== technologyToRemove));
+    };
+
+    const handleKeywordKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (keywordSuggestions.length > 0) {
+                addKeyword(keywordSuggestions[0]);
+            } else if (keywordInput.trim()) {
+                addKeyword(keywordInput.trim());
+            }
+        }
+    };
+
+    const handleTechnologyKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (technologySuggestions.length > 0) {
+                addTechnology(technologySuggestions[0]);
+            } else if (technologyInput.trim()) {
+                addTechnology(technologyInput.trim());
+            }
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log({
             projectTitle,
-            description,
-            teamMembers,
-            zipFile,
+            abstract,
+            projectType,
+            keywords,
+            technologies,
+            furtherImprovement,
+            department,
+            completionDate,
+            authors,
+            supervisor,
+            projectCategory,
         });
     };
 
+    // Click outside handlers
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (keywordInputRef.current && !keywordInputRef.current.contains(event.target)) {
+                setShowKeywordSuggestions(false);
+            }
+            if (technologyInputRef.current && !technologyInputRef.current.contains(event.target)) {
+                setShowTechnologySuggestions(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg lg:shadow-md">
-            <h2 className="text-2xl font-bold mb-6">Create Project</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Project Title</label>
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg lg:shadow-md">
+            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Create Project</h2>
+            <div className="space-y-6">
+                
+                {/* Project Title */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        1. Project Title <span className="text-red-500">*</span>
+                    </label>
                     <input
                         type="text"
                         value={projectTitle}
                         onChange={(e) => setProjectTitle(e.target.value)}
-                        className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
                     />
                 </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
+                {/* Abstract/Summary */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        2. Abstract/Summary (150-250 words) <span className="text-red-500">*</span>
+                    </label>
                     <textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500"
-                        rows="4"
+                        value={abstract}
+                        onChange={(e) => setAbstract(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows="6"
+                        placeholder="Provide a comprehensive summary of your project..."
                         required
                     />
+                    <div className="text-sm text-gray-500 mt-1">
+                        Word count: {abstract.split(' ').filter(word => word.length > 0).length}
+                    </div>
                 </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Team Members (Email/Username)</label>
-                    {teamMembers.map((member, index) => (
-                        <div key={index} className="flex items-center mb-2">
+                {/* Team (Auto-selected) */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        3. Team
+                    </label>
+                    <div className="bg-gray-50 border border-gray-300 rounded-lg p-3">
+                        <span className="text-gray-600">{teamName}</span>
+                    </div>
+                </div>
+
+                {/* Project Type */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        4. Project Type <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex space-x-6">
+                        <label className="flex items-center">
                             <input
-                                type="text"
-                                value={member}
-                                onChange={(e) => handleTeamMemberChange(index, e.target.value)}
-                                className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500"
-                                placeholder="Enter email or username"
-                                required
+                                type="radio"
+                                value="Software"
+                                checked={projectType === 'Software'}
+                                onChange={(e) => setProjectType(e.target.value)}
+                                className="mr-2 text-blue-600 focus:ring-blue-500"
                             />
-                            {index === teamMembers.length - 1 && (
+                            Software
+                        </label>
+                        <label className="flex items-center">
+                            <input
+                                type="radio"
+                                value="AI"
+                                checked={projectType === 'AI'}
+                                onChange={(e) => setProjectType(e.target.value)}
+                                className="mr-2 text-blue-600 focus:ring-blue-500"
+                            />
+                            AI
+                        </label>
+                    </div>
+                </div>
+
+                {/* Keywords */}
+                <div className="relative" ref={keywordInputRef}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        5. Keywords <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                        {keywords.map((keyword, index) => (
+                            <span
+                                key={index}
+                                className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                            >
+                                {keyword}
                                 <button
                                     type="button"
-                                    onClick={addTeamMember}
-                                    className="ml-2 text-blue-500 hover:underline"
+                                    onClick={() => removeKeyword(keyword)}
+                                    className="ml-2 text-blue-600 hover:text-blue-800"
                                 >
-                                    Add
+                                    <X size={14} />
                                 </button>
-                            )}
+                            </span>
+                        ))}
+                    </div>
+                    <input
+                        type="text"
+                        value={keywordInput}
+                        onChange={handleKeywordInputChange}
+                        onKeyPress={handleKeywordKeyPress}
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Type to search keywords..."
+                    />
+                    {showKeywordSuggestions && keywordSuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                            {keywordSuggestions.map((suggestion, index) => (
+                                <button
+                                    key={index}
+                                    type="button"
+                                    onClick={() => addKeyword(suggestion)}
+                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                                >
+                                    {suggestion}
+                                </button>
+                            ))}
                         </div>
-                    ))}
+                    )}
                 </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Upload Project Zip File</label>
+                {/* Technology */}
+                <div className="relative" ref={technologyInputRef}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        6. Technology <span className="text-red-500">*</span>
+                    </label>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                        {technologies.map((technology, index) => (
+                            <span
+                                key={index}
+                                className="inline-flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
+                            >
+                                {technology}
+                                <button
+                                    type="button"
+                                    onClick={() => removeTechnology(technology)}
+                                    className="ml-2 text-green-600 hover:text-green-800"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </span>
+                        ))}
+                    </div>
                     <input
-                        type="file"
-                        accept=".zip"
-                        onChange={(e) => setZipFile(e.target.files[0])}
-                        className="block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring focus:ring-blue-500"
+                        type="text"
+                        value={technologyInput}
+                        onChange={handleTechnologyInputChange}
+                        onKeyPress={handleTechnologyKeyPress}
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Type to search technologies..."
+                    />
+                    {showTechnologySuggestions && technologySuggestions.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                            {technologySuggestions.map((suggestion, index) => (
+                                <button
+                                    key={index}
+                                    type="button"
+                                    onClick={() => addTechnology(suggestion)}
+                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                                >
+                                    {suggestion}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Further Improvement */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        7. Further Improvement (Optional)
+                    </label>
+                    <textarea
+                        value={furtherImprovement}
+                        onChange={(e) => setFurtherImprovement(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows="4"
+                        placeholder="Describe potential improvements or future work..."
+                    />
+                </div>
+
+                {/* Department/Faculty */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        8. Department/Faculty (Optional)
+                    </label>
+                    <input
+                        type="text"
+                        value={department}
+                        onChange={(e) => setDepartment(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="e.g., Computer Science, Engineering, etc."
+                    />
+                </div>
+
+                {/* Completion Date */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        9. Completion Date <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="date"
+                        value={completionDate}
+                        onChange={(e) => setCompletionDate(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
                     />
                 </div>
 
-                <button
-                    type="submit"
-                    className="w-full bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 transition duration-200"
-                >
-                    Create Project
-                </button>
-            </form>
+                {/* Author(s)/Team members */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        10. Author(s)/Team Members (Optional)
+                    </label>
+                    <textarea
+                        value={authors}
+                        onChange={(e) => setAuthors(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows="3"
+                        placeholder="List all team members with their roles..."
+                    />
+                </div>
+
+                {/* Primary advisor/supervisor */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        11. Primary Advisor/Supervisor (Optional)
+                    </label>
+                    <div className="bg-gray-50 border border-gray-300 rounded-lg p-3">
+                        <span className="text-gray-600">{supervisor}</span>
+                    </div>
+                </div>
+
+                {/* Project Category */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        12. Project Category <span className="text-red-500">*</span>
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {['Thesis', 'Research Project', 'Course Project', 'Personal Project'].map((category) => (
+                            <label key={category} className="flex items-center">
+                                <input
+                                    type="radio"
+                                    value={category}
+                                    checked={projectCategory === category}
+                                    onChange={(e) => setProjectCategory(e.target.value)}
+                                    className="mr-2 text-blue-600 focus:ring-blue-500"
+                                />
+                                {category}
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-6">
+                    <button
+                        type="button"
+                        onClick={handleSubmit}
+                        className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200 transform hover:scale-105"
+                    >
+                        Create Project
+                    </button>
+                </div>
+                </div>
         </div>
     );
 };
+
 
 // const JoinProject = () => {
 //     const [searchTerm, setSearchTerm] = useState('');
@@ -630,6 +956,56 @@ const ShowTask = ({ teamName }) => {
                     </tbody>
                 </table>
             </div>
+        </div>
+    );
+};
+
+
+
+const ShowNotice = ({ teamName }) => {
+    const [notices,setNotices]= useState([])
+    console.log(teamName,'from show task')
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const response = await axios.get(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice/${teamName}`);
+                const fetchedTasks = response.data.data || [];
+                console.log(response.data,'from show task')
+                // Assuming the API returns: [{ task: "...", remark: "..." }]
+                // const mappedTasks = fetchedTasks.map((taskObj, index) => ({
+                //     id: index + 1,
+                //     task: taskObj.assignedTask,
+                //     completed: taskObj.status, // Default to false as API doesn't provide it
+                //     remark: taskObj.remarks,
+                // }));
+
+                setNotices(fetchedTasks);
+            } catch (error) {
+                toast.error("Failed to fetch tasks");
+                console.error("Error fetching tasks:", error);
+            }
+        };
+
+        if (teamName) fetchTasks();
+    }, [teamName]);
+
+
+    return (
+        <div className="max-w-5xl mx-auto mt-8 p-8 bg-white rounded-2xl shadow-lg transition-all">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-6">📋 Project Task Manager</h2>
+
+            <div className="space-y-6 ">
+                    {notices.map((notice) => (
+                        <div key={notice._id} className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
+                            <div className="flex justify-between items-center mb-2">
+                                <h3 className="text-lg font-semibold text-blue-600">{notice.noticeTitle}</h3>
+                                <span className="text-sm text-gray-500">📌 {notice.teamName}</span>
+                            </div>
+                            <p className="text-gray-700 whitespace-pre-line">{notice.noticeDetails}</p>
+                            
+                        </div>
+                    ))}
+                </div>
         </div>
     );
 };
