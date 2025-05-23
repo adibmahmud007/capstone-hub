@@ -947,7 +947,7 @@ const ShowNotice = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
+        <div className="max-w-4xl  mx-auto mt-10 p-6 bg-white rounded-xl shadow-lg">
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">📃 All Notices</h2>
 
             {loading ? (
@@ -955,7 +955,7 @@ const ShowNotice = () => {
             ) : notices.length === 0 ? (
                 <p className="text-center text-gray-400 italic">No notices available.</p>
             ) : (
-                <div className="space-y-6">
+                <div className="space-y-6 ">
                     {notices.map((notice) => (
                         <div key={notice._id} className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
                             <div className="flex justify-between items-center mb-2">
