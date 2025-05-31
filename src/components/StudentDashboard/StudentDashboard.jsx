@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 // import TeacherDashboard from '../TeacherDashboard/TeacherDashBoard';
 import { toast } from 'react-toastify';
-import { useEffect,useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import axios from "axios";
 import { jwtDecode } from 'jwt-decode'; // ✅ CORRECT
 
@@ -67,44 +67,53 @@ const StudentDashboard = () => {
             case 'myTeam':
                 return <MyTeam teamName={teamName} supervisor={supervisor} groupMembers={groupMembers} />; // Fixed: Passing the correct setter
             case 'createProject':
-                return <CreateProject teamName={teamName} supervisor={supervisor}/>;
+                return <CreateProject teamName={teamName} supervisor={supervisor} />;
             // case 'joinProject':
-                // return <JoinProject />;
+            // return <JoinProject />;
             case 'showTask':
                 return <ShowTask teamName={teamName} />;
             case 'showNotice':
                 return <ShowNotice teamName={teamName} />;
             // case 'approveJoinRequest':
-                // return <ApproveJoinRequest />;
+            // return <ApproveJoinRequest />;
             default:
                 return <CreateGroup groupMembers={groupMembers} setGroupMembers={setGroupMembers} />;
         }
     };
 
     return (
-        <div className="flex h-screen bg-white lg:bg-gray-100">
+        <div className="flex h-screen bg-gradient-to-br from-blue-50 to-blue-100">
             {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 w-64 bg-gray-800 text-white p-4 transition-transform duration-300 lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                <div className="flex justify-between items-center lg:hidden">
-                    <h2 className="text-lg font-bold">Menu</h2>
-                    <button onClick={() => setSidebarOpen(false)} className="text-white">
+            <div
+                className={`fixed inset-y-0 lg:pt-5 left-0 w-64 bg-[#0B1F3A] text-white p-4 transition-transform duration-300 shadow-xl lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
+            >
+                <div className="flex justify-between items-center mb-4 lg:hidden">
+                    <h2 className="text-md font-bold bg-gradient-to-r from-blue-400 to-blue-200 bg-clip-text text-transparent">Studnet Dashboard</h2>
+                    <button onClick={() => setSidebarOpen(false)} className="text-white hover:text-blue-300">
                         <X size={24} />
                     </button>
                 </div>
-                <h2 className="text-lg font-bold mb-4 hidden lg:block">Student Dashboard Menu</h2>
-                <ul>
+
+                {/* Gradient Text for Student Dashboard Menu */}
+                <h2 className="text-xl font-extrabold mb-4 hidden lg:block bg-gradient-to-r from-blue-400 to-blue-200 bg-clip-text text-transparent">
+                    Student Dashboard
+                </h2>
+
+                <ul className="space-y-2">
                     {[
                         { key: 'createGroup', label: 'Create Group' },
                         { key: 'myTeam', label: 'My Team' },
                         { key: 'createProject', label: 'Create Project' },
-                        // { key: 'joinProject', label: 'Join Project' },
                         { key: 'showTask', label: 'Show Task' },
                         { key: 'showNotice', label: 'Show Notice' },
-                        // { key: 'approveJoinRequest', label: 'Approve Join Request' }
                     ].map(({ key, label }) => (
                         <li
                             key={key}
-                            className={`cursor-pointer p-2 hover:bg-gray-700 ${activeMenu === key ? 'bg-gray-600' : ''}`}
+                            className={`cursor-pointer px-4 py-2 rounded-lg transition-all duration-200 ${activeMenu === key
+                                    ? 'bg-blue-700 text-white shadow'
+                                    : 'hover:bg-blue-800 text-blue-100 hover:text-white'
+                                }`}
                             onClick={() => {
                                 setActiveMenu(key);
                                 setSidebarOpen(false);
@@ -114,22 +123,25 @@ const StudentDashboard = () => {
                         </li>
                     ))}
                 </ul>
-                
             </div>
 
             {/* Hamburger Button */}
             {!sidebarOpen && (
-                <button onClick={() => setSidebarOpen(true)} className="absolute top-4 left-4 lg:hidden z-20 text-gray-200 bg-gray-700 p-2 rounded-md shadow-md">
+                <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="absolute top-4 left-4 lg:hidden z-20 text-white bg-blue-800 p-2 rounded-md shadow-md hover:bg-blue-900 transition"
+                >
                     <Menu size={24} />
                 </button>
             )}
 
             {/* Main Content */}
-            <div className="flex-1 overflow-y-auto p-4 pt-10 lg:pl-28 lg:pt-16">
+            <div className="flex-1 overflow-y-auto p-4 pt-10 lg:pl-28 lg:pt-10">
                 {renderContent()}
-                {/* <TeacherDashboard groupMembers={groupMembers} setGroupMembers={setGroupMembers}></TeacherDashboard> */}
             </div>
         </div>
+
+
     );
 };
 
@@ -173,7 +185,7 @@ const CreateGroup = () => {
     };
 
     const handleCreateGroup = async () => {
-        if (groupMembers.length > 5) {
+        if (groupMembers.length !== 5) {
             toast.error("Exactly 5 members are required to create a group");
             return;
         }
@@ -208,120 +220,127 @@ const CreateGroup = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto mt-10 bg-white lg:shadow-xl rounded-2xl p-2 lg:p-8">
-            <h2 className="text-3xl font-bold text-center mb-8 text-blue-700">Create Capstone Group</h2>
+        <div className="max-w-4xl mx-auto bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl p-6 lg:p-10 border border-blue-100">
+            <h2 className="text-3xl font-extrabold text-center mb-10 bg-gradient-to-r from-blue-700 to-blue-400 bg-clip-text text-transparent">
+                Create Capstone Group
+            </h2>
 
             {/* Team Name */}
-            <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Team Name</label>
+            <div className="mb-8">
+                <label className="block text-lg font-medium text-gray-800 mb-2">Team Name</label>
                 <input
                     type="text"
                     value={teamName}
                     onChange={(e) => setTeamName(e.target.value)}
                     placeholder="Enter your team name"
-                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border hover:border-blue-500 hover:border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
             </div>
 
             {/* Member Form */}
             <form onSubmit={handleAddMember} className="space-y-4">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Add Member ({groupMembers.length}/5)</h3>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input
-                        type="text"
-                        name="username"
-                        value={member.username}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="John Doe"
-                        required
-                    />
+                <div className="mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-1">Add Member ({groupMembers.length}/5)</h3>
+                    <p className="text-sm text-gray-500">Fill out the member information below</p>
                 </div>
 
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Intake</label>
+                <div className="grid gap-4 lg:grid-cols-2">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                         <input
                             type="text"
-                            name="intake"
-                            value={member.intake}
+                            name="username"
+                            value={member.username}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="e.g., 54"
+                            className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="John Doe"
                             required
                         />
                     </div>
-                    <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
-                        <input
-                            type="text"
-                            name="section"
-                            value={member.section}
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Intake</label>
+                            <input
+                                type="text"
+                                name="intake"
+                                value={member.intake}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="e.g., 54"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
+                            <input
+                                type="text"
+                                name="section"
+                                value={member.section}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="e.g., A"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                        <select
+                            name="department"
+                            value={member.department}
                             onChange={handleChange}
-                            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="e.g., A"
+                            className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            required
+                        >
+                            <option value="">Select Department</option>
+                            <option value="CSE">CSE</option>
+                            <option value="EEE">EEE</option>
+                            <option value="BBA">BBA</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Education Email</label>
+                        <input
+                            type="email"
+                            name="educationalMail"
+                            value={member.educationalMail}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="example@student.university.edu"
                             required
                         />
                     </div>
-                </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                    <select
-                        name="department"
-                        value={member.department}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        required
-                    >
-                        <option value="">Select Department</option>
-                        <option value="CSE">CSE</option>
-                        <option value="EEE">EEE</option>
-                        <option value="BBA">BBA</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Education Email</label>
-                    <input
-                        type="email"
-                        name="educationalMail"
-                        value={member.educationalMail}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="example@student.university.edu"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                    <input
-                        type="text"
-                        name="phone"
-                        value={member.phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="01XXXXXXXXX"
-                        required
-                    />
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        <input
+                            type="text"
+                            name="phone"
+                            value={member.phone}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="01XXXXXXXXX"
+                            required
+                        />
+                    </div>
                 </div>
 
                 <button
                     type="submit"
-                    className="w-full bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700 transition"
+                    className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold py-3 rounded-lg hover:brightness-110 transition mt-4"
                 >
                     Add Member
                 </button>
             </form>
 
             {/* Group Submit */}
-            <div className="mt-8">
+            <div className="mt-10">
                 <button
                     onClick={handleCreateGroup}
-                    className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition"
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold py-3 rounded-lg hover:brightness-110 transition"
                 >
                     Create Group
                 </button>
@@ -334,23 +353,37 @@ const CreateGroup = () => {
 
 
 
-const MyTeam = ({ teamName,supervisor,groupMembers }) => { // Fixed: Updated prop name
-     // Fixed: Add dependency
 
+const MyTeam = ({ teamName, supervisor, groupMembers }) => {
     return (
-        <div className="max-w-5xl mx-auto p-2 lg:p-8 bg-white rounded-lg lg:shadow-lg">
-            <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">OpenSpace - Capstone Repository System</h1>
-            <div className="mb-4">
-                <h2 className="text-2xl text-center font-bold">Supervisor: <span className="text-gray-700">{supervisor}</span></h2>
-                <h2 className="text-xl text-center font-semibold mt-2">Team Name: <span className="text-gray-800">{teamName}</span></h2>
+        <div className="max-w-6xl mx-auto p-6 lg:p-10 bg-white rounded-2xl shadow-xl">
+            {/* Heading */}
+            <div className="text-center mb-10">
+                <h1 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text mb-2">
+                    OpenSpace - Capstone Repository
+                </h1>
+                <p className="text-gray-600 text-lg">Empowering Teams with Clarity and Coordination</p>
             </div>
 
+            {/* Supervisor & Team Info - Blue Themed Cards */}
+            <div className="grid sm:grid-cols-2 gap-6 mb-10 text-center">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-md hover:shadow-lg transition">
+                    <p className="text-md text-blue-700 font-medium mb-1">Supervisor</p>
+                    <p className="text-2xl font-semibold text-blue-900">{supervisor || 'N/A'}</p>
+                </div>
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-md hover:shadow-lg transition">
+                    <p className="text-md text-blue-700 font-medium mb-1">Team Name</p>
+                    <p className="text-2xl font-semibold text-blue-900">{teamName || 'N/A'}</p>
+                </div>
+            </div>
+
+            {/* Group Members Table */}
             {groupMembers.length === 0 ? (
                 <p className="text-gray-500 text-center">No members added yet.</p>
             ) : (
-                <div className="overflow-x-auto mt-6">
-                    <table className="min-w-full border border-gray-300 text-sm text-left">
-                        <thead className="bg-blue-100 text-gray-800 font-semibold">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full border border-gray-200 text-sm text-left rounded-lg overflow-hidden">
+                        <thead className="bg-blue-50 text-blue-800 uppercase text-xs font-bold">
                             <tr>
                                 <th className="px-4 py-3 border">#</th>
                                 <th className="px-4 py-3 border">Name</th>
@@ -363,13 +396,13 @@ const MyTeam = ({ teamName,supervisor,groupMembers }) => { // Fixed: Updated pro
                         </thead>
                         <tbody>
                             {groupMembers.map((member, index) => (
-                                <tr key={index} className="bg-white even:bg-gray-50">
-                                    <td className="px-4 py-3 border">{index + 1}</td>
+                                <tr key={index} className="even:bg-gray-50 hover:bg-gray-100 transition">
+                                    <td className="px-4 py-3 border font-semibold">{index + 1}</td>
                                     <td className="px-4 py-3 border">{member.username}</td>
                                     <td className="px-4 py-3 border">{member.intake}</td>
                                     <td className="px-4 py-3 border">{member.section}</td>
                                     <td className="px-4 py-3 border">{member.department}</td>
-                                    <td className="px-4 py-3 border">{member.educationalMail}</td>
+                                    <td className="px-4 py-3 border text-blue-700">{member.educationalMail}</td>
                                     <td className="px-4 py-3 border">{member.phone}</td>
                                 </tr>
                             ))}
@@ -385,7 +418,9 @@ const MyTeam = ({ teamName,supervisor,groupMembers }) => { // Fixed: Updated pro
 
 
 
-const CreateProject = ({teamName,supervisor}) => {
+
+
+const CreateProject = ({ teamName, supervisor }) => {
     const [projectTitle, setProjectTitle] = useState('');
     const [abstract, setAbstract] = useState('');
     const [projectType, setProjectType] = useState('Software');
@@ -428,8 +463,8 @@ const CreateProject = ({teamName,supervisor}) => {
 
     // Filter suggestions based on input
     const filterSuggestions = (input, suggestions) => {
-        return suggestions.filter(item => 
-            item.toLowerCase().includes(input.toLowerCase()) && 
+        return suggestions.filter(item =>
+            item.toLowerCase().includes(input.toLowerCase()) &&
             !getCurrentTags(input === keywordInput ? 'keywords' : 'technologies').includes(item)
         );
     };
@@ -542,9 +577,9 @@ const CreateProject = ({teamName,supervisor}) => {
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg lg:shadow-md">
-            <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Create Project</h2>
+            <h2 className="text-3xl font-extrabold text-center mb-8 bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text">Create Capstone Project</h2>
             <div className="space-y-6">
-                
+
                 {/* Project Title */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -805,7 +840,7 @@ const CreateProject = ({teamName,supervisor}) => {
                         Create Project
                     </button>
                 </div>
-                </div>
+            </div>
         </div>
     );
 };
@@ -878,18 +913,19 @@ const CreateProject = ({teamName,supervisor}) => {
 
 const ShowTask = ({ teamName }) => {
     const [tasks, setTasks] = useState([]);
-    console.log(teamName,'from show task')
+    console.log(teamName, 'from show task')
+
     useEffect(() => {
         const fetchTasks = async () => {
             try {
                 const response = await axios.get(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${teamName}`);
                 const fetchedTasks = response.data.data || [];
-                console.log(response.data,'from show task')
-                // Assuming the API returns: [{ task: "...", remark: "..." }]
+                console.log(response.data, 'from show task');
+
                 const mappedTasks = fetchedTasks.map((taskObj, index) => ({
                     id: index + 1,
                     task: taskObj.assignedTask,
-                    completed: taskObj.status, // Default to false as API doesn't provide it
+                    completed: taskObj.status,
                     remark: taskObj.remarks,
                 }));
 
@@ -917,40 +953,42 @@ const ShowTask = ({ teamName }) => {
     };
 
     return (
-        <div className="max-w-5xl mx-auto mt-8 p-8 bg-white rounded-2xl shadow-lg transition-all">
-            <h2 className="text-3xl font-semibold text-gray-800 mb-6">📋 Project Task Manager</h2>
+        <div className="max-w-6xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl shadow-xl transition-all">
+            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text mb-8 tracking-tight text-center">
+                 Team Task Overview
+            </h2>
 
-            <div className="overflow-x-auto rounded-lg">
-                <table className="min-w-full divide-y divide-gray-500">
-                    <thead className="bg-gray-100">
+            <div className="overflow-x-auto rounded-xl">
+                <table className="min-w-full text-sm text-left text-gray-700 border border-gray-300 rounded-lg">
+                    <thead className="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
                         <tr>
-                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Task #</th>
-                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Task</th>
-                            <th className="px-6 py-3 text-center text-sm font-semibold text-gray-600">Status</th>
-                            <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Remark</th>
+                            <th className="px-6 py-4">Task #</th>
+                            <th className="px-6 py-4">Task</th>
+                            <th className="px-6 py-4 text-center">Status</th>
+                            <th className="px-6 py-4">Remark</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-300">
+                    <tbody className="bg-white divide-y divide-gray-200">
                         {tasks.map(({ id, task, completed, remark }) => (
-                            <tr key={id} className="hover:bg-gray-50 transition-all">
-                                <td className="px-6 py-4 text-sm text-gray-700">{id}</td>
-                                <td className={`px-6 py-4 text-sm ${completed ? "text-gray-400 line-through italic" : "text-gray-800"}`}>
+                            <tr key={id} className="hover:bg-gray-50 transition-colors duration-200">
+                                <td className="px-6 py-4 font-medium text-gray-900">{id}</td>
+                                <td className={`px-6 py-4 ${completed ? "text-gray-400 line-through italic" : "text-gray-800"}`}>
                                     {task}
                                 </td>
                                 <td className="px-6 py-4 text-center">
-                                    <label className="inline-flex items-center space-x-2 cursor-pointer">
-                                        <input 
+                                    <label className="inline-flex items-center cursor-pointer">
+                                        <input
                                             type="checkbox"
                                             checked={completed}
                                             onChange={() => toggleCompletion(id)}
-                                            className="form-checkbox h-5 w-5 text-green-500 rounded transition duration-300"
+                                            className="form-checkbox h-5 w-5 text-green-600 rounded transition duration-200"
                                         />
-                                        <span className={`text-sm font-medium ${completed ? "text-green-600" : "text-red-500"}`}>
-                                            {completed ? "Completed" : "Not Completed"}
+                                        <span className={`ml-2 font-semibold ${completed ? "text-green-600" : "text-red-500"}`}>
+                                            {completed ? "✔ Done" : "❌ Pending"}
                                         </span>
                                     </label>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-600">{remark}</td>
+                                <td className="px-6 py-4 text-gray-600">{remark}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -963,22 +1001,15 @@ const ShowTask = ({ teamName }) => {
 
 
 const ShowNotice = ({ teamName }) => {
-    const [notices,setNotices]= useState([])
-    console.log(teamName,'from show task')
+    const [notices, setNotices] = useState([]);
+    console.log(teamName, 'from show task');
+
     useEffect(() => {
         const fetchTasks = async () => {
             try {
                 const response = await axios.get(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice/${teamName}`);
                 const fetchedTasks = response.data.data || [];
-                console.log(response.data,'from show task')
-                // Assuming the API returns: [{ task: "...", remark: "..." }]
-                // const mappedTasks = fetchedTasks.map((taskObj, index) => ({
-                //     id: index + 1,
-                //     task: taskObj.assignedTask,
-                //     completed: taskObj.status, // Default to false as API doesn't provide it
-                //     remark: taskObj.remarks,
-                // }));
-
+                console.log(response.data, 'from show task');
                 setNotices(fetchedTasks);
             } catch (error) {
                 toast.error("Failed to fetch tasks");
@@ -989,26 +1020,34 @@ const ShowNotice = ({ teamName }) => {
         if (teamName) fetchTasks();
     }, [teamName]);
 
-
     return (
-        <div className="max-w-5xl mx-auto mt-8 p-8 bg-white rounded-2xl shadow-lg transition-all">
-            <h2 className="text-3xl font-semibold text-gray-800 mb-6">📋 Project Task Manager</h2>
+        <div className="max-w-5xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-3xl shadow-xl">
+            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text mb-8 text-center tracking-tight">
+                 Team Notices
+            </h2>
 
-            <div className="space-y-6 ">
-                    {notices.map((notice) => (
-                        <div key={notice._id} className="p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
-                            <div className="flex justify-between items-center mb-2">
-                                <h3 className="text-lg font-semibold text-blue-600">{notice.noticeTitle}</h3>
-                                <span className="text-sm text-gray-500">📌 {notice.teamName}</span>
-                            </div>
-                            <p className="text-gray-700 whitespace-pre-line">{notice.noticeDetails}</p>
-                            
+            <div className="space-y-6 max-h-[500px] overflow-y-auto">
+                {notices.map((notice) => (
+                    <div
+                        key={notice._id}
+                        className="p-6 bg-white rounded-xl border border-blue-200 shadow-md hover:shadow-lg transition duration-300"
+                    >
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="text-xl font-semibold text-blue-600">{notice.noticeTitle}</h3>
+                            <span className="text-sm font-medium text-blue-500 bg-blue-100 px-3 py-1 rounded-full">
+                                📌 {notice.teamName}
+                            </span>
                         </div>
-                    ))}
-                </div>
+                        <p className="text-gray-700 whitespace-pre-line leading-relaxed">
+                            {notice.noticeDetails}
+                        </p>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
+
 
 
 
