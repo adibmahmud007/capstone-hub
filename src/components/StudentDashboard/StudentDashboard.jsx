@@ -168,12 +168,31 @@ const CreateGroup = () => {
 
     const handleAddMember = (e) => {
         e.preventDefault();
-
+    
+        // Check if mail or phone already exists
+        const isDuplicateMail = groupMembers.some(
+            (m) =>
+                m.educationalMail === member.educationalMail 
+        );
+        const isDuplicatePhone = groupMembers.some(
+            (m) =>
+                m.phone === member.phone
+        );
+    
+        if (isDuplicateMail) {
+            toast.error("The educational mail is already taken.");
+            return;
+        }
+        if (isDuplicatePhone) {
+            toast.error("The phone number is already taken.");
+            return;
+        }
+    
         if (groupMembers.length >= 5) {
             toast.error("A group can have only 5 members");
             return;
         }
-
+    
         setGroupMembers([...groupMembers, member]);
         setMember({
             username: '',
@@ -183,9 +202,10 @@ const CreateGroup = () => {
             educationalMail: '',
             phone: ''
         });
-
+    
         toast.success("Member added successfully");
     };
+    
 
     const handleCreateGroup = async () => {
         if (groupMembers.length !== 5) {
