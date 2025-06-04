@@ -276,7 +276,7 @@ const CreateGroup = () => {
                             value={member.username}
                             onChange={handleChange}
                             className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="John Doe"
+                            placeholder="e.g., Adib Mahmud"
                             required
                         />
                     </div>
@@ -290,7 +290,7 @@ const CreateGroup = () => {
                                 value={member.intake}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="e.g., 54"
+                                placeholder="e.g., 48"
                                 required
                             />
                         </div>
@@ -302,7 +302,7 @@ const CreateGroup = () => {
                                 value={member.section}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="e.g., A"
+                                placeholder="e.g., 3"
                                 required
                             />
                         </div>
@@ -321,6 +321,10 @@ const CreateGroup = () => {
                             <option value="CSE">CSE</option>
                             <option value="EEE">EEE</option>
                             <option value="BBA">BBA</option>
+                            <option value="CIVIL">CIVIL</option>
+                            <option value="TEXTILE">TEXTILE</option>
+                            <option value="LAW">LAW</option>
+                            <option value="ECONOMICS">ECONOMICS</option>
                         </select>
                     </div>
 
@@ -332,7 +336,7 @@ const CreateGroup = () => {
                             value={member.educationalMail}
                             onChange={handleChange}
                             className="w-full px-4 py-2 border rounded-lg hover:border-blue-500 hover:border-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="example@student.university.edu"
+                            placeholder="example@cse.bubt.edu.bd"
                             required
                         />
                     </div>
