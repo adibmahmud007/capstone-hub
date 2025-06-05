@@ -169,7 +169,6 @@ const CreateGroup = () => {
     const handleAddMember = (e) => {
         e.preventDefault();
     
-        // Check if mail or phone already exists
         const isDuplicateMail = groupMembers.some(
             (m) =>
                 m.educationalMail === member.educationalMail 
@@ -539,7 +538,7 @@ const Upload = () => {
 
 
 
-const CreateProject = ({ teamName, supervisor }) => {
+  const CreateProject = ({ teamName, supervisor }) => {
     const [projectTitle, setProjectTitle] = useState('');
     const [abstract, setAbstract] = useState('');
     const [projectType, setProjectType] = useState('Software');
@@ -551,18 +550,17 @@ const CreateProject = ({ teamName, supervisor }) => {
     const [authors, setAuthors] = useState('');
     const [projectCategory, setProjectCategory] = useState('Thesis');
 
-    // Tag input states
     const [keywordInput, setKeywordInput] = useState('');
     const [technologyInput, setTechnologyInput] = useState('');
     const [keywordSuggestions, setKeywordSuggestions] = useState([]);
     const [technologySuggestions, setTechnologySuggestions] = useState([]);
     const [showKeywordSuggestions, setShowKeywordSuggestions] = useState(false);
     const [showTechnologySuggestions, setShowTechnologySuggestions] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const keywordInputRef = useRef(null);
     const technologyInputRef = useRef(null);
 
-    // Common keywords and technologies
     const commonKeywords = [
         'Machine Learning', 'Artificial Intelligence', 'Data Science', 'Web Development',
         'Mobile Development', 'Database', 'Algorithm', 'Security', 'Cloud Computing',
@@ -580,7 +578,6 @@ const CreateProject = ({ teamName, supervisor }) => {
         'Firebase', 'TensorFlow', 'PyTorch', 'OpenCV', 'Git'
     ];
 
-    // Filter suggestions based on input
     const filterSuggestions = (input, suggestions) => {
         return suggestions.filter(item =>
             item.toLowerCase().includes(input.toLowerCase()) &&
@@ -660,11 +657,15 @@ const CreateProject = ({ teamName, supervisor }) => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log({
+        setLoading(true);
+
+        const payload = {
             projectTitle,
             abstract,
+            teamName,
+            supervisor,
             projectType,
             keywords,
             technologies,
@@ -672,12 +673,33 @@ const CreateProject = ({ teamName, supervisor }) => {
             department,
             completionDate,
             authors,
-            supervisor,
-            projectCategory,
-        });
+            projectCategory
+        };
+
+        try {
+            const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit project');
+            }
+
+            const result = await response.json();
+            console.log('Project submitted:', result);
+            alert('Project submitted successfully!');
+        } catch (error) {
+            console.error('Error submitting project:', error);
+            alert('Submission failed. Try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // Click outside handlers
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (keywordInputRef.current && !keywordInputRef.current.contains(event.target)) {
@@ -956,7 +978,7 @@ const CreateProject = ({ teamName, supervisor }) => {
                         onClick={handleSubmit}
                         className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200 transform hover:scale-105"
                     >
-                        Create Project
+                        {loading ? 'Creating Project...' : 'Create Project'}
                     </button>
                 </div>
             </div>
