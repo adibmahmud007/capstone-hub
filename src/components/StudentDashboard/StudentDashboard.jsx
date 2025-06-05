@@ -691,10 +691,10 @@ const Upload = () => {
 
             const result = await response.json();
             console.log('Project submitted:', result);
-            alert('Project submitted successfully!');
+            toast.success('Project submitted successfully!');
         } catch (error) {
             console.error('Error submitting project:', error);
-            alert('Submission failed. Try again.');
+            toast.error('Submission failed. Try again.');
         } finally {
             setLoading(false);
         }
