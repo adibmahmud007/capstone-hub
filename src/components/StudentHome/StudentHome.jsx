@@ -1,38 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../Header/Header";
-
-// Add more projects
-const projects = [
-    { id: 1, name: "AI Chatbot", details: "An NLP-based chatbot for customer service." },
-    { id: 2, name: "E-Commerce Website", details: "A full-stack online shopping platform." },
-    { id: 3, name: "Weather App", details: "A real-time weather forecasting application." },
-    { id: 4, name: "Library Management System", details: "A digital solution for library book tracking." },
-    { id: 5, name: "Portfolio Website", details: "A personal portfolio showcasing projects and skills." },
-    { id: 6, name: "Social Media Dashboard", details: "A platform for managing multiple social accounts." },
-    { id: 7, name: "Task Manager", details: "A productivity tool for managing tasks and deadlines." },
-    { id: 8, name: "Online Learning Platform", details: "An e-learning system for students and teachers." },
-    { id: 9, name: "Inventory Tracker", details: "A system to monitor stock levels and supplies." },
-    { id: 10, name: "News Aggregator", details: "Collects news from various sources and displays them." },
-    { id: 11, name: "Recipe Finder", details: "Find recipes based on ingredients you have." },
-    { id: 12, name: "Crypto Dashboard", details: "Track cryptocurrency prices and trends." },
-    { id: 13, name: "Job Board", details: "A portal for job listings and applications." },
-    { id: 14, name: "Fitness Tracker", details: "Tracks workouts, calories, and progress." },
-    { id: 15, name: "Music Player", details: "A web app to play and organize music playlists." },
-    { id: 16, name: "Budget Planner", details: "Manage income, expenses, and savings." },
-    { id: 17, name: "Blog CMS", details: "A content management system for bloggers." },
-    { id: 18, name: "Real Estate Listing", details: "Browse and filter homes for sale." },
-    { id: 19, name: "Event Scheduler", details: "Plan and manage events and appointments." },
-    { id: 20, name: "Pet Adoption", details: "Platform to connect pets with new owners." },
-];
 
 const ITEMS_PER_PAGE = 8;
 
 const Home = () => {
+    const [projects, setProjects] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [selectedProject, setSelectedProject] = useState(null);
+
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project");
+                const result = await response.json();
+                setProjects(result.data || []);
+            } catch (error) {
+                console.error("Error fetching projects:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProjects();
+    }, []);
 
     const filteredProjects = projects.filter((project) =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase())
+        project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
@@ -46,7 +40,7 @@ const Home = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white flex flex-col">
+        <div className="min-h-screen bg-white flex flex-col transition duration-300 ease-in-out">
             <Header />
 
             <main className="flex-grow container mx-auto px-6 lg:px-8 py-12">
@@ -60,63 +54,60 @@ const Home = () => {
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
-                                setCurrentPage(1); // reset to page 1 on search
+                                setCurrentPage(1);
                             }}
                         />
                         <span className="absolute inset-y-0 left-0 flex items-center pl-5 text-blue-900">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-6 h-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M11 4a7 7 0 015.657 11.313l4.243 4.243a1 1 0 01-1.414 1.414l-4.243-4.243A7 7 0 1111 4z"
-                                />
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 4a7 7 0 015.657 11.313l4.243 4.243a1 1 0 01-1.414 1.414l-4.243-4.243A7 7 0 1111 4z" />
                             </svg>
                         </span>
                     </div>
                 </div>
 
-                {/* Projects */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
-                    {currentItems.length > 0 ? (
-                        currentItems.map((project) => (
-                            <div
-                                key={project.id}
-                                className="group bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 cursor-pointer"
-                            >
-                                <h3 className="text-xl font-bold text-blue-900 mb-4 group-hover:text-blue-700 transition-colors duration-300 leading-tight">
-                                    {project.name}
-                                </h3>
-                                <p className="text-black leading-relaxed text-base mb-8 opacity-90">
-                                    {project.details}
-                                </p>
-                                <button className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 text-sm tracking-wide shadow-md hover:shadow-lg">
-                                    See More
-                                </button>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-blue-600 col-span-full text-center text-lg font-medium">
-                            No matching projects found.
-                        </p>
-                    )}
-                </div>
+                {/* Projects Grid */}
+                {loading ? (
+                    <p className="text-blue-600 text-center text-lg font-medium">Loading projects...</p>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
+                        {currentItems.length > 0 ? (
+                            currentItems.map((project, index) => (
+                                <div
+                                    key={index}
+                                    className="group bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 cursor-pointer"
+                                >
+                                    <h3 className="text-xl font-bold text-blue-900 mb-2 group-hover:text-blue-700 transition-colors duration-300 leading-tight">
+                                        {project.projectTitle}
+                                    </h3>
+                                    <p className="text-sm font-semibold text-blue-700 mb-1">Team: {project.teamName}</p>
+                                    <p className="text-sm text-blue-800 mb-1">Supervisor: {project.supervisor}</p>
+                                    <p className="text-black leading-relaxed text-sm mt-2 mb-6 line-clamp-3">
+                                        {project.abstract}
+                                    </p>
+                                    <button
+                                        onClick={() => setSelectedProject(project)}
+                                        className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 text-sm tracking-wide shadow-md hover:shadow-lg"
+                                    >
+                                        See More
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-blue-600 col-span-full text-center text-lg font-medium">
+                                No matching projects found.
+                            </p>
+                        )}
+                    </div>
+                )}
 
-                {/* Pagination Controls */}
-                {filteredProjects.length > ITEMS_PER_PAGE && (
+                {/* Pagination */}
+                {!loading && filteredProjects.length > ITEMS_PER_PAGE && (
                     <div className="flex justify-center items-center gap-4">
                         <button
                             onClick={() => goToPage(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className={`px-4 py-2 rounded-lg font-medium text-white ${
-                                currentPage === 1 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-                            }`}
+                            className={`px-4 py-2 rounded-lg font-medium text-white ${currentPage === 1 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+                                }`}
                         >
                             Previous
                         </button>
@@ -126,17 +117,42 @@ const Home = () => {
                         <button
                             onClick={() => goToPage(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className={`px-4 py-2 rounded-lg font-medium text-white ${
-                                currentPage === totalPages
+                            className={`px-4 py-2 rounded-lg font-medium text-white ${currentPage === totalPages
                                     ? "bg-gray-400 cursor-not-allowed"
                                     : "bg-blue-600 hover:bg-blue-700"
-                            }`}
+                                }`}
                         >
                             Next
                         </button>
                     </div>
                 )}
             </main>
+
+            {/* Popup Modal */}
+            {selectedProject && (
+                <div className="fixed inset-0 flex justify-center items-center z-50 px-4">
+                    <div className="bg-gradient-to-br from-white to-blue-50 border-4 border-blue-300 rounded-2xl max-w-2xl w-full p-6 relative shadow-2xl">
+                        <button
+                            onClick={() => setSelectedProject(null)}
+                            className="absolute top-3 right-3 text-black hover:text-red-600 text-xl font-bold"
+                        >
+                            ×
+                        </button>
+                        <h2 className="text-2xl font-bold text-blue-950 mb-4">{selectedProject.projectTitle}</h2>
+                        <div className="space-y-2 text-blue-950 text-sm">
+                            <p><strong>Category:</strong> {selectedProject.projectCategory}</p>
+                            <p><strong>Type:</strong> {selectedProject.projectType}</p>
+                            <p><strong>Technologies:</strong> {selectedProject.technologies?.join(", ")}</p>
+                            <p><strong>Keywords:</strong> {selectedProject.keywords?.join(", ")}</p>
+                            <p><strong>Completion Date:</strong> {new Date(selectedProject.completionDate).toDateString()}</p>
+                            <p><strong>Created At:</strong> {new Date(selectedProject.createdAt).toLocaleString()}</p>
+                            {selectedProject.furtherImprovement && (
+                                <p><strong>Future Improvement:</strong> {selectedProject.furtherImprovement}</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
