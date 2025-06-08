@@ -11,7 +11,8 @@ import {
   FaTimes,
   FaChartLine,
   FaUserGraduate,
-  FaCog
+  FaCog,
+  FaSearch, FaEye, FaCalendarAlt, FaCode, FaTags, FaGraduationCap
 } from "react-icons/fa";
 
 // ✅ TeacherAdd Component
@@ -148,32 +149,34 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
 };
 
 
-const ITEMS_PER_PAGE = 8;
-
-const ShowProject = () => {
+const ITEMS_PER_PAGE = 6;
+const ShowProject = ({ setActiveModal }) => {
   const [projects, setProjects] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
 
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project");
+      const result = await response.json();
+      setProjects(result.data || []);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project");
-        const result = await response.json();
-        setProjects(result.data || []);
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProjects();
   }, []);
 
   const filteredProjects = projects.filter((project) =>
-    project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase())
+    project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.teamName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.supervisor.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
@@ -186,123 +189,375 @@ const ShowProject = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this project?");
+    if (!confirmed) return;
+
+    try {
+      await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/${id}`, {
+        method: "DELETE",
+      });
+      fetchProjects();
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-      <div className="min-h-screen bg-white flex flex-col transition duration-300 ease-in-out">
-        <main className="flex-grow container mx-auto px-6 lg:px-8 py-12">
-          {/* Search */}
-          <div className="flex justify-center mb-12">
-            <div className="relative w-full max-w-2xl">
-              <input
-                type="text"
-                placeholder="Search for projects..."
-                className="w-full pl-14 pr-6 py-4 text-blue-900 text-lg placeholder:text-blue-900 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 font-medium"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-              <span className="absolute inset-y-0 left-0 flex items-center pl-5 text-blue-900">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 4a7 7 0 015.657 11.313l4.243 4.243a1 1 0 01-1.414 1.414l-4.243-4.243A7 7 0 1111 4z" />
-                </svg>
-              </span>
-            </div>
-          </div>
+    <>
+      {/* Main Modal Backdrop */}
+      <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+        <div className="bg-white w-full max-w-6xl h-[90vh] rounded-3xl shadow-2xl relative overflow-hidden flex flex-col">
 
-          {/* Projects Grid */}
-          {loading ? (
-            <p className="text-blue-600 text-center text-lg font-medium">Loading projects...</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
-              {currentItems.length > 0 ? (
-                currentItems.map((project, index) => (
-                  <div
-                    key={index}
-                    className="group bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 cursor-pointer"
-                  >
-                    <h3 className="text-xl font-bold text-blue-900 mb-2 group-hover:text-blue-700 transition-colors duration-300 leading-tight">
-                      {project.projectTitle}
-                    </h3>
-                    <p className="text-sm font-semibold text-blue-700 mb-1">Team: {project.teamName}</p>
-                    <p className="text-sm text-blue-800 mb-1">Supervisor: {project.supervisor}</p>
-                    <p className="text-black leading-relaxed text-sm mt-2 mb-6 line-clamp-3">
-                      {project.abstract}
-                    </p>
-                    <button
-                      onClick={() => setSelectedProject(project)}
-                      className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 text-sm tracking-wide shadow-md hover:shadow-lg"
-                    >
-                      See More
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <p className="text-blue-600 col-span-full text-center text-lg font-medium">
-                  No matching projects found.
+          {/* Header */}
+          <div className="bg-gradient-to-r from-slate-800 to-blue-900 p-6 text-white flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold flex items-center gap-3">
+                  <FaGraduationCap className="text-blue-300" />
+                  Project Gallery
+                </h2>
+                <p className="text-blue-200 text-sm mt-1">
+                  Browse and explore all capstone projects
                 </p>
-              )}
-            </div>
-          )}
-
-          {/* Pagination */}
-          {!loading && filteredProjects.length > ITEMS_PER_PAGE && (
-            <div className="flex justify-center items-center gap-4">
+              </div>
               <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`px-4 py-2 rounded-lg font-medium text-white ${currentPage === 1 ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                onClick={() => setActiveModal(null)}
+                className="text-white hover:text-red-300 transition-colors p-2 hover:bg-white/10 rounded-full"
               >
-                Previous
-              </button>
-              <span className="text-blue-800 font-semibold">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded-lg font-medium text-white ${currentPage === totalPages
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-                  }`}
-              >
-                Next
+                <FaTimes size={24} />
               </button>
             </div>
-          )}
-        </main>
 
-        {/* Popup Modal */}
-        {selectedProject && (
-          <div className="fixed inset-0 flex justify-center items-center z-50 px-4">
-            <div className="bg-gradient-to-br from-white to-blue-50 border-4 border-blue-300 rounded-2xl max-w-2xl w-full p-6 relative shadow-2xl">
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-3 right-3 text-black hover:text-red-600 text-xl font-bold"
-              >
-                ×
-              </button>
-              <h2 className="text-2xl font-bold text-blue-950 mb-4">{selectedProject.projectTitle}</h2>
-              <div className="space-y-2 text-blue-950 text-sm">
-                <p><strong>Category:</strong> {selectedProject.projectCategory}</p>
-                <p><strong>Type:</strong> {selectedProject.projectType}</p>
-                <p><strong>Technologies:</strong> {selectedProject.technologies?.join(", ")}</p>
-                <p><strong>Keywords:</strong> {selectedProject.keywords?.join(", ")}</p>
-                <p><strong>Completion Date:</strong> {new Date(selectedProject.completionDate).toDateString()}</p>
-                <p><strong>Created At:</strong> {new Date(selectedProject.createdAt).toLocaleString()}</p>
-                {selectedProject.furtherImprovement && (
-                  <p><strong>Future Improvement:</strong> {selectedProject.furtherImprovement}</p>
-                )}
+            {/* Search Bar */}
+            <div className="mt-6 relative">
+              <div className="relative max-w-2xl">
+                <input
+                  type="text"
+                  placeholder="Search projects by title, team, or supervisor..."
+                  className="w-full pl-12 pr-6 py-3 text-gray-800 placeholder:text-gray-500 bg-white/95 backdrop-blur-sm border-2 border-white/20 rounded-2xl shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300/50 focus:border-white transition-all duration-300"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+                <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
               </div>
             </div>
           </div>
-        )}
+
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {loading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-blue-600 text-lg font-medium">Loading projects...</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Projects Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                  {currentItems.length > 0 ? (
+                    currentItems.map((project, index) => (
+                      <div
+                        key={index}
+                        className="group bg-gradient-to-br from-white to-blue-50 border-2 border-blue-100 rounded-2xl p-6 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-100/50 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                      >
+                        {/* Project Header */}
+                        <div className="mb-4">
+                          <h3 className="text-xl font-bold text-blue-900 mb-2 group-hover:text-blue-700 transition-colors duration-300 leading-tight line-clamp-2">
+                            {project.projectTitle}
+                          </h3>
+                          <div className="flex items-center gap-2 text-sm text-blue-700 mb-1">
+                            <FaUsers className="text-xs" />
+                            <span className="font-semibold">Team:</span>
+                            <span>{project.teamName}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-blue-700 mb-3">
+                            <FaGraduationCap className="text-xs" />
+                            <span className="font-semibold">Supervisor:</span>
+                            <span>{project.supervisor}</span>
+                          </div>
+                        </div>
+
+                        {/* Project Details */}
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <FaTags />
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              {project.projectCategory}
+                            </span>
+                          </div>
+                          {project.completionDate && (
+                            <div className="flex items-center gap-2 text-xs text-gray-600">
+                              <FaCalendarAlt />
+                              <span>{new Date(project.completionDate).toLocaleDateString()}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Abstract Preview */}
+                        <p className="text-gray-700 text-sm leading-relaxed mb-4 line-clamp-3">
+                          {project.abstract}
+                        </p>
+
+                        {/* Action Button */}
+                        <button
+                          onClick={() => setSelectedProject(project)}
+                          className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 active:from-blue-800 active:to-blue-900 transition-all duration-200 text-sm tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+                        >
+                          <FaEye />
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => handleDelete(project._id)}
+                          className="w-full mt-1.5 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-xl hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 transition-all duration-200 text-sm tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-16">
+                      <div className="text-gray-400 mb-4">
+                        <FaSearch size={48} className="mx-auto opacity-50" />
+                      </div>
+                      <p className="text-gray-600 text-lg font-medium">
+                        No projects found matching your search.
+                      </p>
+                      <p className="text-gray-500 text-sm mt-2">
+                        Try adjusting your search terms or browse all projects.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Pagination */}
+                {!loading && filteredProjects.length > ITEMS_PER_PAGE && (
+                  <div className="flex justify-center items-center gap-4 pt-6 border-t border-gray-200">
+                    <button
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`px-6 py-3 rounded-xl font-medium text-white transition-all duration-200 ${currentPage === 1
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transform hover:scale-105"
+                        }`}
+                    >
+                      Previous
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => goToPage(pageNum)}
+                            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${currentPage === pageNum
+                              ? "bg-blue-600 text-white shadow-md"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`px-6 py-3 rounded-xl font-medium text-white transition-all duration-200 ${currentPage === totalPages
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transform hover:scale-105"
+                        }`}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+
+                {/* Results Info */}
+                {!loading && filteredProjects.length > 0 && (
+                  <div className="text-center text-sm text-gray-500 mt-4">
+                    Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredProjects.length)} of {filteredProjects.length} projects
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Project Detail Modal */}
+      {selectedProject && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-60 p-4">
+          <div className="bg-white max-w-4xl w-full max-h-[90vh] rounded-3xl shadow-2xl relative overflow-hidden">
+
+            {/* Detail Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold mb-2 leading-tight">
+                    {selectedProject.projectTitle}
+                  </h2>
+                  <div className="flex flex-wrap gap-4 text-sm text-blue-100">
+                    <div className="flex items-center gap-2">
+                      <FaUsers />
+                      <span>Team: {selectedProject.teamName}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FaGraduationCap />
+                      <span>Supervisor: {selectedProject.supervisor}</span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedProject(null)}
+                  className="text-white hover:text-red-300 transition-colors p-2 hover:bg-white/10 rounded-full ml-4"
+                >
+                  <FaTimes size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Detail Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {/* Left Column */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <div className="w-2 h-6 bg-blue-600 rounded-full"></div>
+                      Project Details
+                    </h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span className="font-medium text-gray-600">Category:</span>
+                        <span className="text-gray-800">{selectedProject.projectCategory}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span className="font-medium text-gray-600">Type:</span>
+                        <span className="text-gray-800">{selectedProject.projectType}</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span className="font-medium text-gray-600">Completion:</span>
+                        <span className="text-gray-800">
+                          {new Date(selectedProject.completionDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-gray-100">
+                        <span className="font-medium text-gray-600">Created:</span>
+                        <span className="text-gray-800">
+                          {new Date(selectedProject.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedProject.technologies && selectedProject.technologies.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <FaCode className="text-blue-600" />
+                        Technologies Used
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProject.technologies.map((tech, index) => (
+                          <span
+                            key={index}
+                            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedProject.keywords && selectedProject.keywords.length > 0 && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <FaTags className="text-blue-600" />
+                        Keywords
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProject.keywords.map((keyword, index) => (
+                          <span
+                            key={index}
+                            className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+                          >
+                            {keyword}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <div className="w-2 h-6 bg-green-500 rounded-full"></div>
+                      Abstract
+                    </h3>
+                    <div className="bg-gray-50 p-4 rounded-xl">
+                      <p className="text-gray-700 leading-relaxed text-sm">
+                        {selectedProject.abstract}
+                      </p>
+                    </div>
+                  </div>
+
+                  {selectedProject.furtherImprovement && (
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <div className="w-2 h-6 bg-orange-500 rounded-full"></div>
+                        Future Improvements
+                      </h3>
+                      <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                        <p className="text-gray-700 leading-relaxed text-sm">
+                          {selectedProject.furtherImprovement}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Detail Footer */}
+            <div className="border-t border-gray-200 p-4 bg-gray-50">
+              <div className="flex gap-3 justify-end">
+
+                <button
+                  onClick={() => setSelectedProject(null)}
+                  className="px-6 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors duration-200 font-medium"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
+
 
 
 
