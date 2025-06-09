@@ -87,11 +87,11 @@ const StudentDashboard = () => {
         <div className="flex h-screen bg-gradient-to-br from-blue-50 to-blue-100">
             {/* Sidebar */}
             <div
-                className={`fixed inset-y-0 lg:pt-5 left-0 w-64 bg-[#0B1F3A] text-white p-4 transition-transform duration-300 shadow-xl lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed inset-y-0 lg:pt-5 left-0 w-64 bg-[#0B1F3A] text-white p-4 transition-transform duration-300 shadow-xl z-30 lg:relative lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 <div className="flex justify-between items-center mb-4 lg:hidden">
-                    <h2 className="text-md font-bold bg-gradient-to-r from-blue-400 to-blue-200 bg-clip-text text-transparent">Studnet Dashboard</h2>
+                    <h2 className="text-md font-bold bg-gradient-to-r from-blue-400 to-blue-200 bg-clip-text text-transparent">Student Dashboard</h2>
                     <button onClick={() => setSidebarOpen(false)} className="text-white hover:text-blue-300">
                         <X size={24} />
                     </button>
@@ -114,8 +114,8 @@ const StudentDashboard = () => {
                         <li
                             key={key}
                             className={`cursor-pointer px-4 py-2 rounded-lg transition-all duration-200 ${activeMenu === key
-                                    ? 'bg-blue-700 text-white shadow'
-                                    : 'hover:bg-blue-800 text-blue-100 hover:text-white'
+                                ? 'bg-blue-700 text-white shadow'
+                                : 'hover:bg-blue-800 text-blue-100 hover:text-white'
                                 }`}
                             onClick={() => {
                                 setActiveMenu(key);
@@ -145,6 +145,7 @@ const StudentDashboard = () => {
         </div>
 
 
+
     );
 };
 
@@ -168,16 +169,16 @@ const CreateGroup = () => {
 
     const handleAddMember = (e) => {
         e.preventDefault();
-    
+
         const isDuplicateMail = groupMembers.some(
             (m) =>
-                m.educationalMail === member.educationalMail 
+                m.educationalMail === member.educationalMail
         );
         const isDuplicatePhone = groupMembers.some(
             (m) =>
                 m.phone === member.phone
         );
-    
+
         if (isDuplicateMail) {
             toast.error("The educational mail is already taken.");
             return;
@@ -186,12 +187,12 @@ const CreateGroup = () => {
             toast.error("The phone number is already taken.");
             return;
         }
-    
+
         if (groupMembers.length >= 5) {
             toast.error("A group can have only 5 members");
             return;
         }
-    
+
         setGroupMembers([...groupMembers, member]);
         setMember({
             username: '',
@@ -201,10 +202,10 @@ const CreateGroup = () => {
             educationalMail: '',
             phone: ''
         });
-    
+
         toast.success("Member added successfully");
     };
-    
+
 
     const handleCreateGroup = async () => {
         if (groupMembers.length !== 5) {
@@ -444,101 +445,101 @@ const MyTeam = ({ teamName, supervisor, groupMembers }) => {
 const Upload = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [fileType, setFileType] = useState('Research Paper');
-  
+
     const handleFileChange = (e) => {
-      setSelectedFile(e.target.files[0]);
+        setSelectedFile(e.target.files[0]);
     };
-  
+
     const handleDrop = (e) => {
-      e.preventDefault();
-      setSelectedFile(e.dataTransfer.files[0]);
+        e.preventDefault();
+        setSelectedFile(e.dataTransfer.files[0]);
     };
-  
+
     const handleDragOver = (e) => {
-      e.preventDefault();
+        e.preventDefault();
     };
-  
+
     const handleUpload = () => {
-      if (!selectedFile) {
-        alert("Please select a file to upload.");
-        return;
-      }
-  
-      // Handle file upload logic here (e.g., formData and API call)
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("fileType", fileType);
-  
-      // Example logging
-      console.log("Uploading", selectedFile.name, "as", fileType);
-      alert("File uploaded successfully!");
+        if (!selectedFile) {
+            alert("Please select a file to upload.");
+            return;
+        }
+
+        // Handle file upload logic here (e.g., formData and API call)
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("fileType", fileType);
+
+        // Example logging
+        console.log("Uploading", selectedFile.name, "as", fileType);
+        alert("File uploaded successfully!");
     };
-  
+
     return (
-      <div className="max-w-xl mx-auto p-6 mt-10 bg-blue-50 rounded-xl shadow-lg border border-blue-200">
-        <h2 className="text-2xl font-bold text-blue-800 text-center mb-6">📤 Upload Section</h2>
-  
-        {/* Upload Drop Zone */}
-        <div
-          className="w-full border-2 border-dashed border-blue-400 bg-white rounded-lg p-6 text-center cursor-pointer hover:bg-blue-100 transition"
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-        >
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="hidden"
-            id="fileInput"
-          />
-          <label htmlFor="fileInput" className="cursor-pointer text-blue-600 hover:underline">
-            {selectedFile ? (
-              <span className="font-medium">{selectedFile.name}</span>
-            ) : (
-              <>
-                <p className="text-sm">Drag & Drop your file here or</p>
-                <span className="text-blue-700 font-semibold">Browse</span>
-              </>
-            )}
-          </label>
-        </div>
-  
-        {/* File Type Selection */}
-        <div className="mt-6">
-          <h4 className="text-blue-700 font-semibold mb-2">Select File Type:</h4>
-          <div className="flex flex-wrap gap-4">
-            {['Research Paper', 'Code (zip)', 'Dataset', 'Other Document'].map((type) => (
-              <label key={type} className="flex items-center gap-2 text-blue-800">
+        <div className="max-w-xl mx-auto p-6 mt-10 bg-blue-50 rounded-xl shadow-lg border border-blue-200">
+            <h2 className="text-2xl font-bold text-blue-800 text-center mb-6">📤 Upload Section</h2>
+
+            {/* Upload Drop Zone */}
+            <div
+                className="w-full border-2 border-dashed border-blue-400 bg-white rounded-lg p-6 text-center cursor-pointer hover:bg-blue-100 transition"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+            >
                 <input
-                  type="radio"
-                  value={type}
-                  checked={fileType === type}
-                  onChange={(e) => setFileType(e.target.value)}
+                    type="file"
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="fileInput"
                 />
-                {type}
-              </label>
-            ))}
-          </div>
+                <label htmlFor="fileInput" className="cursor-pointer text-blue-600 hover:underline">
+                    {selectedFile ? (
+                        <span className="font-medium">{selectedFile.name}</span>
+                    ) : (
+                        <>
+                            <p className="text-sm">Drag & Drop your file here or</p>
+                            <span className="text-blue-700 font-semibold">Browse</span>
+                        </>
+                    )}
+                </label>
+            </div>
+
+            {/* File Type Selection */}
+            <div className="mt-6">
+                <h4 className="text-blue-700 font-semibold mb-2">Select File Type:</h4>
+                <div className="flex flex-wrap gap-4">
+                    {['Research Paper', 'Code (zip)', 'Dataset', 'Other Document'].map((type) => (
+                        <label key={type} className="flex items-center gap-2 text-blue-800">
+                            <input
+                                type="radio"
+                                value={type}
+                                checked={fileType === type}
+                                onChange={(e) => setFileType(e.target.value)}
+                            />
+                            {type}
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            {/* Upload Button */}
+            <div className="mt-6 text-right">
+                <button
+                    onClick={handleUpload}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
+                >
+                    Upload
+                </button>
+            </div>
         </div>
-  
-        {/* Upload Button */}
-        <div className="mt-6 text-right">
-          <button
-            onClick={handleUpload}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
-          >
-            Upload
-          </button>
-        </div>
-      </div>
     );
-  };
+};
 
 
 
 
 
 
-  const CreateProject = ({ teamName, supervisor }) => {
+const CreateProject = ({ teamName, supervisor }) => {
     const [projectTitle, setProjectTitle] = useState('');
     const [abstract, setAbstract] = useState('');
     const [projectType, setProjectType] = useState('Software');
@@ -1096,7 +1097,7 @@ const ShowTask = ({ teamName }) => {
     return (
         <div className="max-w-6xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl shadow-xl transition-all">
             <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text mb-8 tracking-tight text-center">
-                 Team Task Overview
+                Team Task Overview
             </h2>
 
             <div className="overflow-x-auto rounded-xl">
@@ -1164,7 +1165,7 @@ const ShowNotice = ({ teamName }) => {
     return (
         <div className="max-w-5xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-blue-50 to-white border border-blue-100 rounded-3xl shadow-xl">
             <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-400 text-transparent bg-clip-text mb-8 text-center tracking-tight">
-                 Team Notices
+                Team Notices
             </h2>
 
             <div className="space-y-6 max-h-[500px] overflow-y-auto">
