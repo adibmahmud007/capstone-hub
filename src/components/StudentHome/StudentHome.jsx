@@ -39,6 +39,25 @@ const Home = () => {
         }
     };
 
+    // Enhanced Loader Component
+    const LoadingSpinner = () => (
+        <div className="flex flex-col items-center justify-center py-16">
+            <div className="relative">
+                <div className="w-16 h-16 border-4 border-blue-200 rounded-full animate-spin"></div>
+                <div className="absolute top-0 left-0 w-16 h-16 border-4 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
+                <div className="absolute top-2 left-2 w-12 h-12 border-4 border-transparent border-t-blue-400 rounded-full animate-spin animation-delay-150"></div>
+            </div>
+            <div className="mt-6 text-center">
+                <p className="text-blue-700 text-lg font-semibold animate-pulse">Loading Projects</p>
+                <div className="flex justify-center mt-2 space-x-1">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce animation-delay-100"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce animation-delay-200"></div>
+                </div>
+            </div>
+        </div>
+    );
+
     return (
         <div className="min-h-screen bg-white flex flex-col transition duration-300 ease-in-out">
             <Header />
@@ -67,7 +86,7 @@ const Home = () => {
 
                 {/* Projects Grid */}
                 {loading ? (
-                    <p className="text-blue-600 text-center text-lg font-medium">Loading projects...</p>
+                    <LoadingSpinner />
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
                         {currentItems.length > 0 ? (
@@ -128,31 +147,178 @@ const Home = () => {
                 )}
             </main>
 
-            {/* Popup Modal */}
+            {/* Enhanced Modal */}
             {selectedProject && (
-                <div className="fixed inset-0 flex justify-center items-center z-50 px-4">
-                    <div className="bg-gradient-to-br from-white to-blue-50 border-4 border-blue-300 rounded-2xl max-w-2xl w-full p-6 relative shadow-2xl">
-                        <button
-                            onClick={() => setSelectedProject(null)}
-                            className="absolute top-3 right-3 text-black hover:text-red-600 text-xl font-bold"
-                        >
-                            ×
-                        </button>
-                        <h2 className="text-2xl font-bold text-blue-950 mb-4">{selectedProject.projectTitle}</h2>
-                        <div className="space-y-2 text-blue-950 text-sm">
-                            <p><strong>Category:</strong> {selectedProject.projectCategory}</p>
-                            <p><strong>Type:</strong> {selectedProject.projectType}</p>
-                            <p><strong>Technologies:</strong> {selectedProject.technologies?.join(", ")}</p>
-                            <p><strong>Keywords:</strong> {selectedProject.keywords?.join(", ")}</p>
-                            <p><strong>Completion Date:</strong> {new Date(selectedProject.completionDate).toDateString()}</p>
-                            <p><strong>Created At:</strong> {new Date(selectedProject.createdAt).toLocaleString()}</p>
+                <div className="fixed inset-0 flex justify-center items-center z-50 px-4 bg-black bg-opacity-60 backdrop-blur-sm">
+                    <div className="bg-white border border-blue-200 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl transform transition-all duration-300 animate-in fade-in zoom-in-95">
+                        {/* Modal Header */}
+                        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 relative">
+                            <button
+                                onClick={() => setSelectedProject(null)}
+                                className="absolute top-4 right-6 w-10 h-10 flex items-center justify-center text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-all duration-200 text-2xl font-bold"
+                            >
+                                ×
+                            </button>
+                            <h2 className="text-3xl font-bold text-white pr-12 leading-tight">
+                                {selectedProject.projectTitle}
+                            </h2>
+                            <div className="flex flex-wrap gap-4 mt-4 text-blue-100">
+                                <span className="flex items-center gap-2">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                                    </svg>
+                                    {selectedProject.teamName}
+                                </span>
+                                <span className="flex items-center gap-2">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.75 2.524z" clipRule="evenodd" />
+                                    </svg>
+                                    {selectedProject.supervisor}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-8 max-h-[60vh] overflow-y-auto">
+                            {/* Abstract Section */}
+                            <div className="mb-8">
+                                <h3 className="text-xl font-bold text-blue-900 mb-3 flex items-center gap-2">
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                                    </svg>
+                                    Abstract
+                                </h3>
+                                <p className="text-gray-700 leading-relaxed bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500">
+                                    {selectedProject.abstract}
+                                </p>
+                            </div>
+
+                            {/* Project Details Grid */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl">
+                                        <p className="text-sm font-semibold text-blue-800 mb-1">Category</p>
+                                        <p className="text-blue-900 font-medium">{selectedProject.projectCategory}</p>
+                                    </div>
+                                    
+                                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl">
+                                        <p className="text-sm font-semibold text-blue-800 mb-1">Project Type</p>
+                                        <p className="text-blue-900 font-medium">{selectedProject.projectType}</p>
+                                    </div>
+
+                                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl">
+                                        <p className="text-sm font-semibold text-blue-800 mb-2">Technologies Used</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedProject.technologies?.map((tech, index) => (
+                                                <span key={index} className="px-3 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
+                                                    {tech}
+                                                </span>
+                                            )) || <span className="text-gray-500">Not specified</span>}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl">
+                                        <p className="text-sm font-semibold text-purple-800 mb-1">Completion Date</p>
+                                        <p className="text-purple-900 font-medium">{new Date(selectedProject.completionDate).toDateString()}</p>
+                                    </div>
+
+                                    <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl">
+                                        <p className="text-sm font-semibold text-green-800 mb-1">Created At</p>
+                                        <p className="text-green-900 font-medium">{new Date(selectedProject.createdAt).toLocaleString()}</p>
+                                    </div>
+
+                                    <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-xl">
+                                        <p className="text-sm font-semibold text-orange-800 mb-2">Keywords</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedProject.keywords?.map((keyword, index) => (
+                                                <span key={index} className="px-3 py-1 bg-orange-200 text-orange-800 text-xs font-medium rounded-full">
+                                                    #{keyword}
+                                                </span>
+                                            )) || <span className="text-gray-500">Not specified</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Future Improvement Section */}
                             {selectedProject.furtherImprovement && (
-                                <p><strong>Future Improvement:</strong> {selectedProject.furtherImprovement}</p>
+                                <div className="mt-8">
+                                    <h3 className="text-xl font-bold text-blue-900 mb-3 flex items-center gap-2">
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+                                        </svg>
+                                        Future Improvements
+                                    </h3>
+                                    <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-xl border-l-4 border-indigo-500">
+                                        {selectedProject.furtherImprovement}
+                                    </p>
+                                </div>
                             )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="bg-gray-50 px-8 py-4 border-t border-gray-200">
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => setSelectedProject(null)}
+                                    className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                >
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
+
+            <style >{`
+                .animation-delay-100 {
+                    animation-delay: 0.1s;
+                }
+                .animation-delay-150 {
+                    animation-delay: 0.15s;
+                }
+                .animation-delay-200 {
+                    animation-delay: 0.2s;
+                }
+                .animate-in {
+                    animation: animate-in 0.3s ease-out;
+                }
+                .fade-in {
+                    animation: fade-in 0.3s ease-out;
+                }
+                .zoom-in-95 {
+                    animation: zoom-in-95 0.3s ease-out;
+                }
+                @keyframes animate-in {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+                @keyframes fade-in {
+                    from {
+                        opacity: 0;
+                    }
+                    to {
+                        opacity: 1;
+                    }
+                }
+                @keyframes zoom-in-95 {
+                    from {
+                        transform: scale(0.95);
+                    }
+                    to {
+                        transform: scale(1);
+                    }
+                }
+            `}</style>
         </div>
     );
 };
