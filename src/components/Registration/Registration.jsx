@@ -174,7 +174,7 @@ const Registration = () => {
                                         <button
                                             type="button"
                                             onClick={handleOtpRequest}
-                                            className="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 whitespace-nowrap"
+                                            className="px-6 cursor-pointer py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 whitespace-nowrap"
                                         >
                                             Send OTP
                                         </button>
@@ -227,7 +227,7 @@ const Registration = () => {
                                 {/* Submit Button */}
                                 <button
                                     type="submit"
-                                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold rounded-xl hover:from-blue-700 hover:to-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
+                                    className="w-full cursor-pointer py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold rounded-xl hover:from-blue-700 hover:to-blue-900 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
                                 >
                                     {loading ? (
                                         <div className="flex items-center justify-center space-x-2">
@@ -244,7 +244,7 @@ const Registration = () => {
                                     <p className="text-gray-600">
                                         Already have an account?{' '}
                                         <Link to="/login">
-                                            <button className="font-semibold text-blue-600 hover:text-blue-700 transition-colors duration-200">
+                                            <button className="font-semibold cursor-pointer text-blue-600 hover:text-blue-700 transition-colors duration-200">
                                                 Sign In Here
                                             </button>
                                         </Link>

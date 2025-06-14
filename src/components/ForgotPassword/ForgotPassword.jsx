@@ -98,7 +98,7 @@ export default function ForgotPassword({ onClose }) {
             <button
               onClick={sendOtp}
               disabled={loading}
-              className="bg-purple-500 text-white px-4 py-2 rounded w-full"
+              className="bg-blue-500 cursor-pointer text-white px-4 py-2 rounded w-full"
             >
               {loading ? "Sending..." : "Send OTP"}
             </button>
@@ -134,7 +134,7 @@ export default function ForgotPassword({ onClose }) {
             <button
               onClick={resetPassword}
               disabled={loading}
-              className="bg-purple-500 text-white px-4 py-2 rounded w-full"
+              className="bg-blue-500 text-white px-4 py-2 rounded w-full"
             >
               {loading ? "Resetting..." : "Reset Password"}
             </button>
