@@ -4,29 +4,26 @@
 const Footer = () => {
   return (
     <>
-      <footer className="relative z-10 pl-5 bg-gradient-to-r from-[#0f2027] via-[#203a43] to-[#2c5364] text-white   pb-10 pt-20 dark:bg-dark lg:pb-20 lg:pt-[120px]">
-        <div className="container">
-          <div className=" flex flex-wrap">
-            <div className="w-full px-4 sm:w-2/3 lg:w-3/12">
-              <div className="mb-10 w-full">
-                <a href="/#" className="mb-6 inline-block max-w-[160px]">
-                  <img
-                    src="https://cdn.tailgrids.com/2.0/image/assets/images/logo/logo.svg"
-                    alt="logo"
-                    className="max-w-full dark:hidden"
-                  />
-                  <img
-                    src="https://cdn.tailgrids.com/2.0/image/assets/images/logo/logo-white.svg"
-                    alt="logo"
-                    className="max-w-full hidden dark:block"
-                  />
+      <footer className="relative z-10 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-800 text-white pb-8 pt-12 lg:pb-12 lg:pt-16">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap">
+            {/* Company Info Section */}
+            <div className="w-full px-4 sm:w-2/3 lg:w-4/12">
+              <div className="mb-8 w-full">
+                <a href="/" className="mb-6 inline-block">
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    Openspace
+                  </h2>
+                  <p className="text-blue-300 text-sm font-medium">
+                    Capstone Repository System
+                  </p>
                 </a>
-                <p className="mb-7 text-base text-body-color dark:text-dark-6">
-                  Sed ut perspiciatis undmnis is iste natus error sit amet
-                  voluptatem totam rem aperiam.
+                <p className="mb-5 text-base text-gray-300 leading-relaxed">
+                  A comprehensive platform for managing and showcasing academic capstone projects, 
+                  fostering collaboration between students, faculty, and industry partners.
                 </p>
-                <p className="flex items-center text-sm font-medium text-dark dark:text-white">
-                  <span className="mr-3 text-primary">
+                <div className="flex items-center text-sm font-medium text-white">
+                  <span className="mr-3 text-blue-400">
                     <svg
                       width="20"
                       height="20"
@@ -34,119 +31,110 @@ const Footer = () => {
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <g clipPath="url(#clip0_941_15626)">
-                        <path
-                          d="M15.1875 19.4688C14.3438 19.4688 13.375 19.25 12.3125 18.8438C10.1875 18 7.84377 16.375 5.75002 14.2813C3.65627 12.1875 2.03127 9.84377 1.18752 7.68752C0.250019 5.37502 0.343769 3.46877 1.43752 2.40627C1.46877 2.37502 1.53127 2.34377 1.56252 2.31252L4.18752 0.750025C4.84377 0.375025 5.68752 0.562525 6.12502 1.18752L7.96877 3.93753C8.40627 4.59378 8.21877 5.46877 7.59377 5.90627L6.46877 6.68752C7.28127 8.00002 9.59377 11.2188 13.2813 13.5313L13.9688 12.5313C14.5 11.7813 15.3438 11.5625 16.0313 12.0313L18.7813 13.875C19.4063 14.3125 19.5938 15.1563 19.2188 15.8125L17.6563 18.4375C17.625 18.5 17.5938 18.5313 17.5625 18.5625C17 19.1563 16.1875 19.4688 15.1875 19.4688ZM2.37502 3.46878C1.78127 4.12503 1.81252 5.46877 2.50002 7.18752C3.28127 9.15627 4.78127 11.3125 6.75002 13.2813C8.68752 15.2188 10.875 16.7188 12.8125 17.5C14.5 18.1875 15.8438 18.2188 16.5313 17.625L18.0313 15.0625C18.0313 15.0313 18.0313 15.0313 18.0313 15L15.2813 13.1563C15.2813 13.1563 15.2188 13.1875 15.1563 13.2813L14.4688 14.2813C14.0313 14.9063 13.1875 15.0938 12.5625 14.6875C8.62502 12.25 6.18752 8.84377 5.31252 7.46877C4.90627 6.81252 5.06252 5.96878 5.68752 5.53128L6.81252 4.75002V4.71878L4.96877 1.96877C4.96877 1.93752 4.93752 1.93752 4.90627 1.96877L2.37502 3.46878Z"
-                          fill="currentColor"
-                        />
-                        <path
-                          d="M18.3125 8.90633C17.9375 8.90633 17.6563 8.62508 17.625 8.25008C17.375 5.09383 14.7813 2.56258 11.5938 2.34383C11.2188 2.31258 10.9063 2.00008 10.9375 1.59383C10.9688 1.21883 11.2813 0.906333 11.6875 0.937583C15.5625 1.18758 18.7188 4.25008 19.0313 8.12508C19.0625 8.50008 18.7813 8.84383 18.375 8.87508C18.375 8.90633 18.3438 8.90633 18.3125 8.90633Z"
-                          fill="currentColor"
-                        />
-                        <path
-                          d="M15.2187 9.18755C14.875 9.18755 14.5625 8.93755 14.5312 8.56255C14.3437 6.87505 13.0312 5.56255 11.3437 5.3438C10.9687 5.31255 10.6875 4.93755 10.7187 4.56255C10.75 4.18755 11.125 3.9063 11.5 3.93755C13.8437 4.2188 15.6562 6.0313 15.9375 8.37505C15.9687 8.75005 15.7187 9.0938 15.3125 9.1563C15.25 9.18755 15.2187 9.18755 15.2187 9.18755Z"
-                          fill="currentColor"
-                        />
-                      </g>
-                      <defs>
-                        <clipPath id="clip0_941_15626">
-                          <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                      </defs>
+                      <path
+                        d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"
+                        fill="currentColor"
+                      />
                     </svg>
                   </span>
-                  <span>+012 (345) 678 99</span>
-                </p>
+                  <span>support@openspace.edu</span>
+                </div>
               </div>
             </div>
 
-            <LinkGroup header="Resources">
-              <NavLink link="/#" label="SaaS Development" />
-              <NavLink link="/#" label="Our Products" />
-              <NavLink link="/#" label="User Flow" />
-              <NavLink link="/#" label="User Strategy" />
-            </LinkGroup>
-            <LinkGroup header="Company">
-              <NavLink link="/#" label="About TailGrids" />
-              <NavLink link="/#" label="Contact & Support" />
-              <NavLink link="/#" label="Success History" />
-              <NavLink link="/#" label="Setting & Privacy" />
-            </LinkGroup>
-            <LinkGroup header="Quick Links">
-              <NavLink link="/#" label="Premium Support" />
-              <NavLink link="/#" label="Our Services" />
-              <NavLink link="/#" label="Know Our Team" />
-              <NavLink link="/#" label="Download App" />
+            {/* Academic Links */}
+            <LinkGroup header="Academic">
+              <NavLink link="/projects" label="Browse Projects" />
+              <NavLink link="/submit" label="Submit Project" />
+              <NavLink link="/research" label="Research Areas" />
+              <NavLink link="/guidelines" label="Submission Guidelines" />
             </LinkGroup>
 
+            {/* Resources Links */}
+            <LinkGroup header="Resources">
+              <NavLink link="/documentation" label="Documentation" />
+              <NavLink link="/templates" label="Project Templates" />
+              <NavLink link="/tutorials" label="Video Tutorials" />
+              <NavLink link="/faq" label="FAQ" />
+            </LinkGroup>
+
+            {/* Support & Contact */}
+            <LinkGroup header="Support">
+              <NavLink link="/contact" label="Contact Us" />
+              <NavLink link="/help" label="Help Center" />
+              <NavLink link="/feedback" label="Feedback" />
+              <NavLink link="/status" label="System Status" />
+            </LinkGroup>
+
+            {/* Connect Section */}
             <div className="w-full px-4 sm:w-1/2 lg:w-3/12">
-              <div className="mb-10 w-full">
-                <h4 className="mb-9 text-lg font-semibold text-dark dark:text-white">
-                  Follow Us On
+              <div className="mb-8 w-full">
+                <h4 className="mb-6 text-lg font-semibold text-white">
+                  Connect With Us
                 </h4>
                 <div className="mb-6 flex items-center">
                   <a
-                    href="javascript:void(0)"
-                    className="mr-3 flex h-8 w-8 items-center justify-center rounded-full border border-stroke text-dark hover:border-primary hover:bg-primary hover:text-white dark:border-dark-3 dark:text-white dark:hover:border-primary sm:mr-4 lg:mr-3 xl:mr-4"
+                    href="#"
+                    aria-label="LinkedIn"
+                    className="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 border border-slate-700 text-gray-300 hover:border-blue-500 hover:bg-blue-600 hover:text-white transition-all duration-300 sm:mr-4 lg:mr-3 xl:mr-4"
                   >
                     <svg
-                      width="8"
+                      width="16"
                       height="16"
-                      viewBox="0 0 8 16"
+                      viewBox="0 0 24 24"
                       className="fill-current"
                     >
-                      <path d="M7.43902 6.4H6.19918H5.75639V5.88387V4.28387V3.76774H6.19918H7.12906C7.3726 3.76774 7.57186 3.56129 7.57186 3.25161V0.516129C7.57186 0.232258 7.39474 0 7.12906 0H5.51285C3.76379 0 2.54609 1.44516 2.54609 3.5871V5.83226V6.34839H2.10329H0.597778C0.287819 6.34839 0 6.63226 0 7.04516V8.90323C0 9.26452 0.243539 9.6 0.597778 9.6H2.05902H2.50181V10.1161V15.3032C2.50181 15.6645 2.74535 16 3.09959 16H5.18075C5.31359 16 5.42429 15.9226 5.51285 15.8194C5.60141 15.7161 5.66783 15.5355 5.66783 15.3806V10.1419V9.62581H6.13276H7.12906C7.41688 9.62581 7.63828 9.41935 7.68256 9.10968V9.08387V9.05806L7.99252 7.27742C8.01466 7.09677 7.99252 6.89032 7.85968 6.68387C7.8154 6.55484 7.61614 6.42581 7.43902 6.4Z" />
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                     </svg>
                   </a>
                   <a
-                    href="javascript:void(0)"
-                    className="mr-3 flex h-8 w-8 items-center justify-center rounded-full border border-stroke text-dark hover:border-primary hover:bg-primary hover:text-white dark:border-dark-3 dark:text-white dark:hover:border-primary sm:mr-4 lg:mr-3 xl:mr-4"
+                    href="#"
+                    aria-label="Twitter"
+                    className="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 border border-slate-700 text-gray-300 hover:border-blue-500 hover:bg-blue-600 hover:text-white transition-all duration-300 sm:mr-4 lg:mr-3 xl:mr-4"
                   >
                     <svg
                       width="16"
-                      height="12"
-                      viewBox="0 0 16 12"
+                      height="16"
+                      viewBox="0 0 24 24"
                       className="fill-current"
                     >
-                      <path d="M14.2194 2.06654L15.2 0.939335C15.4839 0.634051 15.5613 0.399217 15.5871 0.2818C14.8129 0.704501 14.0903 0.845401 13.6258 0.845401H13.4452L13.3419 0.751468C12.7226 0.258317 11.9484 0 11.1226 0C9.31613 0 7.89677 1.36204 7.89677 2.93542C7.89677 3.02935 7.89677 3.17025 7.92258 3.26419L8 3.73386L7.45806 3.71037C4.15484 3.61644 1.44516 1.03327 1.00645 0.587084C0.283871 1.76125 0.696774 2.88845 1.13548 3.59296L2.0129 4.90802L0.619355 4.20352C0.645161 5.18982 1.05806 5.96477 1.85806 6.52838L2.55484 6.99804L1.85806 7.25636C2.29677 8.45401 3.27742 8.94716 4 9.13503L4.95484 9.36986L4.05161 9.93346C2.60645 10.8728 0.8 10.8024 0 10.7319C1.62581 11.7652 3.56129 12 4.90323 12C5.90968 12 6.65806 11.9061 6.83871 11.8356C14.0645 10.2857 14.4 4.41487 14.4 3.2407V3.07632L14.5548 2.98239C15.4323 2.23092 15.7935 1.8317 16 1.59687C15.9226 1.62035 15.8194 1.66732 15.7161 1.6908L14.2194 2.06654Z" />
+                      <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
                     </svg>
                   </a>
                   <a
-                    href="javascript:void(0)"
-                    className="mr-3 flex h-8 w-8 items-center justify-center rounded-full border border-stroke text-dark hover:border-primary hover:bg-primary hover:text-white dark:border-dark-3 dark:text-white dark:hover:border-primary sm:mr-4 lg:mr-3 xl:mr-4"
+                    href="#"
+                    aria-label="GitHub"
+                    className="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 border border-slate-700 text-gray-300 hover:border-blue-500 hover:bg-blue-600 hover:text-white transition-all duration-300 sm:mr-4 lg:mr-3 xl:mr-4"
                   >
                     <svg
                       width="16"
-                      height="12"
-                      viewBox="0 0 16 12"
+                      height="16"
+                      viewBox="0 0 24 24"
                       className="fill-current"
                     >
-                      <path d="M15.6645 1.88018C15.4839 1.13364 14.9419 0.552995 14.2452 0.359447C13.0065 6.59222e-08 8 0 8 0C8 0 2.99355 6.59222e-08 1.75484 0.359447C1.05806 0.552995 0.516129 1.13364 0.335484 1.88018C0 3.23502 0 6 0 6C0 6 0 8.79263 0.335484 10.1198C0.516129 10.8664 1.05806 11.447 1.75484 11.6406C2.99355 12 8 12 8 12C8 12 13.0065 12 14.2452 11.6406C14.9419 11.447 15.4839 10.8664 15.6645 10.1198C16 8.79263 16 6 16 6C16 6 16 3.23502 15.6645 1.88018ZM6.4 8.57143V3.42857L10.5548 6L6.4 8.57143Z" />
-                    </svg>
-                  </a>
-                  <a
-                    href="javascript:void(0)"
-                    className="mr-3 flex h-8 w-8 items-center justify-center rounded-full border border-stroke text-dark hover:border-primary hover:bg-primary hover:text-white dark:border-dark-3 dark:text-white dark:hover:border-primary sm:mr-4 lg:mr-3 xl:mr-4"
-                  >
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 14 14"
-                      className="fill-current"
-                    >
-                      <path d="M13.0214 0H1.02084C0.453707 0 0 0.451613 0 1.01613V12.9839C0 13.5258 0.453707 14 1.02084 14H12.976C13.5432 14 13.9969 13.5484 13.9969 12.9839V0.993548C14.0422 0.451613 13.5885 0 13.0214 0ZM4.15142 11.9H2.08705V5.23871H4.15142V11.9ZM3.10789 4.3129C2.42733 4.3129 1.90557 3.77097 1.90557 3.11613C1.90557 2.46129 2.45002 1.91935 3.10789 1.91935C3.76577 1.91935 4.31022 2.46129 4.31022 3.11613C4.31022 3.77097 3.81114 4.3129 3.10789 4.3129ZM11.9779 11.9H9.9135V8.67097C9.9135 7.90323 9.89082 6.8871 8.82461 6.8871C7.73571 6.8871 7.57691 7.74516 7.57691 8.60323V11.9H5.51254V5.23871H7.53154V6.16452H7.55423C7.84914 5.62258 8.50701 5.08065 9.52785 5.08065C11.6376 5.08065 12.0232 6.43548 12.0232 8.2871V11.9H11.9779Z" />
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                     </svg>
                   </a>
                 </div>
-                <p className="text-base text-body-color dark:text-dark-6">
-                  &copy; 2025 TailGrids
-                </p>
+                <div className="text-sm text-gray-400">
+                  <p className="mb-2">© 2025 Openspace Repository System</p>
+                  <div className="flex flex-wrap gap-4">
+                    <a href="/privacy" className="hover:text-blue-400 transition-colors">Privacy Policy</a>
+                    <a href="/terms" className="hover:text-blue-400 transition-colors">Terms of Use</a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        
+        {/* Decorative Elements */}
         <div>
-          <span className="absolute bottom-0 left-0 z-[-1]">
+          <span className="absolute bottom-0 left-0 z-[-1] opacity-30">
             <svg
               width={217}
               height={229}
@@ -156,24 +144,24 @@ const Footer = () => {
             >
               <path
                 d="M-64 140.5C-64 62.904 -1.096 1.90666e-05 76.5 1.22829e-05C154.096 5.49924e-06 217 62.904 217 140.5C217 218.096 154.096 281 76.5 281C-1.09598 281 -64 218.096 -64 140.5Z"
-                fill="url(#paint0_linear_1179_5)"
+                fill="url(#paint0_linear_footer)"
               />
               <defs>
                 <linearGradient
-                  id="paint0_linear_1179_5"
+                  id="paint0_linear_footer"
                   x1="76.5"
                   y1={281}
                   x2="76.5"
                   y2="1.22829e-05"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop stopColor="#3056D3" stopOpacity="0.08" />
-                  <stop offset={1} stopColor="#C4C4C4" stopOpacity={0} />
+                  <stop stopColor="#1e40af" stopOpacity="0.1" />
+                  <stop offset={1} stopColor="#1e293b" stopOpacity={0} />
                 </linearGradient>
               </defs>
             </svg>
           </span>
-          <span className="absolute right-10 top-10 z-[-1]">
+          <span className="absolute right-10 top-10 z-[-1] opacity-20">
             <svg
               width={75}
               height={75}
@@ -183,19 +171,19 @@ const Footer = () => {
             >
               <path
                 d="M37.5 -1.63918e-06C58.2107 -2.54447e-06 75 16.7893 75 37.5C75 58.2107 58.2107 75 37.5 75C16.7893 75 -7.33885e-07 58.2107 -1.63918e-06 37.5C-2.54447e-06 16.7893 16.7893 -7.33885e-07 37.5 -1.63918e-06Z"
-                fill="url(#paint0_linear_1179_4)"
+                fill="url(#paint0_linear_footer_circle)"
               />
               <defs>
                 <linearGradient
-                  id="paint0_linear_1179_4"
+                  id="paint0_linear_footer_circle"
                   x1="-1.63917e-06"
                   y1="37.5"
                   x2={75}
                   y2="37.5"
                   gradientUnits="userSpaceOnUse"
                 >
-                  <stop stopColor="#13C296" stopOpacity="0.31" />
-                  <stop offset={1} stopColor="#C4C4C4" stopOpacity={0} />
+                  <stop stopColor="#3b82f6" stopOpacity="0.2" />
+                  <stop offset={1} stopColor="#1e293b" stopOpacity={0} />
                 </linearGradient>
               </defs>
             </svg>
@@ -206,20 +194,16 @@ const Footer = () => {
   );
 };
 
-export default Footer;
-
 const LinkGroup = ({ children, header }) => {
   return (
-    <>
-      <div className="w-full px-4 sm:w-1/2 lg:w-2/12">
-        <div className="mb-10 w-full">
-          <h4 className="mb-9 text-lg font-semibold text-dark dark:text-white">
-            {header}
-          </h4>
-          <ul className="space-y-3">{children}</ul>
-        </div>
+    <div className="w-full px-4 sm:w-1/2 lg:w-2/12">
+      <div className="mb-8 w-full">
+        <h4 className="mb-6 text-lg font-semibold text-white">
+          {header}
+        </h4>
+        <ul className="space-y-3">{children}</ul>
       </div>
-    </>
+    </div>
   );
 };
 
@@ -228,10 +212,12 @@ const NavLink = ({ link, label }) => {
     <li>
       <a
         href={link}
-        className="inline-block text-base leading-loose text-body-color hover:text-primary dark:text-dark-6"
+        className="inline-block text-base leading-loose text-gray-300 hover:text-blue-400 transition-colors duration-200"
       >
         {label}
       </a>
     </li>
   );
 };
+
+export default Footer;
