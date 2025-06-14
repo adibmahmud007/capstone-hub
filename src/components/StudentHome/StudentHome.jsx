@@ -58,8 +58,9 @@ const Home = () => {
         </div>
     );
 
+
     return (
-        <div className="min-h-screen bg-white flex flex-col transition duration-300 ease-in-out">
+        <div className="min-h-screen bg-gradient-to-t from-white via-indigo-50 to-indigo-100 flex flex-col transition duration-300 ease-in-out">
             <Header />
 
             <main className="flex-grow container mx-auto px-6 lg:px-8 py-12">
@@ -69,13 +70,16 @@ const Home = () => {
                         <input
                             type="text"
                             placeholder="Search for projects..."
-                            className="w-full pl-14 pr-6 py-4 text-blue-900 text-lg placeholder:text-blue-900 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl shadow-md focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 font-medium"
+                            className="w-full pl-14 pr-6 py-4 text-blue-900 text-lg placeholder:text-blue-900 bg-gradient-to-r from-white to-blue-50 border-2 border-blue-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-300 font-medium"
+                            style={{ boxShadow: 'inset 0 3px 4px rgba(0, 0, 0, 0.15)' }}
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1);
                             }}
                         />
+
+
                         <span className="absolute inset-y-0 left-0 flex items-center pl-5 text-blue-900">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M11 4a7 7 0 015.657 11.313l4.243 4.243a1 1 0 01-1.414 1.414l-4.243-4.243A7 7 0 1111 4z" />
@@ -93,22 +97,71 @@ const Home = () => {
                             currentItems.map((project, index) => (
                                 <div
                                     key={index}
-                                    className="group bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-300 cursor-pointer"
+                                    className="group relative bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer"
                                 >
-                                    <h3 className="text-xl font-bold text-blue-900 mb-2 group-hover:text-blue-700 transition-colors duration-300 leading-tight">
-                                        {project.projectTitle}
-                                    </h3>
-                                    <p className="text-sm font-semibold text-blue-700 mb-1">Team: {project.teamName}</p>
-                                    <p className="text-sm text-blue-800 mb-1">Supervisor: {project.supervisor}</p>
-                                    <p className="text-black leading-relaxed text-sm mt-2 mb-6 line-clamp-3">
-                                        {project.abstract}
-                                    </p>
-                                    <button
-                                        onClick={() => setSelectedProject(project)}
-                                        className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 text-sm tracking-wide shadow-md hover:shadow-lg"
-                                    >
-                                        See More
-                                    </button>
+                                    {/* Gradient overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-900 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+
+                                    {/* Top accent bar */}
+                                    <div className="h-1 bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-900"></div>
+
+                                    <div className="p-6 relative z-10">
+                                        {/* Header section */}
+                                        <div className="mb-4">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                                                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z" clipRule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                                <div className="px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full">
+                                                    <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Project</span>
+                                                </div>
+                                            </div>
+
+                                            <h3 className="text-xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-indigo-700 transition-colors duration-300">
+                                                {project.projectTitle}
+                                            </h3>
+                                        </div>
+
+                                        {/* Info badges */}
+                                        <div className="space-y-2 mb-4">
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <div className="w-2 h-2 bg-indigo-500 rounded-full mr-3"></div>
+                                                <span className="font-medium text-gray-700">Team:</span>
+                                                <span className="ml-1 text-gray-900">{project.teamName}</span>
+                                            </div>
+                                            <div className="flex items-center text-sm text-gray-600">
+                                                <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+                                                <span className="font-medium text-gray-700">Supervisor:</span>
+                                                <span className="ml-1 text-gray-900">{project.supervisor}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Abstract */}
+                                        <div className="mb-6">
+                                            <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                                                {project.abstract}
+                                            </p>
+                                        </div>
+
+                                        {/* Button */}
+                                        <button
+                                            onClick={() => setSelectedProject(project)}
+                                            className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 group-hover:from-indigo-700 group-hover:to-indigo-800 shadow-lg hover:shadow-xl transform hover:scale-105"
+                                        >
+                                            <span className="relative z-10 flex items-center justify-center">
+                                                View Details
+                                                <svg className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                                                </svg>
+                                            </span>
+                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        </button>
+                                    </div>
+
+                                    {/* Bottom decoration */}
+                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-900 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                                 </div>
                             ))
                         ) : (
@@ -137,8 +190,8 @@ const Home = () => {
                             onClick={() => goToPage(currentPage + 1)}
                             disabled={currentPage === totalPages}
                             className={`px-4 py-2 rounded-lg font-medium text-white ${currentPage === totalPages
-                                    ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-blue-600 hover:bg-blue-700"
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700"
                                 }`}
                         >
                             Next
@@ -200,7 +253,7 @@ const Home = () => {
                                         <p className="text-sm font-semibold text-blue-800 mb-1">Category</p>
                                         <p className="text-blue-900 font-medium">{selectedProject.projectCategory}</p>
                                     </div>
-                                    
+
                                     <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl">
                                         <p className="text-sm font-semibold text-blue-800 mb-1">Project Type</p>
                                         <p className="text-blue-900 font-medium">{selectedProject.projectType}</p>
@@ -273,7 +326,7 @@ const Home = () => {
                 </div>
             )}
 
-            <style >{`
+            <style>{`
                 .animation-delay-100 {
                     animation-delay: 0.1s;
                 }
