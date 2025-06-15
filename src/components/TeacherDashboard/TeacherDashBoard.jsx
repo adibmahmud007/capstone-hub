@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useMemo } from "react";
-import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote } from "react-icons/fa";
+import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote,FaStore } from "react-icons/fa";
 import { Menu, X } from 'lucide-react';
 import { toast } from "react-toastify";
 // import { Link } from "react-router-dom";
@@ -1081,6 +1081,11 @@ const TeacherDashboard = () => {
                     >
                         <FaRegStickyNote className="text-white" /> Show Notice
                     </li>
+                    <a href="/teacherHome">
+                    <li className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-700">
+                    <FaStore className="text-white" /> Home
+                    </li>
+                    </a>
                 </ul>
             </div>
 
