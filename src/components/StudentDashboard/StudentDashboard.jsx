@@ -8,6 +8,15 @@ import { toast } from 'react-toastify';
 import { useEffect, useRef } from 'react';
 import axios from "axios";
 import { jwtDecode } from 'jwt-decode'; // ✅ CORRECT
+import { 
+    Users, 
+    UserCheck, 
+    FolderPlus,  
+    CloudUpload,
+    CheckSquare, 
+    Bell, 
+    Home, 
+  } from 'lucide-react';
 
 
 const StudentDashboard = () => {
@@ -104,13 +113,14 @@ const StudentDashboard = () => {
 
                 <ul className="space-y-2">
                     {[
-                        { key: 'createGroup', label: 'Create Group' },
-                        { key: 'myTeam', label: 'My Team' },
-                        { key: 'createProject', label: 'Create Project' },
-                        { key: 'upload', label: 'Upload' },
-                        { key: 'showTask', label: 'Show Task' },
-                        { key: 'showNotice', label: 'Show Notice' },
-                    ].map(({ key, label }) => (
+                        { key: 'createGroup', label: 'Create Group', icon: <Users size={18} /> },
+                        { key: 'myTeam', label: 'My Team', icon: <UserCheck size={18} /> },
+                        { key: 'createProject', label: 'Create Project', icon: <FolderPlus size={18} /> },
+                        { key: 'upload', label: 'Upload', icon: <CloudUpload size={18} /> },
+                        { key: 'showTask', label: 'Show Task', icon: <CheckSquare size={18} /> },
+                        { key: 'showNotice', label: 'Show Notice', icon: <Bell size={18} /> },
+                        { key: '/studentHome', label: 'Home', icon: <Home size={18} /> },
+                    ].map(({ key, label, icon }) => (
                         <li
                             key={key}
                             className={`cursor-pointer px-4 py-2 rounded-lg transition-all duration-200 ${activeMenu === key
@@ -118,11 +128,18 @@ const StudentDashboard = () => {
                                 : 'hover:bg-blue-800 text-blue-100 hover:text-white'
                                 }`}
                             onClick={() => {
-                                setActiveMenu(key);
+                                if (key === '/studentHome') {
+                                    window.location.href = '/studentHome';
+                                } else {
+                                    setActiveMenu(key);
+                                }
                                 setSidebarOpen(false);
                             }}
                         >
-                            {label}
+                            <div className="flex items-center space-x-3">
+                                {icon}
+                                <span>{label}</span>
+                            </div>
                         </li>
                     ))}
                 </ul>
