@@ -957,13 +957,13 @@ const AddNotice = () => {
                             <div className="flex flex-wrap gap-2 mt-4">
                                 <button
                                     onClick={() => handleDelete(notice._id)}
-                                    className="bg-red-500 text-white px-4 py-1.5 rounded hover:bg-red-600 text-sm transition"
+                                    className="bg-red-600 text-white px-4 py-1.5 rounded hover:bg-red-700 text-sm transition"
                                 >
                                     Delete
                                 </button>
                                 <button
                                     onClick={() => handleEditClick(notice)}
-                                    className="bg-yellow-500 text-white px-4 py-1.5 rounded hover:bg-yellow-600 text-sm transition"
+                                    className="bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700 text-sm transition"
                                 >
                                     Edit
                                 </button>
