@@ -146,217 +146,224 @@ const TeamDetails = () => {
 
 
 const AssignTask = () => {
-    const [teamData, setTeamData] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [teamData, setTeamData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-    const [openIntake, setOpenIntake] = useState(null);
-    const [openSection, setOpenSection] = useState({});
-    const [openTeam, setOpenTeam] = useState({});
-    const [selectedTeam, setSelectedTeam] = useState(null);
+  const [openIntake, setOpenIntake] = useState(null);
+  const [openSection, setOpenSection] = useState({});
+  const [openTeam, setOpenTeam] = useState({});
+  const [selectedTeam, setSelectedTeam] = useState(null);
 
-    const [task, setTask] = useState('');
-    const [remark, setRemark] = useState('');
+  const [task, setTask] = useState('');
+  const [remark, setRemark] = useState('');
 
-    useEffect(() => {
-        const fetchTeamData = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/by-teacher", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                const data = await response.json();
-                setTeamData(data.data);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error fetching team data:", error);
-                setLoading(false);
-            }
-        };
+  useEffect(() => {
+      const fetchTeamData = async () => {
+          try {
+              const token = localStorage.getItem('token');
+              const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/by-teacher", {
+                  headers: {
+                      Authorization: `Bearer ${token}`,
+                  },
+              });
+              const data = await response.json();
+              setTeamData(data.data);
+              setLoading(false);
+          } catch (error) {
+              toast.error("Error fetching team data:", error);
+              setLoading(false);
+          }
+      };
 
-        fetchTeamData();
-    }, []);
+      fetchTeamData();
+  }, []);
 
-    const groupedData = useMemo(() => {
-        const grouped = {};
-        teamData.forEach(team => {
-            const { teamName, members } = team;
-            const { intake, section } = members[0] || {};
+  const groupedData = useMemo(() => {
+      const grouped = {};
+      teamData.forEach(team => {
+          const { teamName, members } = team;
+          const { intake, section } = members[0] || {};
 
-            if (!intake || !section) return;
+          if (!intake || !section) return;
 
-            if (!grouped[intake]) grouped[intake] = {};
-            if (!grouped[intake][section]) grouped[intake][section] = {};
-            grouped[intake][section][teamName] = members;
-        });
-        return grouped;
-    }, [teamData]);
+          if (!grouped[intake]) grouped[intake] = {};
+          if (!grouped[intake][section]) grouped[intake][section] = {};
+          grouped[intake][section][teamName] = members;
+      });
+      return grouped;
+  }, [teamData]);
 
-    const handleTeamClick = (intake, section, teamName) => {
-        const key = `${intake}-${section}-${teamName}`;
-        setOpenTeam(prev => ({
-            ...prev,
-            [key]: !prev[key],
-        }));
+  const handleTeamClick = (intake, section, teamName) => {
+      const key = `${intake}-${section}-${teamName}`;
+      setOpenTeam(prev => ({
+          ...prev,
+          [key]: !prev[key],
+      }));
 
-        setSelectedTeam(prev =>
-            prev?.intake === intake && prev?.section === section && prev?.teamName === teamName
-                ? null
-                : { intake, section, teamName }
-        );
-    };
+      setSelectedTeam(prev =>
+          prev?.intake === intake && prev?.section === section && prev?.teamName === teamName
+              ? null
+              : { intake, section, teamName }
+      );
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      setSubmitting(true);
 
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert("❌ Token missing. Please login again.");
-            return;
-        }
+      const token = localStorage.getItem('token');
+      if (!token) {
+          toast.dismiss("❌ Token missing. Please login again.");
+          setSubmitting(false);
+          return;
+      }
 
-        if (!selectedTeam) {
-            alert("❌ Please select a team first!");
-            return;
-        }
+      if (!selectedTeam) {
+          toast.warning("❌ Please select a team first!");
+          setSubmitting(false);
+          return;
+      }
 
-        const payload = {
-            teamName: selectedTeam.teamName,
-            assignedTask: task,
-            remarks: remark,
-        };
+      const payload = {
+          teamName: selectedTeam.teamName,
+          assignedTask: task,
+          remarks: remark,
+      };
 
-        try {
-            const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(payload),
-            });
+      try {
+          const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(payload),
+          });
 
-            const result = await response.json();
+          const result = await response.json();
 
-            if (response.ok) {
-                alert("✅ Task and remarks assigned successfully!");
-                setTask('');
-                setRemark('');
-            } else {
-                alert(`❌ Failed: ${result?.message || 'Unknown error occurred.'}`);
-            }
-        } catch (error) {
-            console.error("Error assigning task:", error);
-            alert("❌ Network error. Please try again.");
-        }
-    };
+          if (response.ok) {
+              toast.success("✅ Task and remarks assigned successfully!");
+              setTask('');
+              setRemark('');
+          } else {
+              toast.error(`❌ Failed: ${result?.message || 'Unknown error occurred.'}`);
+          }
+      } catch (error) {
+          console.error("Error assigning task:", error);
+          toast.error("❌ Network error. Please try again.");
+      } finally {
+          setSubmitting(false);
+      }
+  };
 
-    if (loading) {
-        return <div className="text-center text-lg mt-10">Loading team data...</div>;
-    }
+  if (loading) {
+      return <div className="text-center text-lg mt-10">Loading team data...</div>;
+  }
 
-    return (
-        <div className="max-w-5xl mx-auto mt-6 p-6 bg-white rounded-xl shadow-2xl">
-            <h2 className="text-3xl font-bold text-center mb-6 text-blue-900">📋 Assign Tasks to Teams</h2>
+  return (
+      <div className="max-w-5xl mx-auto mt-6 p-6 bg-white rounded-xl shadow-2xl">
+          <h2 className="text-3xl font-bold text-center mb-6 text-blue-900">📋 Assign Tasks to Teams</h2>
 
-            {/* Dropdown Section */}
-            <div className="mb-10">
-                {Object.entries(groupedData).map(([intake, sections]) => (
-                    <div key={intake} className="mb-6 border border-blue-300 rounded-lg overflow-hidden shadow-md">
-                        <button
-                            onClick={() => setOpenIntake(openIntake === intake ? null : intake)}
-                            className="w-full flex justify-between items-center px-5 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold transition"
-                        >
-                            <span>🎓 Intake {intake}</span>
-                            <span>{openIntake === intake ? '▲' : '▼'}</span>
-                        </button>
+          {/* Dropdown Section */}
+          <div className="mb-10">
+              {Object.entries(groupedData).map(([intake, sections]) => (
+                  <div key={intake} className="mb-6 border border-blue-300 rounded-lg overflow-hidden shadow-md">
+                      <button
+                          onClick={() => setOpenIntake(openIntake === intake ? null : intake)}
+                          className="w-full flex justify-between items-center px-5 py-4 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold transition"
+                      >
+                          <span>🎓 Intake {intake}</span>
+                          <span>{openIntake === intake ? '▲' : '▼'}</span>
+                      </button>
 
-                        {openIntake === intake && (
-                            <div className="bg-blue-50 px-5 py-4">
-                                {Object.entries(sections).map(([section, teams]) => (
-                                    <div key={section} className="mb-4">
-                                        <button
-                                            onClick={() =>
-                                                setOpenSection(prev => ({
-                                                    ...prev,
-                                                    [`${intake}-${section}`]: !prev[`${intake}-${section}`],
-                                                }))
-                                            }
-                                            className="w-full flex justify-between items-center px-4 py-2 bg-blue-200 hover:bg-blue-300 rounded-md font-medium text-blue-900 transition"
-                                        >
-                                            <span>📘 Section {section}</span>
-                                            <span>{openSection[`${intake}-${section}`] ? '−' : '+'}</span>
-                                        </button>
+                      {openIntake === intake && (
+                          <div className="bg-blue-50 px-5 py-4">
+                              {Object.entries(sections).map(([section, teams]) => (
+                                  <div key={section} className="mb-4">
+                                      <button
+                                          onClick={() =>
+                                              setOpenSection(prev => ({
+                                                  ...prev,
+                                                  [`${intake}-${section}`]: !prev[`${intake}-${section}`],
+                                              }))
+                                          }
+                                          className="w-full flex justify-between items-center px-4 py-2 bg-blue-200 hover:bg-blue-300 rounded-md font-medium text-blue-900 transition"
+                                      >
+                                          <span>📘 Section {section}</span>
+                                          <span>{openSection[`${intake}-${section}`] ? '−' : '+'}</span>
+                                      </button>
 
-                                        {openSection[`${intake}-${section}`] && (
-                                            <div className="ml-5 mt-3 space-y-2">
-                                                {Object.entries(teams).map(([teamName]) => {
-                                                    const teamKey = `${intake}-${section}-${teamName}`;
-                                                    return (
-                                                        <button
-                                                            key={teamName}
-                                                            onClick={() => handleTeamClick(intake, section, teamName)}
-                                                            className={`w-full text-left px-4 py-2 rounded-md transition font-medium 
-                                                                ${selectedTeam?.teamName === teamName &&
-                                                                    selectedTeam?.intake === intake &&
-                                                                    selectedTeam?.section === section
-                                                                    ? 'bg-yellow-300 text-blue-900'
-                                                                    : 'bg-yellow-100 hover:bg-yellow-200 text-gray-800'
-                                                                }`}
-                                                        >
-                                                            👥 Team: {teamName}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
+                                      {openSection[`${intake}-${section}`] && (
+                                          <div className="ml-5 mt-3 space-y-2">
+                                              {Object.entries(teams).map(([teamName]) => {
+                                                  const teamKey = `${intake}-${section}-${teamName}`;
+                                                  return (
+                                                      <button
+                                                          key={teamName}
+                                                          onClick={() => handleTeamClick(intake, section, teamName)}
+                                                          className={`w-full text-left px-4 py-2 rounded-md transition font-medium 
+                                                              ${selectedTeam?.teamName === teamName &&
+                                                                  selectedTeam?.intake === intake &&
+                                                                  selectedTeam?.section === section
+                                                                  ? 'bg-yellow-300 text-blue-900'
+                                                                  : 'bg-yellow-100 hover:bg-yellow-200 text-gray-800'
+                                                              }`}
+                                                      >
+                                                          👥 Team: {teamName}
+                                                      </button>
+                                                  );
+                                              })}
+                                          </div>
+                                      )}
+                                  </div>
+                              ))}
+                          </div>
+                      )}
+                  </div>
+              ))}
+          </div>
 
-            {/* Always-visible Input Section */}
-            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg border border-blue-300 shadow-inner">
-                <h3 className="text-2xl font-semibold text-blue-800 mb-4">📝 Assign Task and Remark</h3>
+          {/* Always-visible Input Section */}
+          <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg border border-blue-300 shadow-inner">
+              <h3 className="text-2xl font-semibold text-blue-800 mb-4">📝 Assign Task and Remark to Team <span className="text-emerald-500 font-bold underline">{selectedTeam?.teamName}</span></h3>
 
-                <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-blue-700 font-medium mb-1">Task</label>
-                        <input
-                            type="text"
-                            value={task}
-                            onChange={(e) => setTask(e.target.value)}
-                            placeholder="Enter task..."
-                            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
-                    </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                      <label className="block text-blue-700 font-medium mb-1">Task</label>
+                      <input
+                          type="text"
+                          value={task}
+                          onChange={(e) => setTask(e.target.value)}
+                          placeholder="Enter task..."
+                          className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          required
+                      />
+                  </div>
 
-                    <div>
-                        <label className="block text-blue-700 font-medium mb-1">Remark</label>
-                        <textarea
-                            value={remark}
-                            onChange={(e) => setRemark(e.target.value)}
-                            placeholder="Add a remark..."
-                            className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows="3"
-                        />
-                    </div>
-                </div>
+                  <div>
+                      <label className="block text-blue-700 font-medium mb-1">Remark</label>
+                      <textarea
+                          value={remark}
+                          onChange={(e) => setRemark(e.target.value)}
+                          placeholder="Add a remark..."
+                          className="w-full px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          rows="3"
+                      />
+                  </div>
+              </div>
 
-                <button
-                    type="submit"
-                    className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md transition"
-                >
-                    ✅ Assign Task
-                </button>
-            </form>
-        </div>
-    );
+              <button
+                  type="submit"
+                  disabled={submitting}
+                  className="mt-6 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-2 px-6 rounded-md transition"
+              >
+                  {submitting ? '⏳ Assigning...' : '✅ Assign Task'}
+              </button>
+          </form>
+      </div>
+  );
 };
 
 
