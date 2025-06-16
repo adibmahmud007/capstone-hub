@@ -17,7 +17,7 @@ import PlagiarismChecker from './components/PlagiarismChecker/PlagiarismChecker'
 import Footer from './components/Footer/Footer';
 import AdminDashboard from './components/AdminDashboard/AdminDashboard';
 import TeacherHome from './components/TeacherHome/TeacherHome';
-import ProtectedRoute from './components/ProtectedRoute'; // make sure this path is correct
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; // make sure this path is correct
 
 const router = createBrowserRouter([
   {
