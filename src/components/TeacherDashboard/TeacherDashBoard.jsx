@@ -327,7 +327,7 @@ const AssignTask = () => {
 
           {/* Always-visible Input Section */}
           <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg border border-blue-300 shadow-inner">
-              <h3 className="text-2xl font-semibold text-blue-800 mb-4">📝 Assign Task and Remark to Team <span className="text-emerald-500 font-bold underline">{selectedTeam?.teamName}</span></h3>
+              <h3 className="text-2xl font-semibold text-blue-800 mb-4">📝 Assign Task and Remark to Team <span className="text-amber-800 font-bold underline">{selectedTeam?.teamName}</span></h3>
 
               <div className="grid sm:grid-cols-2 gap-4">
                   <div>
@@ -662,6 +662,7 @@ const AddNotice = () => {
     const [openSection, setOpenSection] = useState({});
     const [openTeam, setOpenTeam] = useState({});
     const [selectedTeam, setSelectedTeam] = useState(null);
+    const [submitting, setSubmitting] = useState(false)
   
     useEffect(() => {
       const fetchTeamData = async () => {
@@ -677,6 +678,7 @@ const AddNotice = () => {
           setLoading(false);
         } catch (error) {
           console.error("Error fetching team data:", error);
+          // setSubmitting(false);
           setLoading(false);
         }
       };
@@ -711,6 +713,7 @@ const AddNotice = () => {
   
     const handleSubmit = async (e) => {
       e.preventDefault();
+      setSubmitting(true);
       if (!selectedTeam) {
         alert("Please select a team.");
         return;
@@ -737,6 +740,7 @@ const AddNotice = () => {
         setTitle('');
         setContent('');
         setSelectedTeam('');
+        setSubmitting(false);
       } catch (error) {
         console.error("Error creating notice:", error);
         toast.error("Failed to add notice. Please try again.");
@@ -845,7 +849,7 @@ const AddNotice = () => {
               className="mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-md transition"
               disabled={!selectedTeam}
             >
-              📤 Submit Notice
+              {submitting ? '⏳ Publishing...' : '✅ Publish Notice'}
             </button>
           </form>
         </div>
