@@ -12,9 +12,10 @@ import {
   FaChartLine,
   FaUserGraduate,
   FaCog,
-  FaSearch, FaEye, FaCalendarAlt, FaCode, FaTags, FaGraduationCap
+  FaSearch, FaEye, FaSave, FaTrash, FaCalendarAlt, FaCode, FaTags, FaGraduationCap
 } from "react-icons/fa";
 import { FolderCog } from 'lucide-react';
+import { toast } from "react-toastify";
 
 // ✅ TeacherAdd Component
 const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
@@ -149,7 +150,6 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
   );
 };
 
-
 const ITEMS_PER_PAGE = 6;
 const ShowProject = ({ setActiveModal }) => {
   const [projects, setProjects] = useState([]);
@@ -157,6 +157,8 @@ const ShowProject = ({ setActiveModal }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [editProject, setEditProject] = useState(null);
+  const [editLoading, setEditLoading] = useState(false);
 
   const fetchProjects = async () => {
     try {
@@ -202,6 +204,64 @@ const ShowProject = ({ setActiveModal }) => {
     } catch (error) {
       console.error("Error deleting project:", error);
     }
+  };
+
+  const handleEdit = (project) => {
+    setEditProject({
+      ...project,
+      completionDate: project.completionDate ? new Date(project.completionDate).toISOString().split('T')[0] : '',
+      keywords: Array.isArray(project.keywords) ? project.keywords.join(', ') : '',
+      technologies: Array.isArray(project.technologies) ? project.technologies.join(', ') : '',
+      authors: Array.isArray(project.authors) ? project.authors.join(', ') : ''
+    });
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setEditLoading(true);
+
+    try {
+      const updateData = {
+        projectTitle: editProject.projectTitle,
+        abstract: editProject.abstract,
+        projectType: editProject.projectType,
+        keywords: editProject.keywords.split(',').map(k => k.trim()).filter(k => k),
+        technologies: editProject.technologies.split(',').map(t => t.trim()).filter(t => t),
+        furtherImprovement: editProject.furtherImprovement,
+        department: editProject.department,
+        completionDate: editProject.completionDate,
+        authors: editProject.authors.split(',').map(a => a.trim()).filter(a => a),
+        projectCategory: editProject.projectCategory
+      };
+
+      const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/${editProject._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (response.ok) {
+        await fetchProjects();
+        setEditProject(null);
+        toast.success("Project updated successfully!");
+      } else {
+        throw new Error("Failed to update project");
+      }
+    } catch (error) {
+      console.error("Error updating project:", error);
+      toast.error("Error updating project. Please try again.");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleEditChange = (field, value) => {
+    setEditProject(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   return (
@@ -305,20 +365,38 @@ const ShowProject = ({ setActiveModal }) => {
                           {project.abstract}
                         </p>
 
-                        {/* Action Button */}
-                        <button
-                          onClick={() => setSelectedProject(project)}
-                          className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 active:from-blue-800 active:to-blue-900 transition-all duration-200 text-sm tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
-                        >
-                          <FaEye />
-                          View Details
-                        </button>
-                        <button
-                          onClick={() => handleDelete(project._id)}
-                          className="w-full mt-1.5 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-xl hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 transition-all duration-200 text-sm tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
-                        >
-                          Delete
-                        </button>
+                        {/* Action Buttons */}
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => setSelectedProject(project)}
+                            className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 active:from-blue-800 active:to-blue-900 transition-all duration-200 text-sm tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+                          >
+                            <FaEye />
+                            View Details
+                          </button>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEdit(project);
+                              }}
+                              className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 active:from-green-800 active:to-green-900 transition-all duration-200 text-sm tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+                            >
+                              <FaEdit />
+                              Edit
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(project._id);
+                              }}
+                              className="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-xl hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 transition-all duration-200 text-sm tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+                            >
+                              <FaTrash />
+                              Delete
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     ))
                   ) : (
@@ -402,6 +480,217 @@ const ShowProject = ({ setActiveModal }) => {
           </div>
         </div>
       </div>
+
+      {/* Edit Project Modal */}
+      {editProject && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-70 p-4">
+          <div className="bg-white max-w-4xl w-full max-h-[90vh] rounded-3xl shadow-2xl relative overflow-hidden">
+
+            {/* Edit Header */}
+            <div className="bg-gradient-to-r from-green-600 to-green-800 p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center gap-3">
+                    <FaEdit className="text-green-300" />
+                    Edit Project
+                  </h2>
+                  <p className="text-green-200 text-sm mt-1">
+                    Modify project details and save changes
+                  </p>
+                </div>
+                <button
+                  onClick={() => setEditProject(null)}
+                  className="text-white hover:text-red-300 transition-colors p-2 hover:bg-white/10 rounded-full"
+                >
+                  <FaTimes size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Edit Form */}
+            <form onSubmit={handleEditSubmit} className="p-6 overflow-y-auto max-h-[70vh]">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {/* Left Column */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Project Title *
+                    </label>
+                    <input
+                      type="text"
+                      value={editProject.projectTitle || ''}
+                      onChange={(e) => handleEditChange('projectTitle', e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Project Type
+                    </label>
+                    <select
+                      value={editProject.projectType || ''}
+                      onChange={(e) => handleEditChange('projectType', e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
+                    >
+                      <option value="">Select Type</option>
+                      <option value="Web Application">Web Application</option>
+                      <option value="Mobile Application">Mobile Application</option>
+                      <option value="Desktop Application">Desktop Application</option>
+                      <option value="Research">Research</option>
+                      <option value="Hardware">Hardware</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Project Category
+                    </label>
+                    <select
+                      value={editProject.projectCategory || ''}
+                      onChange={(e) => handleEditChange('projectCategory', e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
+                    >
+                      <option value="">Select Category</option>
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="Software Engineering">Software Engineering</option>
+                      <option value="Data Science">Data Science</option>
+                      <option value="AI/ML">AI/ML</option>
+                      <option value="Cybersecurity">Cybersecurity</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Department
+                    </label>
+                    <input
+                      type="text"
+                      value={editProject.department || ''}
+                      onChange={(e) => handleEditChange('department', e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Completion Date
+                    </label>
+                    <input
+                      type="date"
+                      value={editProject.completionDate || ''}
+                      onChange={(e) => handleEditChange('completionDate', e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Authors (comma-separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={editProject.authors || ''}
+                      onChange={(e) => handleEditChange('authors', e.target.value)}
+                      placeholder="John Doe, Jane Smith, ..."
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Abstract *
+                    </label>
+                    <textarea
+                      value={editProject.abstract || ''}
+                      onChange={(e) => handleEditChange('abstract', e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors resize-none"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Keywords (comma-separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={editProject.keywords || ''}
+                      onChange={(e) => handleEditChange('keywords', e.target.value)}
+                      placeholder="React, Node.js, MongoDB, ..."
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Technologies (comma-separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={editProject.technologies || ''}
+                      onChange={(e) => handleEditChange('technologies', e.target.value)}
+                      placeholder="React, Express, PostgreSQL, ..."
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Further Improvements
+                    </label>
+                    <textarea
+                      value={editProject.furtherImprovement || ''}
+                      onChange={(e) => handleEditChange('furtherImprovement', e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors resize-none"
+                      placeholder="Describe possible future enhancements..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Form Footer */}
+              <div className="border-t border-gray-200 pt-6 mt-6">
+                <div className="flex gap-3 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setEditProject(null)}
+                    className="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors duration-200 font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editLoading}
+                    className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {editLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <FaSave />
+                        Save Changes
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Project Detail Modal */}
       {selectedProject && (
@@ -812,7 +1101,7 @@ const AdminDashboard = () => {
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-blue-600/20 rounded-full -mr-16 -mt-16"></div>
               <div className="relative z-10">
                 <div className="bg-gradient-to-r from-orange-400 to-orange-600 p-4 rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <FolderCog size={30}  className="text-white text-3xl" />
+                  <FolderCog size={30} className="text-white text-3xl" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-800 mb-3">Manage Projects</h3>
                 <p className="text-gray-600 leading-relaxed">
