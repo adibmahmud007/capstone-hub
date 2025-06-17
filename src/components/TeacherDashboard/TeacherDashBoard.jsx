@@ -678,7 +678,7 @@ const AddNotice = () => {
           setLoading(false);
         } catch (error) {
           console.error("Error fetching team data:", error);
-          // setSubmitting(false);
+          
           setLoading(false);
         }
       };

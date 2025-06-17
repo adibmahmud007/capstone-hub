@@ -682,8 +682,6 @@ const CreateProject = ({ teamName, supervisor }) => {
         const payload = {
             projectTitle,
             abstract,
-            teamName,
-            supervisor,
             projectType,
             keywords,
             technologies,
@@ -711,18 +709,30 @@ const CreateProject = ({ teamName, supervisor }) => {
             console.log('Project submitted:', result);
             toast.success('Project submitted successfully!');
     
-            // Clear input fields
+            // ✅ Clear form fields
             setProjectTitle('');
             setAbstract('');
-            setProjectType('');
-            setKeywords('');
-            setTechnologies('');
+            setProjectType('Software');           // Reset to default
+            setKeywords([]);
+            setTechnologies([]);
             setFurtherImprovement('');
             setDepartment('');
             setCompletionDate('');
             setAuthors('');
-            setProjectCategory('');
-            
+            setProjectCategory('Thesis');         // Reset to default
+    
+            // ✅ Clear input & suggestion-related states
+            setKeywordInput('');
+            setTechnologyInput('');
+            setKeywordSuggestions([]);
+            setTechnologySuggestions([]);
+            setShowKeywordSuggestions(false);
+            setShowTechnologySuggestions(false);
+    
+            // ✅ Optional: blur inputs after submit
+            if (keywordInputRef.current) keywordInputRef.current.blur();
+            if (technologyInputRef.current) technologyInputRef.current.blur();
+    
         } catch (error) {
             console.error('Error submitting project:', error);
             toast.error('Submission failed. Try again.');
