@@ -678,7 +678,7 @@ const CreateProject = ({ teamName, supervisor }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
+    
         const payload = {
             projectTitle,
             abstract,
@@ -693,7 +693,7 @@ const CreateProject = ({ teamName, supervisor }) => {
             authors,
             projectCategory
         };
-
+    
         try {
             const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project', {
                 method: 'POST',
@@ -702,14 +702,27 @@ const CreateProject = ({ teamName, supervisor }) => {
                 },
                 body: JSON.stringify(payload)
             });
-
+    
             if (!response.ok) {
                 throw new Error('Failed to submit project');
             }
-
+    
             const result = await response.json();
             console.log('Project submitted:', result);
             toast.success('Project submitted successfully!');
+    
+            // Clear input fields
+            setProjectTitle('');
+            setAbstract('');
+            setProjectType('');
+            setKeywords('');
+            setTechnologies('');
+            setFurtherImprovement('');
+            setDepartment('');
+            setCompletionDate('');
+            setAuthors('');
+            setProjectCategory('');
+            
         } catch (error) {
             console.error('Error submitting project:', error);
             toast.error('Submission failed. Try again.');
@@ -717,6 +730,7 @@ const CreateProject = ({ teamName, supervisor }) => {
             setLoading(false);
         }
     };
+    
 
     useEffect(() => {
         const handleClickOutside = (event) => {
