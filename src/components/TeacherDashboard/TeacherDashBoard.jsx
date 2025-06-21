@@ -949,10 +949,20 @@ const AddNotice = () => {
                 <div className="max-h-[70vh] overflow-y-auto px-1 md:px-2 space-y-4 scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-100">
                     {notices.map((notice) => (
                         <div key={notice._id} className="bg-white p-4 rounded-xl shadow-md border border-blue-100 hover:shadow-lg transition">
-                            <div className="flex justify-between items-center mb-2 flex-wrap gap-2">
-                                <h3 className="text-xl font-semibold text-blue-700">{notice.noticeTitle}</h3>
-                                <span className="text-sm font-medium text-gray-500 bg-blue-100 px-2 py-0.5 rounded">📌 {notice.teamName}</span>
-                            </div>
+                           <div className="flex justify-between items-center mb-3">
+                            <h3 className="md:text-xl text-lg font-semibold text-blue-600">{notice.noticeTitle}</h3>
+                            <span className="md:text-sm text-xs font-medium text-blue-500 bg-blue-100 px-3 py-1 rounded-xl flex flex-col items-start">
+                                📌 {notice.teamName}
+                                <span className="text-xs mt-2">📅 {
+                                    new Date(notice.createdAt).toLocaleDateString('en-GB', {
+                                        day: '2-digit',
+                                        month: 'short',
+                                        year: 'numeric',
+                                    })
+                                }</span>
+                            </span>
+
+                        </div>
                             <p className="text-gray-700 whitespace-pre-line">{notice.noticeDetails}</p>
                             <div className="flex flex-wrap gap-2 mt-4">
                                 <button
