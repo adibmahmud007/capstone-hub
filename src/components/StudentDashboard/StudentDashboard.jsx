@@ -8,15 +8,15 @@ import { toast } from 'react-toastify';
 import { useEffect, useRef } from 'react';
 import axios from "axios";
 import { jwtDecode } from 'jwt-decode'; // ✅ CORRECT
-import { 
-    Users, 
-    UserCheck, 
-    FolderPlus,  
+import {
+    Users,
+    UserCheck,
+    FolderPlus,
     CloudUpload,
-    CheckSquare, 
-    Bell, 
-    Home, 
-  } from 'lucide-react';
+    CheckSquare,
+    Bell,
+    Home,
+} from 'lucide-react';
 
 
 const StudentDashboard = () => {
@@ -678,7 +678,7 @@ const CreateProject = ({ teamName, supervisor }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-    
+
         const payload = {
             projectTitle,
             abstract,
@@ -691,7 +691,7 @@ const CreateProject = ({ teamName, supervisor }) => {
             authors,
             projectCategory
         };
-    
+
         try {
             const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project', {
                 method: 'POST',
@@ -700,15 +700,15 @@ const CreateProject = ({ teamName, supervisor }) => {
                 },
                 body: JSON.stringify(payload)
             });
-    
+
             if (!response.ok) {
                 throw new Error('Failed to submit project');
             }
-    
+
             const result = await response.json();
             console.log('Project submitted:', result);
             toast.success('Project submitted successfully!');
-    
+
             // ✅ Clear form fields
             setProjectTitle('');
             setAbstract('');
@@ -720,7 +720,7 @@ const CreateProject = ({ teamName, supervisor }) => {
             setCompletionDate('');
             setAuthors('');
             setProjectCategory('Thesis');         // Reset to default
-    
+
             // ✅ Clear input & suggestion-related states
             setKeywordInput('');
             setTechnologyInput('');
@@ -728,11 +728,11 @@ const CreateProject = ({ teamName, supervisor }) => {
             setTechnologySuggestions([]);
             setShowKeywordSuggestions(false);
             setShowTechnologySuggestions(false);
-    
+
             // ✅ Optional: blur inputs after submit
             if (keywordInputRef.current) keywordInputRef.current.blur();
             if (technologyInputRef.current) technologyInputRef.current.blur();
-    
+
         } catch (error) {
             console.error('Error submitting project:', error);
             toast.error('Submission failed. Try again.');
@@ -740,7 +740,7 @@ const CreateProject = ({ teamName, supervisor }) => {
             setLoading(false);
         }
     };
-    
+
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -1192,11 +1192,12 @@ const ShowNotice = ({ teamName }) => {
             try {
                 const response = await axios.get(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice/${teamName}`);
                 const fetchedTasks = response.data.data || [];
+                console.log(fetchTasks)
                 console.log(response.data, 'from show task');
                 setNotices(fetchedTasks);
             } catch (error) {
                 toast.error("Failed to fetch tasks");
-                console.error("Error fetching tasks:", error);
+                toast.error("Error fetching tasks:", error);
             }
         };
 
@@ -1216,10 +1217,18 @@ const ShowNotice = ({ teamName }) => {
                         className="p-6 bg-white rounded-xl border border-blue-200 shadow-md hover:shadow-lg transition duration-300"
                     >
                         <div className="flex justify-between items-center mb-3">
-                            <h3 className="text-xl font-semibold text-blue-600">{notice.noticeTitle}</h3>
-                            <span className="text-sm font-medium text-blue-500 bg-blue-100 px-3 py-1 rounded-full">
+                            <h3 className="md:text-xl text-lg font-semibold text-blue-600">{notice.noticeTitle}</h3>
+                            <span className="md:text-sm text-xs font-medium text-blue-500 bg-blue-100 px-3 py-1 rounded-xl flex flex-col items-start">
                                 📌 {notice.teamName}
+                                <span className="text-xs mt-2">📅 {
+                                    new Date(notice.createdAt).toLocaleDateString('en-GB', {
+                                        day: '2-digit',
+                                        month: 'short',
+                                        year: 'numeric',
+                                    })
+                                }</span>
                             </span>
+
                         </div>
                         <p className="text-gray-700 whitespace-pre-line leading-relaxed">
                             {notice.noticeDetails}
