@@ -676,70 +676,76 @@ const CreateProject = ({ teamName, supervisor }) => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-        const payload = {
-            projectTitle,
-            abstract,
-            projectType,
-            keywords,
-            technologies,
-            furtherImprovement,
-            department,
-            completionDate,
-            authors,
-            projectCategory
-        };
-
-        try {
-            const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to submit project');
-            }
-
-            const result = await response.json();
-            console.log('Project submitted:', result);
-            toast.success('Project submitted successfully!');
-
-            // ✅ Clear form fields
-            setProjectTitle('');
-            setAbstract('');
-            setProjectType('Software');           // Reset to default
-            setKeywords([]);
-            setTechnologies([]);
-            setFurtherImprovement('');
-            setDepartment('');
-            setCompletionDate('');
-            setAuthors('');
-            setProjectCategory('Thesis');         // Reset to default
-
-            // ✅ Clear input & suggestion-related states
-            setKeywordInput('');
-            setTechnologyInput('');
-            setKeywordSuggestions([]);
-            setTechnologySuggestions([]);
-            setShowKeywordSuggestions(false);
-            setShowTechnologySuggestions(false);
-
-            // ✅ Optional: blur inputs after submit
-            if (keywordInputRef.current) keywordInputRef.current.blur();
-            if (technologyInputRef.current) technologyInputRef.current.blur();
-
-        } catch (error) {
-            console.error('Error submitting project:', error);
-            toast.error('Submission failed. Try again.');
-        } finally {
-            setLoading(false);
-        }
+    const payload = {
+        projectTitle,
+        teamName,
+        abstract,
+        projectType,
+        keywords,
+        technologies,
+        furtherImprovement,
+        department,
+        completionDate,
+        authors,
+        projectCategory
     };
+
+    try {
+        const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // Add this if authentication is required:
+                // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            // Log error message from backend
+            console.error('Server responded with error:', result);
+            throw new Error(result.message || 'Failed to submit project');
+        }
+
+        console.log('Project submitted:', result);
+        toast.success('Project submitted successfully!');
+
+        // ✅ Clear form fields
+        setProjectTitle('');
+        setAbstract('');
+        setProjectType('Software');
+        setKeywords([]);
+        setTechnologies([]);
+        setFurtherImprovement('');
+        setDepartment('');
+        setCompletionDate('');
+        setAuthors('');
+        setProjectCategory('Thesis');
+
+        // ✅ Clear input & suggestions
+        setKeywordInput('');
+        setTechnologyInput('');
+        setKeywordSuggestions([]);
+        setTechnologySuggestions([]);
+        setShowKeywordSuggestions(false);
+        setShowTechnologySuggestions(false);
+
+        if (keywordInputRef.current) keywordInputRef.current.blur();
+        if (technologyInputRef.current) technologyInputRef.current.blur();
+
+    } catch (error) {
+        console.error('Error submitting project:', error);
+        toast.error(error.message || 'Submission failed. Try again.');
+    } finally {
+        setLoading(false);
+    }
+};
+
 
 
     useEffect(() => {
