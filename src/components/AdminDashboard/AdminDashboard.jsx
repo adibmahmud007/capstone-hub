@@ -159,6 +159,8 @@ const ShowProject = ({ setActiveModal }) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [editProject, setEditProject] = useState(null);
   const [editLoading, setEditLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
 
   const fetchProjects = async () => {
     try {
@@ -196,15 +198,20 @@ const ShowProject = ({ setActiveModal }) => {
     const confirmed = window.confirm("Are you sure you want to delete this project?");
     if (!confirmed) return;
 
+    setDeletingId(id); // Start loading for this item
+
     try {
       await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/${id}`, {
         method: "DELETE",
       });
-      fetchProjects();
+      fetchProjects(); // Refresh list
     } catch (error) {
       console.error("Error deleting project:", error);
+    } finally {
+      setDeletingId(null); // Stop loading
     }
   };
+
 
   const handleEdit = (project) => {
     setEditProject({
@@ -390,11 +397,45 @@ const ShowProject = ({ setActiveModal }) => {
                                 e.stopPropagation();
                                 handleDelete(project._id);
                               }}
-                              className="w-full px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-xl hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 transition-all duration-200 text-sm tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+                              disabled={deletingId === project._id}
+                              className={`w-full px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-xl 
+              hover:from-red-700 hover:to-red-800 active:from-red-800 active:to-red-900 transition-all duration-200 
+              text-sm tracking-wide shadow-md hover:shadow-lg transform hover:scale-105 
+              flex items-center justify-center gap-2 
+              ${deletingId === project._id ? 'opacity-60 cursor-not-allowed' : ''}`}
                             >
-                              <FaTrash />
-                              Delete
+                              {deletingId === project._id ? (
+                                <>
+                                  <svg
+                                    className="animate-spin h-4 w-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    />
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                    />
+                                  </svg>
+                                  Deleting...
+                                </>
+                              ) : (
+                                <>
+                                  <FaTrash />
+                                  Delete
+                                </>
+                              )}
                             </button>
+
                           </div>
                         </div>
                       </div>
