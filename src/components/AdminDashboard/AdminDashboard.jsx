@@ -16,6 +16,7 @@ import {
 } from "react-icons/fa";
 import { FolderCog } from 'lucide-react';
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom"
 
 // ✅ TeacherAdd Component
 const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
@@ -1080,12 +1081,67 @@ const TeamList = ({ setActiveModal }) => {
 const AdminDashboard = () => {
   const [activeModal, setActiveModal] = useState(null);
   const [teacherList, setTeacherList] = useState([]);
+  const [showLogout, setShowLogout] = useState(false);
+
 
   const [intakes] = useState(["Spring 2025", "Summer 2025"]);
   const [teams] = useState({
     "Spring 2025": ["Team A", "Team B"],
     "Summer 2025": ["Team C"],
   });
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const startTime = Date.now();
+    const MIN_LOADING_TIME = 500;
+
+    setLoading(true); // Start loader
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No active session found");
+      }
+
+      const response = await fetch(
+        "https://capstone-repo-2933d2307df0.herokuapp.com/api/auth/logout",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Logout failed");
+      }
+
+      localStorage.removeItem("token");
+
+      const elapsed = Date.now() - startTime;
+      if (elapsed < MIN_LOADING_TIME) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, MIN_LOADING_TIME - elapsed)
+        );
+      }
+
+      toast.success("Logged out successfully");
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error(error.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false); // Stop loader
+    }
+  };
+
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
@@ -1100,9 +1156,54 @@ const AdminDashboard = () => {
               <p className="text-gray-300 mt-1">Manage your educational platform</p>
             </div>
             <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-r from-slate-100 to-blue-200 p-3 rounded-xl">
+              {/* Step 2: Cog Icon Div */}
+              <div
+                onClick={() => setShowLogout(!showLogout)}
+                className="bg-gradient-to-r from-slate-100 to-blue-200 p-3 rounded-xl cursor-pointer hover:shadow-md transition duration-200 inline-block"
+              >
                 <FaCog className="text-black text-xl" />
               </div>
+
+              {/* Step 3: Conditionally show Logout */}
+              {showLogout && (
+                <div className="mt-2">
+                  <button
+                    onClick={handleLogout}
+                    disabled={loading}
+                    className={`bg-red-500 text-white px-4 py-2 rounded-lg shadow-md transition-all text-sm flex items-center justify-center gap-2 hover:bg-red-600 ${loading ? "cursor-not-allowed opacity-60" : ""
+                      }`}
+                  >
+                    {loading ? (
+                      <>
+                        <svg
+                          className="animate-spin h-4 w-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          />
+                        </svg>
+                        Logging out...
+                      </>
+                    ) : (
+                      "Logout"
+                    )}
+                  </button>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
