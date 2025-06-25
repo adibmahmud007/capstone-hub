@@ -1114,105 +1114,130 @@ const CreateProject = ({ teamName, supervisor }) => {
 
 
 const ShowTask = ({ teamName }) => {
-    const [tasks, setTasks] = useState([]);
-    console.log(teamName, 'from show task');
+  const [tasks, setTasks] = useState([]);
 
-    useEffect(() => {
-        const fetchTasks = async () => {
-            try {
-                const response = await axios.get(
-                    `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${teamName}`
-                );
-                const fetchedTasks = response.data.data || [];
-                console.log(response.data, 'from show task');
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await fetch(
+          `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${teamName}`
+        );
+        const data = await res.json();
+        const fetchedTasks = data.data || [];
+        console.log(fetchedTasks);
 
-                const mappedTasks = fetchedTasks
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // newest first
-                    .map((taskObj, index) => ({
-                        id: index + 1,
-                        task: taskObj.assignedTask,
-                        completed: taskObj.status,
-                        remark: taskObj.remarks,
-                        createdAt: taskObj.createdAt,
-                    }));
+        const mappedTasks = fetchedTasks
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .map((taskObj, index) => ({
+            id: index + 1,
+            taskId: taskObj._id,
+            task: taskObj.assignedTask,
+            status: taskObj.status === "Completed", // convert to boolean
+            remark: taskObj.remarks,
+            createdAt: taskObj.createdAt,
+          }));
 
-                setTasks(mappedTasks);
-            } catch (error) {
-                toast.error("Failed to fetch tasks");
-                console.error("Error fetching tasks:", error);
-            }
-        };
-
-        if (teamName) fetchTasks();
-    }, [teamName]);
-
-    const toggleCompletion = (id) => {
-        setTasks(tasks.map(task => {
-            if (task.id === id) {
-                const updatedTask = { ...task, completed: !task.completed };
-                updatedTask.completed
-                    ? toast.success('Task completed successfully!')
-                    : toast.error('Task is not completed!');
-                return updatedTask;
-            }
-            return task;
-        }));
+        setTasks(mappedTasks);
+      } catch (err) {
+        console.error("Error fetching tasks:", err);
+        toast.error("Failed to fetch tasks");
+      }
     };
 
-    return (
-        <div className="max-w-6xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl shadow-xl transition-all">
-            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-500 text-transparent bg-clip-text mb-8 tracking-tight text-center">
-                Team Task Overview
-            </h2>
+    if (teamName) fetchTasks();
+  }, [teamName]);
 
-            <div className="overflow-x-auto rounded-xl">
-                <table className="min-w-full text-sm text-left text-gray-700 border border-gray-300 rounded-lg">
-                    <thead className="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
-                        <tr>
-                            <th className="px-6 py-4">Task #</th>
-                            <th className="px-6 py-4 min-w-[220px] sm:min-w-[160px]">Task</th>
-                            <th className="px-6 py-4 text-center">Status</th>
-                            <th className="px-6 py-4 min-w-[140px] sm:min-w-[200px]">Remark</th>
-                            <th className="px-6 py-4 min-w-[120px] sm:min-w-[180px]">Assigned Date</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {tasks.map(({ id, task, completed, remark, createdAt }) => (
-                            <tr key={id} className="hover:bg-gray-50 transition-colors duration-200">
-                                <td className="px-6 py-4 font-medium text-gray-900">{id}</td>
-                                <td className={`px-6 py-4 ${completed ? "text-gray-400 line-through italic" : "text-gray-800"} min-w-[220px] sm:min-w-[160px]`}>
-                                    {task}
-                                </td>
-                                <td className="px-6 py-4 text-center">
-                                    <label className="inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={completed}
-                                            onChange={() => toggleCompletion(id)}
-                                            className="form-checkbox h-5 w-5 text-green-600 rounded transition duration-200"
-                                        />
-                                        <span className={`ml-2 font-semibold ${completed ? "text-green-600" : "text-red-500"}`}>
-                                            {completed ? "✔ Done" : "❌ Pending"}
-                                        </span>
-                                    </label>
-                                </td>
-                                <td className="px-6 py-4 text-gray-600 min-w-[140px] sm:min-w-[200px]">{remark}</td>
-                                <td className="px-6 py-4 text-gray-600 min-w-[160px] sm:min-w-[220px]">
-                                    📅 {new Date(createdAt).toLocaleDateString('en-GB', {
-                                        day: '2-digit',
-                                        month: 'short',
-                                        year: 'numeric'
-                                    })}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
+  const toggleCompletion = async (id) => {
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === id) {
+        return { ...task, status: !task.status };
+      }
+      return task;
+    });
 
+    setTasks(updatedTasks);
 
-                </table>
-            </div>
-        </div>
-    );
+    const taskToUpdate = updatedTasks.find((task) => task.id === id);
+    const backendStatus = taskToUpdate.status ? "Completed" : "Not Completed";
+
+    try {
+      const res = await fetch(
+        `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${taskToUpdate.taskId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: backendStatus }),
+        }
+      );
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || "Failed to update task status");
+      }
+
+      toast.success(`Task marked as ${backendStatus}`);
+    } catch (error) {
+      console.error("Status update failed:", error);
+      toast.error("Failed to update task status on server");
+    }
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl shadow-xl transition-all">
+      <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-500 text-transparent bg-clip-text mb-8 tracking-tight text-center">
+        Team Task Overview
+      </h2>
+
+      <div className="overflow-x-auto rounded-xl">
+        <table className="min-w-full text-sm text-left text-gray-700 border border-gray-300 rounded-lg">
+          <thead className="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+            <tr>
+              <th className="px-6 py-4">Task #</th>
+              <th className="px-6 py-4 min-w-[220px] sm:min-w-[160px]">Task</th>
+              <th className="px-6 py-4 text-center">Status</th>
+              <th className="px-6 py-4 min-w-[140px] sm:min-w-[200px]">Remark</th>
+              <th className="px-6 py-4 min-w-[120px] sm:min-w-[180px]">Assigned Date</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {tasks.map(({ id, task, status, remark, createdAt }) => (
+              <tr key={id} className="hover:bg-gray-50 transition-colors duration-200">
+                <td className="px-6 py-4 font-medium text-gray-900">{id}</td>
+                <td className={`px-6 py-4 ${!status ? "text-gray-400 line-through italic" : "text-gray-800"} min-w-[220px] sm:min-w-[160px]`}>
+                  {task}
+                </td>
+                <td className="px-6 py-4 text-center">
+                  <label className="inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={status}
+                      onChange={() => toggleCompletion(id)}
+                      className="form-checkbox h-5 w-5 text-green-600 rounded transition duration-200"
+                    />
+                    <span className={`ml-2 font-semibold ${!status ? "text-red-600" : "text-green-500"}`}>
+                      {status ? "✔ Done" : "❌ Pending"}
+                    </span>
+                  </label>
+                </td>
+                <td className="px-6 py-4 text-gray-600 min-w-[140px] sm:min-w-[200px]">
+                  {remark}
+                </td>
+                <td className="px-6 py-4 text-gray-600 min-w-[160px] sm:min-w-[220px]">
+                  📅 {new Date(createdAt).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 };
 
 
