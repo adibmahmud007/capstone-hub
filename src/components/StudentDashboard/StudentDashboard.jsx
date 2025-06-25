@@ -1016,7 +1016,7 @@ const CreateProject = ({ teamName, supervisor }) => {
                         12. Project Category <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {['Thesis', 'Research Project', 'Course Project', 'Personal Project'].map((category) => (
+                        {['Thesis', 'Research Project', 'Course Project', 'Capstone Project'].map((category) => (
                             <label key={category} className="flex items-center">
                                 <input
                                     type="radio"
