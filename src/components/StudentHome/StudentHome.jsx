@@ -116,8 +116,7 @@ const Home = () => {
                                                     </svg>
                                                 </div>
                                                 <div className="px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full">
-                                                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{project.projectCategory
-}</span>
+                                                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{project.projectCategory}</span>
                                                 </div>
                                             </div>
 
