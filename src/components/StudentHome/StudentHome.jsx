@@ -15,6 +15,7 @@ const Home = () => {
             try {
                 const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project");
                 const result = await response.json();
+                console.log(result.data);
                 setProjects(result.data || []);
             } catch (error) {
                 console.error("Error fetching projects:", error);
@@ -115,7 +116,8 @@ const Home = () => {
                                                     </svg>
                                                 </div>
                                                 <div className="px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full">
-                                                    <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Project</span>
+                                                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{project.projectCategory
+}</span>
                                                 </div>
                                             </div>
 
