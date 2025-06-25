@@ -188,18 +188,29 @@ const CreateGroup = () => {
         e.preventDefault();
 
         const isDuplicateMail = groupMembers.some(
-            (m) =>
-                m.educationalMail === member.educationalMail
+            (m) => m.educationalMail === member.educationalMail
         );
         const isDuplicatePhone = groupMembers.some(
-            (m) =>
-                m.phone === member.phone
+            (m) => m.phone === member.phone
         );
+
+        if (!member.educationalMail.trim()) {
+            toast.error("Educational mail is required.");
+            return;
+        }
+
+        // ✅ Allow only emails ending with @cse.bubt.edu.bd
+        const requiredDomain = "@cse.bubt.edu.bd";
+        if (!member.educationalMail.endsWith(requiredDomain)) {
+            toast.error(`Educational mail Required`);
+            return;
+        }
 
         if (isDuplicateMail) {
             toast.error("The educational mail is already taken.");
             return;
         }
+
         if (isDuplicatePhone) {
             toast.error("The phone number is already taken.");
             return;
@@ -212,16 +223,17 @@ const CreateGroup = () => {
 
         setGroupMembers([...groupMembers, member]);
         setMember({
-            username: '',
-            intake: '',
-            section: '',
-            department: '',
-            educationalMail: '',
-            phone: ''
+            username: "",
+            intake: "",
+            section: "",
+            department: "",
+            educationalMail: "",
+            phone: "",
         });
 
         toast.success("Member added successfully");
     };
+
 
 
     const handleCreateGroup = async () => {
