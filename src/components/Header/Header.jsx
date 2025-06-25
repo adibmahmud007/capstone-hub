@@ -16,6 +16,12 @@ const Header = () => {
   const isStudent = location.pathname.includes("student");
   const isTeacher = location.pathname.includes("teacher");
 
+  const homePath = isStudent
+    ? "/studentHome"
+    : isTeacher
+    ? "/teacherHome"
+    : "/";
+
   const handleLogout = async () => {
     const startTime = Date.now();
     const MIN_LOADING_TIME = 500;
@@ -85,27 +91,45 @@ const Header = () => {
 
         {/* Center Navigation */}
         <nav className="hidden lg:flex flex-grow justify-center space-x-8 text-base font-medium">
-          <Link to="/" className="hover:text-blue-300 transition-colors">Home</Link>
+          <Link to={homePath} className="hover:text-blue-300 transition-colors">
+            Home
+          </Link>
           {isStudent && (
-            <Link to="/studentDashboard" className="hover:text-blue-300 transition-colors">
+            <Link
+              to="/studentDashboard"
+              className="hover:text-blue-300 transition-colors"
+            >
               Student Dashboard
             </Link>
           )}
           {isTeacher && (
-            <Link to="/teacherDashboard" className="hover:text-blue-300 transition-colors">
+            <Link
+              to="/teacherDashboard"
+              className="hover:text-blue-300 transition-colors"
+            >
               Teacher Dashboard
             </Link>
           )}
-          <Link to="/about" className="hover:text-blue-300 transition-colors">About Us</Link>
-          <Link to="/contact" className="hover:text-blue-300 transition-colors">Contact</Link>
-          <Link to="/help" className="hover:text-blue-300 transition-colors">Help</Link>
+          <Link to="/about" className="hover:text-blue-300 transition-colors">
+            About Us
+          </Link>
+          <Link to="/contact" className="hover:text-blue-300 transition-colors">
+            Contact
+          </Link>
+          <Link to="/help" className="hover:text-blue-300 transition-colors">
+            Help
+          </Link>
         </nav>
 
         {/* Right Section */}
         <div className="flex items-center space-x-4 flex-shrink-0">
           <button
             className={`bg-gradient-to-r from-red-600 to-red-700 px-5 py-2 rounded-lg font-semibold shadow-md transition-all duration-300 ease-in-out
-              ${logoutState.loading ? "opacity-60 cursor-not-allowed" : "hover:from-red-700 hover:to-red-800"}`}
+              ${
+                logoutState.loading
+                  ? "opacity-60 cursor-not-allowed"
+                  : "hover:from-red-700 hover:to-red-800"
+              }`}
             onClick={handleLogout}
             disabled={logoutState.loading}
             aria-busy={logoutState.loading}
@@ -140,31 +164,51 @@ const Header = () => {
         </div>
         <ul className="space-y-4 text-base">
           <li>
-            <Link to="/" className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>Home</Link>
+            <Link to={homePath} className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>
+              Home
+            </Link>
           </li>
           {isStudent && (
             <li>
-              <Link to="/studentDashboard" className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>Student Dashboard</Link>
+              <Link
+                to="/studentDashboard"
+                className="block hover:text-blue-300"
+                onClick={() => setIsOpen(false)}
+              >
+                Student Dashboard
+              </Link>
             </li>
           )}
           {isTeacher && (
             <li>
-              <Link to="/teacherDashboard" className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>Teacher Dashboard</Link>
+              <Link
+                to="/teacherDashboard"
+                className="block hover:text-blue-300"
+                onClick={() => setIsOpen(false)}
+              >
+                Teacher Dashboard
+              </Link>
             </li>
           )}
           <li>
-            <Link to="/about" className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>About Us</Link>
+            <Link to="/about" className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>
+              About Us
+            </Link>
           </li>
           <li>
-            <Link to="/contact" className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>Contact</Link>
+            <Link to="/contact" className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>
+              Contact
+            </Link>
           </li>
           <li>
-            <Link to="/help" className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>Help</Link>
+            <Link to="/help" className="block hover:text-blue-300" onClick={() => setIsOpen(false)}>
+              Help
+            </Link>
           </li>
         </ul>
       </nav>
 
-      {/* Overlay for mobile menu */}
+      {/* Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
