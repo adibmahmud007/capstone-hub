@@ -903,7 +903,7 @@ const TeamList = ({ setActiveModal }) => {
   const [selectedTeam, setSelectedTeam] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch all team data
+  // ✅ Fetch all team data
   useEffect(() => {
     fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team")
       .then((res) => res.json())
@@ -911,7 +911,7 @@ const TeamList = ({ setActiveModal }) => {
       .catch((err) => console.error("Team fetch error:", err));
   }, []);
 
-  // Fetch teacher list
+  // ✅ Fetch teacher list
   useEffect(() => {
     fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/admin//teachers")
       .then((res) => res.json())
@@ -925,7 +925,41 @@ const TeamList = ({ setActiveModal }) => {
     (team) => team.members[0]?.intake === selectedIntake
   );
 
-  // Handle PATCH assign
+  // ✅ Handle DELETE
+  const handleDelete = async (teamId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this team?");
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/${teamId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete team");
+      }
+
+      toast.success("Team deleted successfully");
+
+      // ✅ Remove deleted team from teamData
+      setTeamData(prev => prev.filter(team => team._id !== teamId));
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error(error.message || "Something went wrong");
+    }
+  };
+
+  // ✅ Handle Assign Teacher
   const handleAssignTeacher = async (teacher, teamId) => {
     setIsLoading(true);
     try {
@@ -960,8 +994,8 @@ const TeamList = ({ setActiveModal }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl relative overflow-hidden max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center  items-center z-50 p-4">
+      <div className="bg-white max-w-6xl rounded-3xl shadow-2xl relative overflow-hidden w-[900px] max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-800 to-blue-900 p-6 text-white">
           <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -1008,13 +1042,24 @@ const TeamList = ({ setActiveModal }) => {
                         <span className="font-semibold text-gray-800">{team.teamName}</span>
                         <p className="text-sm text-gray-500">{team.members?.length || 0} members</p>
                       </div>
-                      <button
-                        onClick={() => setSelectedTeam(team)}
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md"
-                      >
-                        <FaEdit />
-                        Manage
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setSelectedTeam(team)}
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2  md:px-4 md:py-2 rounded-lg flex items-center gap-1 md:gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md text-sm md:text-lg"
+                        >
+                          <FaEdit />
+                          Manage
+                        </button>
+                        <button
+                          onClick={() => handleDelete(team._id)}
+                          className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3
+                          py-1.5  md:px-4 md:py-2 rounded-lg flex items-center gap-1 md:gap-2 hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-md text-sm md:text-lg"
+                        >
+                          <FaEdit />
+                          Delete
+                        </button>
+
+                      </div>
                     </div>
                   ))}
                 </div>
