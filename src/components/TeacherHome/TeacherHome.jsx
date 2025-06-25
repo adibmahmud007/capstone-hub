@@ -207,7 +207,7 @@ const TeacherHome = () => {
                         <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 relative">
                             <button
                                 onClick={() => setSelectedProject(null)}
-                                className="absolute top-4 right-6 w-10 h-10 flex items-center justify-center text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-all duration-200 text-2xl font-bold"
+                                className="absolute top-4 right-6 w-10 h-10 flex items-center justify-center text-white hover:bg-white hover:text-black hover:bg-opacity-20 rounded-full transition-all duration-200 text-2xl font-bold"
                             >
                                 ×
                             </button>
