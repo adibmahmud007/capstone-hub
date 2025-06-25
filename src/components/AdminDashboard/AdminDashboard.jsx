@@ -225,45 +225,73 @@ const ShowProject = ({ setActiveModal }) => {
   };
 
   const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    setEditLoading(true);
+  e.preventDefault();
+  setEditLoading(true);
 
-    try {
-      const updateData = {
-        projectTitle: editProject.projectTitle,
-        abstract: editProject.abstract,
-        projectType: editProject.projectType,
-        keywords: editProject.keywords.split(',').map(k => k.trim()).filter(k => k),
-        technologies: editProject.technologies.split(',').map(t => t.trim()).filter(t => t),
-        furtherImprovement: editProject.furtherImprovement,
-        department: editProject.department,
-        completionDate: editProject.completionDate,
-        authors: editProject.authors.split(',').map(a => a.trim()).filter(a => a),
-        projectCategory: editProject.projectCategory
-      };
+  try {
+    // ✅ Prepare payload
+    const updateData = {
+      projectTitle: editProject.projectTitle,
+      abstract: editProject.abstract,
+      projectType: editProject.projectType,
+      keywords: editProject.keywords
+        .split(',')
+        .map(k => k.trim())
+        .filter(k => k),
+      technologies: editProject.technologies
+        .split(',')
+        .map(t => t.trim())
+        .filter(t => t),
+      furtherImprovement: editProject.furtherImprovement,
+      department: editProject.department,
+      completionDate: editProject.completionDate,
+      authors: editProject.authors
+        .split(',')
+        .map(a => a.trim())
+        .filter(a => a),
+      projectCategory: editProject.projectCategory
+    };
 
-      const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/${editProject._id}`, {
-        method: "PATCH",
+    console.log("📦 Sending Update Data:", updateData);
+
+    const response = await fetch(
+      `https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/${editProject._id}`,
+      {
+        method: "PUT",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(updateData),
-      });
-
-      if (response.ok) {
-        await fetchProjects();
-        setEditProject(null);
-        toast.success("Project updated successfully!");
-      } else {
-        throw new Error("Failed to update project");
+        body: JSON.stringify(updateData)
       }
-    } catch (error) {
-      console.error("Error updating project:", error);
-      toast.error("Error updating project. Please try again.");
-    } finally {
-      setEditLoading(false);
+    );
+
+    if (response.ok) {
+      await fetchProjects(); // ✅ Refresh list
+      setEditProject(null);
+      toast.success("✅ Project updated successfully!");
+    } else {
+      // 🔍 Try to parse error
+      let errorMessage = "Something went wrong";
+
+      try {
+        const errorData = await response.json();
+        console.error("❌ Error details from server:", errorData);
+        errorMessage = errorData.message || errorMessage;
+      } catch {
+        const errorText = await response.text();
+        console.error("❌ Raw error response:", errorText);
+        errorMessage = errorText || errorMessage;
+      }
+
+      toast.error(errorMessage);
     }
-  };
+  } catch (error) {
+    console.error("❌ Request failed:", error);
+    toast.error("Error updating project. Please try again.");
+  } finally {
+    setEditLoading(false);
+  }
+};
 
   const handleEditChange = (field, value) => {
     setEditProject(prev => ({
@@ -578,12 +606,9 @@ const ShowProject = ({ setActiveModal }) => {
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
                     >
                       <option value="">Select Type</option>
-                      <option value="Web Application">Web Application</option>
-                      <option value="Mobile Application">Mobile Application</option>
-                      <option value="Desktop Application">Desktop Application</option>
-                      <option value="Research">Research</option>
-                      <option value="Hardware">Hardware</option>
-                      <option value="Other">Other</option>
+                      <option value="Software">Software</option>
+                      <option value="AI">AI</option>
+                      
                     </select>
                   </div>
 
@@ -597,12 +622,10 @@ const ShowProject = ({ setActiveModal }) => {
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors"
                     >
                       <option value="">Select Category</option>
-                      <option value="Computer Science">Computer Science</option>
-                      <option value="Software Engineering">Software Engineering</option>
-                      <option value="Data Science">Data Science</option>
-                      <option value="AI/ML">AI/ML</option>
-                      <option value="Cybersecurity">Cybersecurity</option>
-                      <option value="Other">Other</option>
+                      <option value="Thesis">Thesis</option>
+                      <option value="Research Project">Research Project</option>
+                      <option value="Course Project">Course Project</option>
+                      <option value="Capstone Project">Capstone Project</option>
                     </select>
                   </div>
 
