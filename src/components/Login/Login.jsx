@@ -206,7 +206,7 @@ const Login = () => {
 
                                     <p className="font-normal text-gray-500 pt-6 pb-4 text-center">
                                         Dont have an account? Please Signup Here{" "}
-                                        <Link to="/" className="text-blue-500 font-semibold hover:text-blue-600">
+                                        <Link to="/register" className="text-blue-500 font-semibold hover:text-blue-600">
                                             Signup
                                         </Link>
                                     </p>
