@@ -181,10 +181,11 @@ const ShowProject = ({ setActiveModal }) => {
   }, []);
 
   const filteredProjects = projects.filter((project) =>
-    project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.teamName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.supervisor.toLowerCase().includes(searchTerm.toLowerCase())
+    (project.projectTitle || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (project.teamName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (project.supervisor || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -226,73 +227,73 @@ const ShowProject = ({ setActiveModal }) => {
   };
 
   const handleEditSubmit = async (e) => {
-  e.preventDefault();
-  setEditLoading(true);
+    e.preventDefault();
+    setEditLoading(true);
 
-  try {
-    // ✅ Prepare payload
-    const updateData = {
-      projectTitle: editProject.projectTitle,
-      abstract: editProject.abstract,
-      projectType: editProject.projectType,
-      keywords: editProject.keywords
-        .split(',')
-        .map(k => k.trim())
-        .filter(k => k),
-      technologies: editProject.technologies
-        .split(',')
-        .map(t => t.trim())
-        .filter(t => t),
-      furtherImprovement: editProject.furtherImprovement,
-      department: editProject.department,
-      completionDate: editProject.completionDate,
-      authors: editProject.authors
-        .split(',')
-        .map(a => a.trim())
-        .filter(a => a),
-      projectCategory: editProject.projectCategory
-    };
+    try {
+      // ✅ Prepare payload
+      const updateData = {
+        projectTitle: editProject.projectTitle,
+        abstract: editProject.abstract,
+        projectType: editProject.projectType,
+        keywords: editProject.keywords
+          .split(',')
+          .map(k => k.trim())
+          .filter(k => k),
+        technologies: editProject.technologies
+          .split(',')
+          .map(t => t.trim())
+          .filter(t => t),
+        furtherImprovement: editProject.furtherImprovement,
+        department: editProject.department,
+        completionDate: editProject.completionDate,
+        authors: editProject.authors
+          .split(',')
+          .map(a => a.trim())
+          .filter(a => a),
+        projectCategory: editProject.projectCategory
+      };
 
-    console.log("📦 Sending Update Data:", updateData);
+      console.log("📦 Sending Update Data:", updateData);
 
-    const response = await fetch(
-      `https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/${editProject._id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(updateData)
+      const response = await fetch(
+        `https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/${editProject._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(updateData)
+        }
+      );
+
+      if (response.ok) {
+        await fetchProjects(); // ✅ Refresh list
+        setEditProject(null);
+        toast.success("✅ Project updated successfully!");
+      } else {
+        // 🔍 Try to parse error
+        let errorMessage = "Something went wrong";
+
+        try {
+          const errorData = await response.json();
+          console.error("❌ Error details from server:", errorData);
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          const errorText = await response.text();
+          console.error("❌ Raw error response:", errorText);
+          errorMessage = errorText || errorMessage;
+        }
+
+        toast.error(errorMessage);
       }
-    );
-
-    if (response.ok) {
-      await fetchProjects(); // ✅ Refresh list
-      setEditProject(null);
-      toast.success("✅ Project updated successfully!");
-    } else {
-      // 🔍 Try to parse error
-      let errorMessage = "Something went wrong";
-
-      try {
-        const errorData = await response.json();
-        console.error("❌ Error details from server:", errorData);
-        errorMessage = errorData.message || errorMessage;
-      } catch {
-        const errorText = await response.text();
-        console.error("❌ Raw error response:", errorText);
-        errorMessage = errorText || errorMessage;
-      }
-
-      toast.error(errorMessage);
+    } catch (error) {
+      console.error("❌ Request failed:", error);
+      toast.error("Error updating project. Please try again.");
+    } finally {
+      setEditLoading(false);
     }
-  } catch (error) {
-    console.error("❌ Request failed:", error);
-    toast.error("Error updating project. Please try again.");
-  } finally {
-    setEditLoading(false);
-  }
-};
+  };
 
   const handleEditChange = (field, value) => {
     setEditProject(prev => ({
@@ -609,7 +610,7 @@ const ShowProject = ({ setActiveModal }) => {
                       <option value="">Select Type</option>
                       <option value="Software">Software</option>
                       <option value="AI">AI</option>
-                      
+
                     </select>
                   </div>
 
@@ -1044,8 +1045,8 @@ const TeamList = ({ setActiveModal }) => {
       // Update member field
       setEditFormData(prev => ({
         ...prev,
-        members: prev.members.map((member, index) => 
-          index === memberIndex 
+        members: prev.members.map((member, index) =>
+          index === memberIndex
             ? { ...member, [field]: e.target.value }
             : member
         )
@@ -1064,17 +1065,17 @@ const TeamList = ({ setActiveModal }) => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      
+
       // Get the first member's educational email (assuming team leader or primary member)
       const primaryMember = editFormData.members[0];
       if (!primaryMember || !primaryMember.educationalMail) {
         throw new Error("Primary member's educational email is required");
       }
-      
+
       console.log("Sending data:", editFormData); // Debug log
       console.log("Team Name:", editFormData.teamName); // Debug log
       console.log("Educational Mail:", primaryMember.educationalMail); // Debug log
-      
+
       const response = await fetch(
         `https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/${editingTeam._id}`,
         {
@@ -1118,10 +1119,10 @@ const TeamList = ({ setActiveModal }) => {
         console.warn("Response is not JSON, but request was successful");
         updatedTeam = editFormData; // Use local data if response isn't JSON
       }
-      
+
       // Update the team in teamData
-      setTeamData(prev => prev.map(team => 
-        team._id === editingTeam._id 
+      setTeamData(prev => prev.map(team =>
+        team._id === editingTeam._id
           ? { ...team, ...editFormData }
           : team
       ));
