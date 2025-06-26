@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
-import { Search, User, BookOpen, Phone, HelpCircle, X, Users, Calendar, Tag, Lightbulb ,GraduationCap,BookOpenCheck,FolderOpenDot,FolderSearch} from "lucide-react";
+import { Search, User, BookOpen, Phone, HelpCircle, X, Users, Calendar, Tag, Lightbulb, GraduationCap, BookOpenCheck, FolderOpenDot, FolderSearch, Menu } from "lucide-react";
+
 // import logo from "../../assets/bubt-seeklogo";
 
 const ITEMS_PER_PAGE = 8;
@@ -18,7 +19,7 @@ const MainHome = () => {
                 const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project");
                 const result = await response.json();
                 console.log(result.data);
-                console.log(projects.projectCategory,'from fetch project')
+                console.log(projects.projectCategory, 'from fetch project')
                 setProjects(result.data || []);
             } catch (error) {
                 console.error("Error fetching projects:", error);
@@ -61,55 +62,133 @@ const MainHome = () => {
         </div>
     );
 
-    const Header = () => (
-        <header className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 shadow-2xl sticky top-0 z-40">
-            <div className="container mx-auto px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
-                    <div className="flex items-center">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-300 rounded-xl flex items-center justify-center shadow-lg">
-                                <GraduationCap className="w-6 h-6 text-blue-900" />
+
+
+    const Header = () => {
+        const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+        return (
+            <>
+                <header className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 shadow-2xl sticky top-0 z-40">
+                    <div className="container mx-auto px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16">
+                            {/* Logo */}
+                            <div className="flex items-center">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-300 rounded-xl flex items-center justify-center shadow-lg">
+                                        <GraduationCap className="w-6 h-6 text-blue-900" />
+                                    </div>
+                                    <span className="text-2xl font-bold text-white">
+                                        OpenSpace
+                                    </span>
+                                </div>
                             </div>
-                            <span className="text-2xl font-bold text-white">
-                                
-                                OpenSpace
-                            </span>
+
+                            {/* Desktop Navigation */}
+                            <nav className="hidden md:flex items-center space-x-8">
+                                <a href="/" className="flex items-center space-x-2 text-blue-200 font-semibold hover:text-white transition-colors duration-200">
+                                    <span>Home</span>
+                                </a>
+                                <a href="/contacts" className="flex items-center space-x-2 text-blue-300 hover:text-white transition-colors duration-200">
+                                    <Phone className="w-4 h-4" />
+                                    <span>Contacts</span>
+                                </a>
+                                <a href="/about" className="flex items-center space-x-2 text-blue-300 hover:text-white transition-colors duration-200">
+                                    <Users className="w-4 h-4" />
+                                    <span>About</span>
+                                </a>
+                                <a href="/help" className="flex items-center space-x-2 text-blue-300 hover:text-white transition-colors duration-200">
+                                    <HelpCircle className="w-4 h-4" />
+                                    <span>Help</span>
+                                </a>
+                            </nav>
+
+                            {/* Desktop Auth Buttons */}
+                            <div className="hidden md:flex items-center space-x-3">
+                                <a href="/register" className="px-4 py-2 text-blue-200 font-semibold hover:text-white transition-colors duration-200">
+                                    Sign Up
+                                </a>
+                                <a href="/login" className="px-6 py-2 bg-white text-blue-900 font-semibold rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-md hover:shadow-lg">
+                                    Sign In
+                                </a>
+                            </div>
+
+                            {/* Mobile Menu Button */}
+                            <button
+                                className="md:hidden p-2 text-blue-200 hover:text-white focus:outline-none"
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            >
+                                {isMobileMenuOpen ? (
+                                    <X className="w-6 h-6" />
+                                ) : (
+                                    <Menu className="w-6 h-6" />
+                                )}
+                            </button>
                         </div>
                     </div>
+                </header>
 
-                    {/* Navigation */}
-                    <nav className="hidden md:flex items-center space-x-8">
-                        <a href="/" className="flex items-center space-x-2 text-blue-200 font-semibold hover:text-white transition-colors duration-200">
-                            <span>Home</span>
-                        </a>
-                        <a href="/contacts" className="flex items-center space-x-2 text-blue-300 hover:text-white transition-colors duration-200">
-                            <Phone className="w-4 h-4" />
-                            <span>Contacts</span>
-                        </a>
-                        <a href="/about" className="flex items-center space-x-2 text-blue-300 hover:text-white transition-colors duration-200">
-                            <Users className="w-4 h-4" />
-                            <span>About</span>
-                        </a>
-                        <a href="/help" className="flex items-center space-x-2 text-blue-300 hover:text-white transition-colors duration-200">
-                            <HelpCircle className="w-4 h-4" />
-                            <span>Help</span>
-                        </a>
-                    </nav>
+                {/* Mobile Menu */}
+                {isMobileMenuOpen && (
+                    <div className="md:hidden fixed inset-0 bg-blue-900 bg-opacity-95 z-30 pt-16">
+                        <div className="container mx-auto px-6 py-4">
+                            <nav className="flex flex-col space-y-6">
+                                <a
+                                    href="/"
+                                    className="flex items-center space-x-3 text-blue-200 text-lg font-semibold hover:text-white transition-colors duration-200"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <span>Home</span>
+                                </a>
+                                <a
+                                    href="/contacts"
+                                    className="flex items-center space-x-3 text-blue-300 text-lg hover:text-white transition-colors duration-200"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <Phone className="w-5 h-5" />
+                                    <span>Contacts</span>
+                                </a>
+                                <a
+                                    href="/about"
+                                    className="flex items-center space-x-3 text-blue-300 text-lg hover:text-white transition-colors duration-200"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <Users className="w-5 h-5" />
+                                    <span>About</span>
+                                </a>
+                                <a
+                                    href="/help"
+                                    className="flex items-center space-x-3 text-blue-300 text-lg hover:text-white transition-colors duration-200"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    <HelpCircle className="w-5 h-5" />
+                                    <span>Help</span>
+                                </a>
+                            </nav>
 
-                    {/* Auth Buttons */}
-                    <div className="flex items-center space-x-3">
-                        <a href="/register" className="px-4 py-2 text-blue-200 font-semibold hover:text-white transition-colors duration-200">
-                            Sign Up
-                        </a>
-                        <a href="/login" className="px-6 py-2 bg-white text-blue-900 font-semibold rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-md hover:shadow-lg">
-                            Sign In
-                        </a>
+                            <div className="mt-8 pt-6 border-t border-blue-800 flex flex-col space-y-4">
+                                <a
+                                    href="/register"
+                                    className="px-6 py-3 text-center text-blue-200 font-semibold hover:text-white transition-colors duration-200 border border-blue-200 rounded-lg"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    Sign Up
+                                </a>
+                                <a
+                                    href="/login"
+                                    className="px-6 py-3 text-center bg-white text-blue-900 font-semibold rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-md hover:shadow-lg"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                    Sign In
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </header>
-    );
+                )}
+            </>
+        );
+    };
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -244,8 +323,8 @@ const MainHome = () => {
                             onClick={() => goToPage(currentPage - 1)}
                             disabled={currentPage === 1}
                             className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${currentPage === 1
-                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                    : "bg-white text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg border border-blue-200"
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                : "bg-white text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg border border-blue-200"
                                 }`}
                         >
                             Previous
@@ -261,8 +340,8 @@ const MainHome = () => {
                             onClick={() => goToPage(currentPage + 1)}
                             disabled={currentPage === totalPages}
                             className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${currentPage === totalPages
-                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                    : "bg-white text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg border border-blue-200"
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                : "bg-white text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg border border-blue-200"
                                 }`}
                         >
                             Next
@@ -273,7 +352,7 @@ const MainHome = () => {
 
             {/* Enhanced Modal */}
             {selectedProject && (
-                <div className="fixed inset-0 flex justify-center items-center z-50 px-4 bg-black/60 backdrop-blur-sm">
+                <div className="fixed inset-0 flex justify-center items-center z-50 px-4 bg-black/50 backdrop-blur-sm">
                     <div className="bg-white rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl transform transition-all duration-300 animate-in fade-in zoom-in-95 border border-blue-100">
                         {/* Modal Header */}
                         <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 px-8 py-6 relative">
@@ -377,9 +456,11 @@ const MainHome = () => {
                                         Future Improvements
                                     </h3>
                                     <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 rounded-xl border-l-4 border-amber-500">
-                                        <p className="text-gray-700 leading-relaxed">
-                                            {selectedProject.furtherImprovement}
-                                        </p>
+                                        <div className="overflow-y-auto max-h-64 pr-2"> {/* Added max height and scroll */}
+                                            <p className="text-gray-700 leading-relaxed break-words whitespace-pre-wrap">
+                                                {selectedProject.furtherImprovement}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             )}
