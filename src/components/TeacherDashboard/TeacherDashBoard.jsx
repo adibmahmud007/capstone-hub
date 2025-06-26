@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
+ 
 import { useState, useEffect, useMemo } from "react";
 import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote, FaStore } from "react-icons/fa";
 import { Menu, X } from 'lucide-react';
@@ -1052,6 +1052,253 @@ const ShowNotice = () => {
 };
 
 
+import { CheckCircle, XCircle, Download, User, Calendar, FileText } from 'lucide-react';
+
+const Approve = () => {
+  const [requests, setRequests] = useState([
+    {
+      id: 1,
+      studentName: "Alice Johnson",
+      projectName: "AI-Powered Chatbot for Customer Service",
+      requestDate: "2024-06-20",
+      documents: ["code", "dataset", "report"],
+      status: "pending"
+    },
+    {
+      id: 2,
+      studentName: "Bob Smith",
+      projectName: "Machine Learning Stock Prediction Model",
+      requestDate: "2024-06-22",
+      documents: ["code", "report", "proposal"],
+      status: "pending"
+    },
+    {
+      id: 3,
+      studentName: "Carol Davis",
+      projectName: "IoT Smart Home Automation System",
+      requestDate: "2024-06-24",
+      documents: ["code", "dataset", "report", "proposal"],
+      status: "pending"
+    },
+    {
+      id: 4,
+      studentName: "David Wilson",
+      projectName: "Blockchain-based Voting System",
+      requestDate: "2024-06-25",
+      documents: ["code", "report"],
+      status: "pending"
+    }
+  ]);
+
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [declineReason, setDeclineReason] = useState('');
+
+  const handleApprove = (requestId) => {
+    setRequests(prev => prev.map(req => 
+      req.id === requestId ? { ...req, status: 'approved' } : req
+    ));
+  };
+
+  const handleDeclineClick = (request) => {
+    setSelectedRequest(request);
+    setShowDeclineModal(true);
+  };
+
+  const handleDeclineConfirm = () => {
+    if (declineReason.trim()) {
+      setRequests(prev => prev.map(req => 
+        req.id === selectedRequest.id 
+          ? { ...req, status: 'declined', declineReason } 
+          : req
+      ));
+      setShowDeclineModal(false);
+      setDeclineReason('');
+      setSelectedRequest(null);
+      // In a real app, you would send the decline message to the student here
+      console.log(`Decline message sent to ${selectedRequest.studentName}: ${declineReason}`);
+    }
+  };
+
+  const handleModalClose = () => {
+    setShowDeclineModal(false);
+    setDeclineReason('');
+    setSelectedRequest(null);
+  };
+
+  const getDocumentIcon = (docType) => {
+    const icons = {
+      code: "💻",
+      dataset: "📊",
+      report: "📄",
+      proposal: "📋"
+    };
+    return icons[docType] || "📎";
+  };
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'approved': return 'text-green-600 bg-green-50';
+      case 'declined': return 'text-red-600 bg-red-50';
+      default: return 'text-yellow-600 bg-yellow-50';
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch(status) {
+      case 'approved': return 'Approved';
+      case 'declined': return 'Declined';
+      default: return 'Pending';
+    }
+  };
+
+  return (
+    <div className="min-h-screen max-w-6xl mx-auto rounded-md bg-white">
+      {/* Header */}
+      <div className="bg-blue-600 text-white p-6 shadow-lg">
+        <h1 className="text-3xl font-bold">Project Download Requests</h1>
+        <p className="text-blue-100 mt-2">Review and manage student project download requests</p>
+      </div>
+
+      {/* Main Content */}
+      <div className="p-6 max-w-6xl mx-auto">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Pending Requests</h2>
+          <p className="text-gray-600">Review student requests for project document downloads</p>
+        </div>
+
+        {/* Request Cards */}
+        <div className="space-y-6">
+          {requests.map((request) => (
+            <div key={request.id} className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {request.projectName}
+                    </h3>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <div className="flex items-center space-x-1">
+                        <User className="w-4 h-4" />
+                        <span>{request.studentName}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>{request.requestDate}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)}`}>
+                    {getStatusText(request.status)}
+                  </div>
+                </div>
+
+                {/* Documents */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                    <Download className="w-4 h-4 mr-2" />
+                    Requested Documents:
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {request.documents.map((doc, index) => (
+                      <span 
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200"
+                      >
+                        <span className="mr-2">{getDocumentIcon(doc)}</span>
+                        {doc.charAt(0).toUpperCase() + doc.slice(1)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Decline Reason (if declined) */}
+                {request.status === 'declined' && request.declineReason && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                    <p className="text-sm text-red-700">
+                      <strong>Decline Reason:</strong> {request.declineReason}
+                    </p>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                {request.status === 'pending' && (
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleApprove(request.id)}
+                      className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Approve</span>
+                    </button>
+                    <button
+                      onClick={() => handleDeclineClick(request)}
+                      className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      <span>Decline</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {requests.filter(req => req.status === 'pending').length === 0 && (
+          <div className="text-center py-12">
+            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending Requests</h3>
+            <p className="text-gray-600">All project download requests have been reviewed.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Decline Modal */}
+      {showDeclineModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Decline Request
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Please provide a reason for declining <strong>{selectedRequest?.studentName}&apos;s</strong> request for <strong>&quot;{selectedRequest?.projectName}&quot;</strong>:
+              </p>
+              <textarea
+                value={declineReason}
+                onChange={(e) => setDeclineReason(e.target.value)}
+                placeholder="Enter decline reason..."
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                rows="4"
+              />
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={handleModalClose}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeclineConfirm}
+                  disabled={!declineReason.trim()}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-md transition-colors duration-200"
+                >
+                  Decline Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+
 
 
 
@@ -1073,6 +1320,8 @@ const TeacherDashboard = () => {
         return <AddNotice />;
       case "shownotice":
         return <ShowNotice></ShowNotice>;
+      case "approve":
+        return <Approve></Approve>;
       default:
         return <TeamDetails />;
     }
@@ -1108,6 +1357,12 @@ const TeacherDashboard = () => {
             onClick={() => setSelectedMenu("show")}
           >
             <FaClipboardList className="text-white" /> Show Task
+          </li>
+          <li
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-700 ${selectedMenu === "approve" ? "bg-blue-700" : ""}`}
+            onClick={() => setSelectedMenu("approve")}
+          >
+            <FaClipboardList className="text-white" /> Approve Request
           </li>
           <li
             className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-700 ${selectedMenu === "notice" ? "bg-blue-700" : ""}`}
