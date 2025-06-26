@@ -14,9 +14,9 @@ import {
   FaChartLine,
   FaUserGraduate,
   FaCog,
-  FaSearch, FaEye, FaSave, FaTrash, FaCalendarAlt, FaCode, FaTags, FaGraduationCap  
+  FaSearch, FaEye, FaSave, FaTrash, FaCalendarAlt, FaCode, FaTags, FaGraduationCap
 } from "react-icons/fa";
-import { FolderCog } from 'lucide-react';
+import { FolderCog,Lightbulb } from 'lucide-react';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"
 
@@ -156,7 +156,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
       if (response.ok) {
         const result = await response.json();
         const updatedTeacher = result.data || result; // Handle both data.data and direct data response
-        const updatedTeachers = teachers.map(teacher => 
+        const updatedTeachers = teachers.map(teacher =>
           teacher._id === editingTeacher._id ? updatedTeacher : teacher
         );
         setTeachers(updatedTeachers);
@@ -180,7 +180,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
       <div className="text-center mb-6">
         <h3 className="text-lg font-semibold text-gray-700 mb-2">Choose an action</h3>
       </div>
-      
+
       <div className="space-y-3">
         <button
           onClick={() => setActiveView('add')}
@@ -189,7 +189,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
           <FaPlus />
           Add New Teacher
         </button>
-        
+
         <button
           onClick={() => setActiveView('manage')}
           className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
@@ -198,7 +198,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
           Manage Teachers
         </button>
       </div>
-      
+
       <div className="pt-4">
         <button
           onClick={() => setActiveModal(null)}
@@ -286,7 +286,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
         <h3 className="text-lg font-semibold text-gray-700">Teacher List</h3>
         <p className="text-sm text-gray-500">{teachers.length} teachers found</p>
       </div>
-      
+
       {teachers.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <FaUsers size={48} className="mx-auto mb-4 opacity-50" />
@@ -301,7 +301,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
                 <p className="text-sm text-gray-600">{teacher.educationalMail}</p>
                 <p className="text-xs text-gray-500">@{teacher.shortName}</p>
               </div>
-              
+
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEditTeacher(teacher)}
@@ -310,7 +310,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
                 >
                   <FaEdit size={14} />
                 </button>
-                
+
                 <button
                   onClick={() => handleDeleteTeacher(teacher._id)}
                   disabled={isLoading}
@@ -324,7 +324,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
           ))}
         </div>
       )}
-      
+
       <div className="pt-4">
         <button
           onClick={() => setActiveView('menu')}
@@ -342,7 +342,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
         <h3 className="text-lg font-semibold text-gray-700">Edit Teacher</h3>
         <p className="text-sm text-gray-500">Update teacher information</p>
       </div>
-      
+
       <div className="space-y-4">
         <div className="relative">
           <input
@@ -430,7 +430,7 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl relative overflow-hidden transform transition-all duration-300 hover:scale-105">
         {/* Header with gradient */}
         <div className="bg-gradient-to-r from-slate-800 to-blue-900 p-6 text-white">
@@ -463,6 +463,8 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
     </div>
   );
 };
+
+
 const ITEMS_PER_PAGE = 6;
 const ShowProject = ({ setActiveModal }) => {
   const [projects, setProjects] = useState([]);
@@ -616,7 +618,7 @@ const ShowProject = ({ setActiveModal }) => {
   return (
     <>
       {/* Main Modal Backdrop */}
-      <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 p-4">
         <div className="bg-white w-full max-w-6xl h-[90vh] rounded-3xl shadow-2xl relative overflow-hidden flex flex-col">
 
           {/* Header */}
@@ -866,7 +868,7 @@ const ShowProject = ({ setActiveModal }) => {
 
       {/* Edit Project Modal */}
       {editProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-70 p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-70 p-4">
           <div className="bg-white max-w-4xl w-full max-h-[90vh] rounded-3xl shadow-2xl relative overflow-hidden">
 
             {/* Edit Header */}
@@ -1072,7 +1074,7 @@ const ShowProject = ({ setActiveModal }) => {
 
       {/* Project Detail Modal */}
       {selectedProject && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-60 p-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-60 p-4">
           <div className="bg-white max-w-4xl w-full max-h-[90vh] rounded-3xl shadow-2xl relative overflow-hidden">
 
             {/* Detail Header */}
@@ -1191,15 +1193,17 @@ const ShowProject = ({ setActiveModal }) => {
                   </div>
 
                   {selectedProject.furtherImprovement && (
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                        <div className="w-2 h-6 bg-orange-500 rounded-full"></div>
+                    <div className="mt-8">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <Lightbulb className="w-5 h-5 text-amber-500" />
                         Future Improvements
                       </h3>
-                      <div className="bg-orange-50 p-4 rounded-xl border border-orange-100">
-                        <p className="text-gray-700 leading-relaxed text-sm">
-                          {selectedProject.furtherImprovement}
-                        </p>
+                      <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 rounded-xl border-l-4 border-amber-500">
+                        <div className="overflow-y-auto max-h-64 pr-2"> {/* Added max height and scroll */}
+                          <p className="text-gray-700 leading-relaxed break-words whitespace-pre-wrap">
+                            {selectedProject.furtherImprovement}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1450,7 +1454,7 @@ const TeamList = ({ setActiveModal }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white max-w-6xl rounded-3xl shadow-2xl relative overflow-hidden w-[900px] max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-800 to-blue-900 p-6 text-white">
@@ -1583,7 +1587,7 @@ const TeamList = ({ setActiveModal }) => {
 
       {/* Edit Team Modal */}
       {editingTeam && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-[60] p-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex justify-center items-center z-[60] p-4">
           <div className="bg-white max-w-4xl rounded-3xl shadow-2xl relative overflow-hidden w-full max-h-[90vh] flex flex-col">
             {/* Edit Modal Header */}
             <div className="bg-gradient-to-r from-green-600 to-emerald-700 p-6 text-white">
