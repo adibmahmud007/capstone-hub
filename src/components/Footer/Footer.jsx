@@ -4,7 +4,7 @@
 const Footer = () => {
   return (
     <>
-      <footer className="relative pl-[500px] z-10 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-800 text-white pb-8 pt-12 lg:pb-12 lg:pt-16">
+      <footer className="relative md:pl-[500px] z-10 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-800 text-white pb-8 pt-12 lg:pb-12 lg:pt-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap">
             {/* Company Info Section */}
