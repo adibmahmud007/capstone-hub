@@ -925,6 +925,11 @@ const TeamList = ({ setActiveModal }) => {
   const [selectedIntake, setSelectedIntake] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [editingTeam, setEditingTeam] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    teamName: "",
+    members: []
+  });
 
   // ✅ Fetch all team data
   useEffect(() => {
@@ -1016,8 +1021,123 @@ const TeamList = ({ setActiveModal }) => {
     }
   };
 
+  // ✅ Handle Edit Team
+  const handleEditTeam = (team) => {
+    setEditingTeam(team);
+    setEditFormData({
+      teamName: team.teamName,
+      members: team.members.map(member => ({
+        username: member.username || "",
+        intake: member.intake || "",
+        section: member.section || "",
+        department: member.department || "",
+        educationalMail: member.educationalMail || "",
+        phone: member.phone || ""
+      }))
+    });
+  };
+
+  // ✅ Handle form input changes
+  const handleInputChange = (e, memberIndex = null, field = null) => {
+    if (memberIndex !== null && field) {
+      // Update member field
+      setEditFormData(prev => ({
+        ...prev,
+        members: prev.members.map((member, index) => 
+          index === memberIndex 
+            ? { ...member, [field]: e.target.value }
+            : member
+        )
+      }));
+    } else {
+      // Update team name
+      setEditFormData(prev => ({
+        ...prev,
+        [e.target.name]: e.target.value
+      }));
+    }
+  };
+
+  // ✅ Handle Save Team
+  const handleSaveTeam = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      
+      // Get the first member's educational email (assuming team leader or primary member)
+      const primaryMember = editFormData.members[0];
+      if (!primaryMember || !primaryMember.educationalMail) {
+        throw new Error("Primary member's educational email is required");
+      }
+      
+      console.log("Sending data:", editFormData); // Debug log
+      console.log("Team Name:", editFormData.teamName); // Debug log
+      console.log("Educational Mail:", primaryMember.educationalMail); // Debug log
+      
+      const response = await fetch(
+        `https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/${encodeURIComponent(editFormData.teamName)}/${encodeURIComponent(primaryMember.educationalMail)}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editFormData),
+        }
+      );
+
+      console.log("Response status:", response.status); // Debug log
+      console.log("API URL:", `https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/${encodeURIComponent(editFormData.teamName)}/${encodeURIComponent(primaryMember.educationalMail)}`); // Debug log
+
+      // Check if response is HTML (error page)
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("text/html")) {
+        const htmlText = await response.text();
+        console.error("Received HTML instead of JSON:", htmlText.substring(0, 200));
+        throw new Error(`Server returned HTML instead of JSON. Status: ${response.status}`);
+      }
+
+      if (!response.ok) {
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (jsonError) {
+          const textResponse = await response.text();
+          console.error("Error response text:", textResponse);
+          errorMessage = `${errorMessage} - ${textResponse.substring(0, 100)}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      let updatedTeam;
+      try {
+        updatedTeam = await response.json();
+      } catch (jsonError) {
+        console.warn("Response is not JSON, but request was successful");
+        updatedTeam = editFormData; // Use local data if response isn't JSON
+      }
+      
+      // Update the team in teamData
+      setTeamData(prev => prev.map(team => 
+        team._id === editingTeam._id 
+          ? { ...team, ...editFormData }
+          : team
+      ));
+
+      alert("Team updated successfully!"); // Using alert instead of toast for now
+      setEditingTeam(null);
+      setEditFormData({ teamName: "", members: [] });
+    } catch (error) {
+      console.error("Update error:", error);
+      alert(`Update failed: ${error.message}`); // Using alert instead of toast for now
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center  items-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
       <div className="bg-white max-w-6xl rounded-3xl shadow-2xl relative overflow-hidden w-[900px] max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-800 to-blue-900 p-6 text-white">
@@ -1068,20 +1188,25 @@ const TeamList = ({ setActiveModal }) => {
                       <div className="flex gap-2">
                         <button
                           onClick={() => setSelectedTeam(team)}
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2  md:px-4 md:py-2 rounded-lg flex items-center gap-1 md:gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md text-sm md:text-lg"
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 md:px-4 md:py-2 rounded-lg flex items-center gap-1 md:gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md text-sm md:text-lg"
                         >
                           <FaEdit />
                           Manage
                         </button>
                         <button
-                          onClick={() => handleDelete(team._id)}
-                          className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3
-                          py-1.5  md:px-4 md:py-2 rounded-lg flex items-center gap-1 md:gap-2 hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-md text-sm md:text-lg"
+                          onClick={() => handleEditTeam(team)}
+                          className="bg-gradient-to-r from-green-500 to-green-600 text-white px-2 md:px-4 md:py-2 rounded-lg flex items-center gap-1 md:gap-2 hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-md text-sm md:text-lg"
                         >
                           <FaEdit />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(team._id)}
+                          className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg flex items-center gap-1 md:gap-2 hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-md text-sm md:text-lg"
+                        >
+                          <FaTrash />
                           Delete
                         </button>
-
                       </div>
                     </div>
                   ))}
@@ -1141,6 +1266,154 @@ const TeamList = ({ setActiveModal }) => {
           <FaTimes size={20} />
         </button>
       </div>
+
+      {/* Edit Team Modal */}
+      {editingTeam && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-[60] p-4">
+          <div className="bg-white max-w-4xl rounded-3xl shadow-2xl relative overflow-hidden w-full max-h-[90vh] flex flex-col">
+            {/* Edit Modal Header */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-700 p-6 text-white">
+              <h2 className="text-2xl font-bold flex items-center gap-3">
+                <FaEdit className="text-green-300" />
+                Edit Team: {editingTeam.teamName}
+              </h2>
+              <p className="text-green-200 text-sm mt-1">Update team details and member information</p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-6">
+                {/* Team Name */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Team Name</label>
+                  <input
+                    type="text"
+                    name="teamName"
+                    value={editFormData.teamName}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+                    placeholder="Enter team name"
+                  />
+                </div>
+
+                {/* Members */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <FaUsers className="text-green-600" />
+                    Team Members
+                  </h3>
+                  <div className="space-y-4">
+                    {editFormData.members.map((member, index) => (
+                      <div key={index} className="p-4 border-2 border-gray-200 rounded-xl bg-gray-50">
+                        <h4 className="font-semibold text-gray-700 mb-3">Member {index + 1}</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">Username</label>
+                            <input
+                              type="text"
+                              value={member.username}
+                              onChange={(e) => handleInputChange(e, index, 'username')}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+                              placeholder="Enter username"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">Intake</label>
+                            <input
+                              type="text"
+                              value={member.intake}
+                              onChange={(e) => handleInputChange(e, index, 'intake')}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+                              placeholder="Enter intake"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">Section</label>
+                            <input
+                              type="text"
+                              value={member.section}
+                              onChange={(e) => handleInputChange(e, index, 'section')}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+                              placeholder="Enter section"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">Department</label>
+                            <input
+                              type="text"
+                              value={member.department}
+                              onChange={(e) => handleInputChange(e, index, 'department')}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+                              placeholder="Enter department"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">Educational Email</label>
+                            <input
+                              type="email"
+                              value={member.educationalMail}
+                              onChange={(e) => handleInputChange(e, index, 'educationalMail')}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+                              placeholder="Enter educational email"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-600 mb-1">Phone</label>
+                            <input
+                              type="tel"
+                              value={member.phone}
+                              onChange={(e) => handleInputChange(e, index, 'phone')}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-green-500 focus:outline-none transition-colors"
+                              placeholder="Enter phone number"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Edit Modal Footer */}
+            <div className="p-6 bg-gray-50 border-t flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setEditingTeam(null);
+                  setEditFormData({ teamName: "", members: [] });
+                }}
+                className="px-6 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveTeam}
+                disabled={isLoading}
+                className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-2 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                ) : (
+                  <>
+                    <FaSave size={16} />
+                    Save Changes
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Close Edit Modal */}
+            <button
+              onClick={() => {
+                setEditingTeam(null);
+                setEditFormData({ teamName: "", members: [] });
+              }}
+              className="absolute top-4 right-4 text-white hover:text-red-300 transition-colors"
+            >
+              <FaTimes size={20} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
