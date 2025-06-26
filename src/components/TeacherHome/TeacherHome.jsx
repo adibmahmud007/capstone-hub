@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "../Header/Header";
+import {Lightbulb} from 'lucide-react'
 
 const ITEMS_PER_PAGE = 8;
 
@@ -297,15 +298,17 @@ const TeacherHome = () => {
                             {/* Future Improvement Section */}
                             {selectedProject.furtherImprovement && (
                                 <div className="mt-8">
-                                    <h3 className="text-xl font-bold text-blue-900 mb-3 flex items-center gap-2">
-                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                                        </svg>
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                        <Lightbulb className="w-5 h-5 text-amber-500" />
                                         Future Improvements
                                     </h3>
-                                    <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-xl border-l-4 border-indigo-500">
-                                        {selectedProject.furtherImprovement}
-                                    </p>
+                                    <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 rounded-xl border-l-4 border-amber-500">
+                                        <div className="overflow-y-auto max-h-64 pr-2"> {/* Added max height and scroll */}
+                                            <p className="text-gray-700 leading-relaxed break-words whitespace-pre-wrap">
+                                                {selectedProject.furtherImprovement}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
