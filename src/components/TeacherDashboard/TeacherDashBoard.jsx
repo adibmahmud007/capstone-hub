@@ -1155,7 +1155,7 @@ const Approve = () => {
   return (
     <div className="min-h-screen max-w-6xl mx-auto rounded-md bg-white">
       {/* Header */}
-      <div className="bg-blue-600 text-white p-6 shadow-lg">
+      <div className="bg-white text-blue-600 p-6 shadow-lg">
         <h1 className="text-3xl font-bold">Project Download Requests</h1>
         <p className="text-blue-100 mt-2">Review and manage student project download requests</p>
       </div>
