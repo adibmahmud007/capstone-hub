@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 // import { Section } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -1075,7 +1076,7 @@ const TeamList = ({ setActiveModal }) => {
       console.log("Educational Mail:", primaryMember.educationalMail); // Debug log
       
       const response = await fetch(
-        `https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/${encodeURIComponent(editFormData.teamName)}/${encodeURIComponent(primaryMember.educationalMail)}`,
+        `https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/${editingTeam._id}`,
         {
           method: "PUT",
           headers: {
@@ -1087,7 +1088,7 @@ const TeamList = ({ setActiveModal }) => {
       );
 
       console.log("Response status:", response.status); // Debug log
-      console.log("API URL:", `https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/${encodeURIComponent(editFormData.teamName)}/${encodeURIComponent(primaryMember.educationalMail)}`); // Debug log
+      console.log("API URL:", `https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/${editingTeam._id}`); // Debug log
 
       // Check if response is HTML (error page)
       const contentType = response.headers.get("content-type");
