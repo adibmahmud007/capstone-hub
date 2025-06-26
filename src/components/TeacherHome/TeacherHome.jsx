@@ -201,7 +201,7 @@ const TeacherHome = () => {
 
             {/* Enhanced Modal */}
             {selectedProject && (
-                <div className="fixed inset-0 flex justify-center items-center z-50 px-4 bg-black bg-opacity-60 backdrop-blur-sm">
+                <div className="fixed inset-0 flex justify-center items-center z-50 px-4 bg-black/60  backdrop-blur-sm">
                     <div className="bg-white border border-blue-200 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl transform transition-all duration-300 animate-in fade-in zoom-in-95">
                         {/* Modal Header */}
                         <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6 relative">
