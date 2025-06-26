@@ -18,10 +18,15 @@ import Footer from './components/Footer/Footer';
 import AdminDashboard from './components/AdminDashboard/AdminDashboard';
 import TeacherHome from './components/TeacherHome/TeacherHome';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; // make sure this path is correct
+import MainHome from './components/MainHome/MainHome';
 
 const router = createBrowserRouter([
   {
     path: '/',
+    element: <MainHome></MainHome>
+  },
+  {
+    path: '/register',
     element: <Registration />
   },
   {
