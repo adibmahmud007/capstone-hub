@@ -4,7 +4,7 @@
 const Footer = () => {
   return (
     <>
-      <footer className="relative z-10 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-800 text-white pb-8 pt-12 lg:pb-12 lg:pt-16">
+      <footer className="relative pl-[500px] z-10 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-800 text-white pb-8 pt-12 lg:pb-12 lg:pt-16">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap">
             {/* Company Info Section */}
@@ -47,28 +47,7 @@ const Footer = () => {
             </div>
 
             {/* Academic Links */}
-            <LinkGroup header="Academic">
-              <NavLink link="/projects" label="Browse Projects" />
-              <NavLink link="/submit" label="Submit Project" />
-              <NavLink link="/research" label="Research Areas" />
-              <NavLink link="/guidelines" label="Submission Guidelines" />
-            </LinkGroup>
-
-            {/* Resources Links */}
-            <LinkGroup header="Resources">
-              <NavLink link="/documentation" label="Documentation" />
-              <NavLink link="/templates" label="Project Templates" />
-              <NavLink link="/tutorials" label="Video Tutorials" />
-              <NavLink link="/faq" label="FAQ" />
-            </LinkGroup>
-
-            {/* Support & Contact */}
-            <LinkGroup header="Support">
-              <NavLink link="/contact" label="Contact Us" />
-              <NavLink link="/help" label="Help Center" />
-              <NavLink link="/feedback" label="Feedback" />
-              <NavLink link="/status" label="System Status" />
-            </LinkGroup>
+            
 
             {/* Connect Section */}
             <div className="w-full px-4 sm:w-1/2 lg:w-3/12">
@@ -194,30 +173,30 @@ const Footer = () => {
   );
 };
 
-const LinkGroup = ({ children, header }) => {
-  return (
-    <div className="w-full px-4 sm:w-1/2 lg:w-2/12">
-      <div className="mb-8 w-full">
-        <h4 className="mb-6 text-lg font-semibold text-white">
-          {header}
-        </h4>
-        <ul className="space-y-3">{children}</ul>
-      </div>
-    </div>
-  );
-};
+// const LinkGroup = ({ children, header }) => {
+//   return (
+//     <div className="w-full px-4 sm:w-1/2 lg:w-2/12">
+//       <div className="mb-8 w-full">
+//         <h4 className="mb-6 text-lg font-semibold text-white">
+//           {header}
+//         </h4>
+//         <ul className="space-y-3">{children}</ul>
+//       </div>
+//     </div>
+//   );
+// };
 
-const NavLink = ({ link, label }) => {
-  return (
-    <li>
-      <a
-        href={link}
-        className="inline-block text-base leading-loose text-gray-300 hover:text-blue-400 transition-colors duration-200"
-      >
-        {label}
-      </a>
-    </li>
-  );
-};
+// const NavLink = ({ link, label }) => {
+//   return (
+//     <li>
+//       <a
+//         href={link}
+//         className="inline-block text-base leading-loose text-gray-300 hover:text-blue-400 transition-colors duration-200"
+//       >
+//         {label}
+//       </a>
+//     </li>
+//   );
+// };
 
 export default Footer;
