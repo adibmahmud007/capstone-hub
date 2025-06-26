@@ -199,9 +199,18 @@ const CreateGroup = () => {
             return;
         }
 
-        // ✅ Allow only emails ending with @cse.bubt.edu.bd
-        const requiredDomain = "@cse.bubt.edu.bd";
-        if (!member.educationalMail.endsWith(requiredDomain)) {
+        const trimmedDept = member.educationalMail.split('@')[1]?.split('.')[0];
+        console.log(trimmedDept, member.department.toLowerCase(),'from create group add member');
+
+        // Validation
+        if (trimmedDept !== member.department.toLowerCase()) {
+            toast.error(`Educational email domain should match department: "${member.department}"`);
+            return; // prevent further action
+        }
+
+        const requiredDomain = /^[a-zA-Z0-9._]+@([a-z]+\.)?bubt\.edu\.bd$/;
+
+        if (!requiredDomain.test(member.educationalMail)) {
             toast.error(`Educational mail Required`);
             return;
         }
@@ -718,7 +727,7 @@ const CreateProject = ({ teamName, supervisor }) => {
             });
 
             const result = await response.json();
-            console.log(response,'from prject upload');
+            console.log(response, 'from prject upload');
 
             if (!response.ok) {
                 // Log error message from backend
@@ -1116,130 +1125,130 @@ const CreateProject = ({ teamName, supervisor }) => {
 
 
 const ShowTask = ({ teamName }) => {
-  const [tasks, setTasks] = useState([]);
+    const [tasks, setTasks] = useState([]);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const res = await fetch(
-          `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${teamName}`
-        );
-        const data = await res.json();
-        const fetchedTasks = data.data || [];
-        console.log(fetchedTasks);
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const res = await fetch(
+                    `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${teamName}`
+                );
+                const data = await res.json();
+                const fetchedTasks = data.data || [];
+                console.log(fetchedTasks);
 
-        const mappedTasks = fetchedTasks
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          .map((taskObj, index) => ({
-            id: index + 1,
-            taskId: taskObj._id,
-            task: taskObj.assignedTask,
-            status: taskObj.status === "Completed", // convert to boolean
-            remark: taskObj.remarks,
-            createdAt: taskObj.createdAt,
-          }));
+                const mappedTasks = fetchedTasks
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .map((taskObj, index) => ({
+                        id: index + 1,
+                        taskId: taskObj._id,
+                        task: taskObj.assignedTask,
+                        status: taskObj.status === "Completed", // convert to boolean
+                        remark: taskObj.remarks,
+                        createdAt: taskObj.createdAt,
+                    }));
 
-        setTasks(mappedTasks);
-      } catch (err) {
-        console.error("Error fetching tasks:", err);
-        toast.error("Failed to fetch tasks");
-      }
+                setTasks(mappedTasks);
+            } catch (err) {
+                console.error("Error fetching tasks:", err);
+                toast.error("Failed to fetch tasks");
+            }
+        };
+
+        if (teamName) fetchTasks();
+    }, [teamName]);
+
+    const toggleCompletion = async (id) => {
+        const updatedTasks = tasks.map((task) => {
+            if (task.id === id) {
+                return { ...task, status: !task.status };
+            }
+            return task;
+        });
+
+        setTasks(updatedTasks);
+
+        const taskToUpdate = updatedTasks.find((task) => task.id === id);
+        const backendStatus = taskToUpdate.status ? "Completed" : "Not Completed";
+
+        try {
+            const res = await fetch(
+                `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${taskToUpdate.taskId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ status: backendStatus }),
+                }
+            );
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || "Failed to update task status");
+            }
+
+            toast.success(`Task marked as ${backendStatus}`);
+        } catch (error) {
+            console.error("Status update failed:", error);
+            toast.error("Failed to update task status on server");
+        }
     };
 
-    if (teamName) fetchTasks();
-  }, [teamName]);
+    return (
+        <div className="max-w-6xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl shadow-xl transition-all">
+            <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-500 text-transparent bg-clip-text mb-8 tracking-tight text-center">
+                Team Task Overview
+            </h2>
 
-  const toggleCompletion = async (id) => {
-    const updatedTasks = tasks.map((task) => {
-      if (task.id === id) {
-        return { ...task, status: !task.status };
-      }
-      return task;
-    });
-
-    setTasks(updatedTasks);
-
-    const taskToUpdate = updatedTasks.find((task) => task.id === id);
-    const backendStatus = taskToUpdate.status ? "Completed" : "Not Completed";
-
-    try {
-      const res = await fetch(
-        `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${taskToUpdate.taskId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: backendStatus }),
-        }
-      );
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Failed to update task status");
-      }
-
-      toast.success(`Task marked as ${backendStatus}`);
-    } catch (error) {
-      console.error("Status update failed:", error);
-      toast.error("Failed to update task status on server");
-    }
-  };
-
-  return (
-    <div className="max-w-6xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl shadow-xl transition-all">
-      <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-500 text-transparent bg-clip-text mb-8 tracking-tight text-center">
-        Team Task Overview
-      </h2>
-
-      <div className="overflow-x-auto rounded-xl">
-        <table className="min-w-full text-sm text-left text-gray-700 border border-gray-300 rounded-lg">
-          <thead className="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
-            <tr>
-              <th className="px-6 py-4">Task #</th>
-              <th className="px-6 py-4 min-w-[220px] sm:min-w-[160px]">Task</th>
-              <th className="px-6 py-4 text-center">Status</th>
-              <th className="px-6 py-4 min-w-[140px] sm:min-w-[200px]">Remark</th>
-              <th className="px-6 py-4 min-w-[120px] sm:min-w-[180px]">Assigned Date</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {tasks.map(({ id, task, status, remark, createdAt }) => (
-              <tr key={id} className="hover:bg-gray-50 transition-colors duration-200">
-                <td className="px-6 py-4 font-medium text-gray-900">{id}</td>
-                <td className={`px-6 py-4 ${!status ? "text-gray-400 line-through italic" : "text-gray-800"} min-w-[220px] sm:min-w-[160px]`}>
-                  {task}
-                </td>
-                <td className="px-6 py-4 text-center">
-                  <label className="inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={status}
-                      onChange={() => toggleCompletion(id)}
-                      className="form-checkbox h-5 w-5 text-green-600 rounded transition duration-200"
-                    />
-                    <span className={`ml-2 font-semibold ${!status ? "text-red-600" : "text-green-500"}`}>
-                      {status ? "✔ Done" : "❌ Pending"}
-                    </span>
-                  </label>
-                </td>
-                <td className="px-6 py-4 text-gray-600 min-w-[140px] sm:min-w-[200px]">
-                  {remark}
-                </td>
-                <td className="px-6 py-4 text-gray-600 min-w-[160px] sm:min-w-[220px]">
-                  📅 {new Date(createdAt).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+            <div className="overflow-x-auto rounded-xl">
+                <table className="min-w-full text-sm text-left text-gray-700 border border-gray-300 rounded-lg">
+                    <thead className="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
+                        <tr>
+                            <th className="px-6 py-4">Task #</th>
+                            <th className="px-6 py-4 min-w-[220px] sm:min-w-[160px]">Task</th>
+                            <th className="px-6 py-4 text-center">Status</th>
+                            <th className="px-6 py-4 min-w-[140px] sm:min-w-[200px]">Remark</th>
+                            <th className="px-6 py-4 min-w-[120px] sm:min-w-[180px]">Assigned Date</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {tasks.map(({ id, task, status, remark, createdAt }) => (
+                            <tr key={id} className="hover:bg-gray-50 transition-colors duration-200">
+                                <td className="px-6 py-4 font-medium text-gray-900">{id}</td>
+                                <td className={`px-6 py-4 ${!status ? "text-gray-400 line-through italic" : "text-gray-800"} min-w-[220px] sm:min-w-[160px]`}>
+                                    {task}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                    <label className="inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={status}
+                                            onChange={() => toggleCompletion(id)}
+                                            className="form-checkbox h-5 w-5 text-green-600 rounded transition duration-200"
+                                        />
+                                        <span className={`ml-2 font-semibold ${!status ? "text-red-600" : "text-green-500"}`}>
+                                            {status ? "✔ Done" : "❌ Pending"}
+                                        </span>
+                                    </label>
+                                </td>
+                                <td className="px-6 py-4 text-gray-600 min-w-[140px] sm:min-w-[200px]">
+                                    {remark}
+                                </td>
+                                <td className="px-6 py-4 text-gray-600 min-w-[160px] sm:min-w-[220px]">
+                                    📅 {new Date(createdAt).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                    })}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
 };
 
 
