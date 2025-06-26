@@ -22,17 +22,11 @@ import {
 const StudentDashboard = () => {
     const [activeMenu, setActiveMenu] = useState('createGroup');
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [teamName, setTeamName] = useState(''); // Fixed: Consistent naming
-
-
-    // Move groupMembers state to StudentDashboard
-    // const [groupMembers, setGroupMembers] = useState([]);
-    // console.log(groupMembers);
-    // const isTeacher = window.location.pathname === "/teacherDashboard"; // Example URL check
+    const [teamName, setTeamName] = useState('');
     const [groupMembers, setGroupMembers] = useState([]);
-    // const [teamName, setLocalTeamName] = useState(''); // Fixed: Use local state for display
-
     const [supervisor, setSupervisor] = useState("Saifur Rahman");
+    const [newTaskCount, setNewTaskCount] = useState(0);
+    const [lastTaskCheckTime, setLastTaskCheckTime] = useState(new Date());
 
     useEffect(() => {
         const fetchTeamData = async () => {
@@ -53,10 +47,27 @@ const StudentDashboard = () => {
                 console.log(data);
                 if (response.ok) {
                     setGroupMembers(data.data[0].members);
-                    // setLocalTeamName(data.data[0].teamName);
-                    setTeamName(data.data[0].teamName); // Fixed: Update parent component state
-
+                    setTeamName(data.data[0].teamName);
                     setSupervisor(data.data[0].assignedTeacher || "");
+
+                    // Initialize last check time if not set
+                    const storedCheckTime = localStorage.getItem('lastTaskCheckTime');
+                    if (storedCheckTime) {
+                        setLastTaskCheckTime(new Date(storedCheckTime));
+                    }
+
+                    // Fetch tasks to check for new ones
+                    const taskResponse = await fetch(
+                        `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${data.data[0].teamName}`
+                    );
+                    const taskData = await taskResponse.json();
+                    const fetchedTasks = taskData.data || [];
+
+                    // Calculate new tasks (created after last check time)
+                    const count = fetchedTasks.filter(task =>
+                        new Date(task.createdAt) > new Date(lastTaskCheckTime)
+                    ).length;
+                    setNewTaskCount(count);
                 } else {
                     console.error(data.message || "Failed to fetch team");
                 }
@@ -66,27 +77,35 @@ const StudentDashboard = () => {
         };
 
         fetchTeamData();
-    }, [setTeamName]);
 
+        // Set up interval to check for new tasks periodically
+        const intervalId = setInterval(fetchTeamData, 60000); // Check every minute
+
+        return () => clearInterval(intervalId);
+    }, [teamName, lastTaskCheckTime]);
+
+    const handleTaskView = () => {
+        // Update last check time to now
+        const now = new Date();
+        setLastTaskCheckTime(now);
+        localStorage.setItem('lastTaskCheckTime', now.toISOString());
+        setNewTaskCount(0);
+    };
 
     const renderContent = () => {
         switch (activeMenu) {
             case 'createGroup':
                 return <CreateGroup groupMembers={groupMembers} setGroupMembers={setGroupMembers} />;
             case 'myTeam':
-                return <MyTeam teamName={teamName} supervisor={supervisor} groupMembers={groupMembers} />; // Fixed: Passing the correct setter
+                return <MyTeam teamName={teamName} supervisor={supervisor} groupMembers={groupMembers} />;
             case 'createProject':
                 return <CreateProject teamName={teamName} supervisor={supervisor} />;
-            // case 'joinProject':
-            // return <JoinProject />;
             case 'showTask':
-                return <ShowTask teamName={teamName} />;
+                return <ShowTask teamName={teamName} onTaskView={handleTaskView} />;
             case 'upload':
                 return <Upload></Upload>;
             case 'showNotice':
                 return <ShowNotice teamName={teamName} />;
-            // case 'approveJoinRequest':
-            // return <ApproveJoinRequest />;
             default:
                 return <CreateGroup groupMembers={groupMembers} setGroupMembers={setGroupMembers} />;
         }
@@ -106,7 +125,6 @@ const StudentDashboard = () => {
                     </button>
                 </div>
 
-                {/* Gradient Text for Student Dashboard Menu */}
                 <h2 className="text-xl font-extrabold mb-4 hidden lg:block bg-gradient-to-r from-blue-400 to-blue-200 bg-clip-text text-transparent">
                     Student Dashboard
                 </h2>
@@ -117,13 +135,18 @@ const StudentDashboard = () => {
                         { key: 'myTeam', label: 'My Team', icon: <UserCheck size={18} /> },
                         { key: 'createProject', label: 'Create Project', icon: <FolderPlus size={18} /> },
                         { key: 'upload', label: 'Upload', icon: <CloudUpload size={18} /> },
-                        { key: 'showTask', label: 'Show Task', icon: <CheckSquare size={18} /> },
+                        {
+                            key: 'showTask',
+                            label: 'Show Task',
+                            icon: <CheckSquare size={18} />,
+                            badge: newTaskCount > 0 ? newTaskCount : null
+                        },
                         { key: 'showNotice', label: 'Show Notice', icon: <Bell size={18} /> },
                         { key: '/studentHome', label: 'Home', icon: <Home size={18} /> },
-                    ].map(({ key, label, icon }) => (
+                    ].map(({ key, label, icon, badge }) => (
                         <li
                             key={key}
-                            className={`cursor-pointer px-4 py-2 rounded-lg transition-all duration-200 ${activeMenu === key
+                            className={`cursor-pointer px-4 py-2 rounded-lg transition-all duration-200 relative ${activeMenu === key
                                 ? 'bg-blue-700 text-white shadow'
                                 : 'hover:bg-blue-800 text-blue-100 hover:text-white'
                                 }`}
@@ -139,6 +162,11 @@ const StudentDashboard = () => {
                             <div className="flex items-center space-x-3">
                                 {icon}
                                 <span>{label}</span>
+                                {badge && (
+                                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                        {badge}
+                                    </span>
+                                )}
                             </div>
                         </li>
                     ))}
@@ -160,9 +188,6 @@ const StudentDashboard = () => {
                 {renderContent()}
             </div>
         </div>
-
-
-
     );
 };
 
@@ -200,7 +225,7 @@ const CreateGroup = () => {
         }
 
         const trimmedDept = member.educationalMail.split('@')[1]?.split('.')[0];
-        console.log(trimmedDept, member.department.toLowerCase(),'from create group add member');
+        console.log(trimmedDept, member.department.toLowerCase(), 'from create group add member');
 
         // Validation
         if (trimmedDept !== member.department.toLowerCase()) {
@@ -1124,8 +1149,11 @@ const CreateProject = ({ teamName, supervisor }) => {
 
 
 
-const ShowTask = ({ teamName }) => {
+const ShowTask = ({ teamName, onTaskView }) => {
     const [tasks, setTasks] = useState([]);
+    const [newTaskCount, setNewTaskCount] = useState(0);
+    const [lastChecked, setLastChecked] = useState(new Date());
+    console.log(onTaskView.setNewTaskCount, 'fromshowtask')
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -1146,9 +1174,15 @@ const ShowTask = ({ teamName }) => {
                         status: taskObj.status === "Completed", // convert to boolean
                         remark: taskObj.remarks,
                         createdAt: taskObj.createdAt,
+                        isNew: new Date(taskObj.createdAt) > lastChecked,
                     }));
 
                 setTasks(mappedTasks);
+
+                // Calculate new tasks count
+                const count = mappedTasks.filter(task => new Date(task.createdAt) > lastChecked).length;
+                setNewTaskCount(count);
+
             } catch (err) {
                 console.error("Error fetching tasks:", err);
                 toast.error("Failed to fetch tasks");
@@ -1156,7 +1190,13 @@ const ShowTask = ({ teamName }) => {
         };
 
         if (teamName) fetchTasks();
-    }, [teamName]);
+    }, [teamName, lastChecked]);
+
+    useEffect(() => {
+        if (onTaskView) {
+            onTaskView();
+        }
+    }, [onTaskView]);
 
     const toggleCompletion = async (id) => {
         const updatedTasks = tasks.map((task) => {
@@ -1195,8 +1235,24 @@ const ShowTask = ({ teamName }) => {
         }
     };
 
+    const resetNewTaskCount = () => {
+        setLastChecked(new Date());
+        setNewTaskCount(0);
+    };
+
     return (
-        <div className="max-w-6xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl shadow-xl transition-all">
+        <div className="max-w-6xl mx-auto mt-10 px-6 py-8 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-3xl shadow-xl transition-all relative">
+            {/* Notification badge */}
+            {newTaskCount > 0 && (
+                <div
+                    className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold shadow-lg animate-pulse cursor-pointer"
+                    onClick={resetNewTaskCount}
+                    title="Click to mark as read"
+                >
+                    {newTaskCount}
+                </div>
+            )}
+
             <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-500 text-transparent bg-clip-text mb-8 tracking-tight text-center">
                 Team Task Overview
             </h2>
@@ -1213,9 +1269,12 @@ const ShowTask = ({ teamName }) => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {tasks.map(({ id, task, status, remark, createdAt }) => (
-                            <tr key={id} className="hover:bg-gray-50 transition-colors duration-200">
-                                <td className="px-6 py-4 font-medium text-gray-900">{id}</td>
+                        {tasks.map(({ id, task, status, remark, createdAt, isNew }) => (
+                            <tr key={id} className={`hover:bg-gray-50 transition-colors duration-200 ${isNew ? 'bg-blue-50' : ''}`}>
+                                <td className="px-6 py-4 font-medium text-gray-900">
+                                    {id}
+                                    {isNew && <span className="ml-1 text-xs text-red-500">• New</span>}
+                                </td>
                                 <td className={`px-6 py-4 ${!status ? "text-gray-400 line-through italic" : "text-gray-800"} min-w-[220px] sm:min-w-[160px]`}>
                                     {task}
                                 </td>
