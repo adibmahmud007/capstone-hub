@@ -702,7 +702,8 @@ const CreateProject = ({ teamName, supervisor }) => {
             department,
             completionDate,
             authors,
-            projectCategory
+            projectCategory,
+            supervisor
         };
 
         try {
@@ -717,6 +718,7 @@ const CreateProject = ({ teamName, supervisor }) => {
             });
 
             const result = await response.json();
+            console.log(response,'from prject upload');
 
             if (!response.ok) {
                 // Log error message from backend
