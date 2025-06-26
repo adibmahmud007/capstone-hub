@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { Search, User, BookOpen, Phone, HelpCircle, X, Users, Calendar, Tag, Lightbulb ,GraduationCap,BookOpenCheck,FolderOpenDot,FolderSearch} from "lucide-react";
+// import logo from "../../assets/bubt-seeklogo";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -68,9 +69,10 @@ const MainHome = () => {
                     <div className="flex items-center">
                         <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-300 rounded-xl flex items-center justify-center shadow-lg">
-                                <BookOpen className="w-6 h-6 text-blue-900" />
+                                <GraduationCap className="w-6 h-6 text-blue-900" />
                             </div>
                             <span className="text-2xl font-bold text-white">
+                                
                                 OpenSpace
                             </span>
                         </div>
