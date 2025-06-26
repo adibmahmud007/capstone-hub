@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 // import { Section } from "lucide-react";
@@ -1321,7 +1322,7 @@ const TeamList = ({ setActiveModal }) => {
       const result = await response.json();
 
       if (response.ok) {
-        alert(`✅ ${teacher.fullName} assigned to the team successfully!`);
+        alert(`✅ ${teacher.fullName} assigned to the ${selectedTeam.teamName} successfully!`);
       } else {
         alert(`❌ Failed to assign: ${result.message || "Unknown error"}`);
       }
