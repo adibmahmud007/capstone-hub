@@ -13,14 +13,19 @@ import {
   FaChartLine,
   FaUserGraduate,
   FaCog,
-  FaSearch, FaEye, FaSave, FaTrash, FaCalendarAlt, FaCode, FaTags, FaGraduationCap
+  FaSearch, FaEye, FaSave, FaTrash, FaCalendarAlt, FaCode, FaTags, FaGraduationCap  
 } from "react-icons/fa";
 import { FolderCog } from 'lucide-react';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"
 
 // ✅ TeacherAdd Component
+
+// import { FaUserGraduate, FaPlus, FaTimes, FaEdit, FaTrash, FaUsers, FaSave } from 'react-icons/fa';
+
 const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
+  const [activeView, setActiveView] = useState('menu'); // 'menu', 'add', 'manage', 'edit'
+  const [editingTeacher, setEditingTeacher] = useState(null);
   const [newTeacher, setNewTeacher] = useState({
     shortName: "",
     fullName: "",
@@ -28,9 +33,39 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
     defaultPassword: "default123",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [teachers, setTeachers] = useState(teacherList || []);
+
+  // Fetch teachers when component mounts or when manage view is opened
+  useEffect(() => {
+    fetchTeachers();
+  }, []);
+
+  useEffect(() => {
+    if (activeView === 'manage') {
+      fetchTeachers();
+    }
+  }, [activeView]);
+
+  const fetchTeachers = async () => {
+    try {
+      const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/admin/teachers");
+      if (response.ok) {
+        const result = await response.json();
+        const teachersData = result.data || result; // Handle both data.data and direct data response
+        setTeachers(teachersData);
+        setTeacherList(teachersData);
+      }
+    } catch (error) {
+      console.error("Teacher fetch error:", error);
+    }
+  };
 
   const handleAddTeacher = async () => {
-    console.log(newTeacher)
+    if (!newTeacher.shortName || !newTeacher.fullName || !newTeacher.educationalMail) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/admin/teachers", {
@@ -42,22 +77,354 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
       });
 
       if (response.ok) {
-        // toast.success("Teacher Added Successful")
+        const result = await response.json();
+        const addedTeacher = result.data || result; // Handle both data.data and direct data response
+        const updatedTeacherList = [...teacherList, addedTeacher];
+        setTeacherList(updatedTeacherList);
+        setTeachers(updatedTeacherList);
+        setNewTeacher({ shortName: "", fullName: "", educationalMail: "", defaultPassword: "default123" });
         alert("Teacher Added Successfully!");
+        setActiveView('menu');
       } else {
         throw new Error("Failed to add teacher");
       }
-
-
-      const addedTeacher = await response.json();
-      setTeacherList([...teacherList, addedTeacher]);
-      setNewTeacher({ shortName: "", fullName: "", educationalMail: "", defaultPassword: "default123" });
-      setActiveModal(null);
     } catch (error) {
       console.error("Error adding teacher:", error);
       alert("Failed to add teacher. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteTeacher = async (teacherId) => {
+    if (!window.confirm("Are you sure you want to delete this teacher?")) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/admin/teachers/${teacherId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        const updatedTeachers = teachers.filter(teacher => teacher._id !== teacherId);
+        setTeachers(updatedTeachers);
+        setTeacherList(updatedTeachers);
+        alert("Teacher deleted successfully!");
+      } else {
+        throw new Error("Failed to delete teacher");
+      }
+    } catch (error) {
+      console.error("Error deleting teacher:", error);
+      alert("Failed to delete teacher. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEditTeacher = (teacher) => {
+    setEditingTeacher({
+      ...teacher,
+      // defaultPassword: teacher.defaultPassword || "default123"
+    });
+    setActiveView('edit');
+  };
+
+  const handleUpdateTeacher = async () => {
+    if (!editingTeacher.shortName || !editingTeacher.fullName || !editingTeacher.educationalMail) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/admin/teachers/${editingTeacher._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          shortName: editingTeacher.shortName,
+          fullName: editingTeacher.fullName,
+          educationalMail: editingTeacher.educationalMail,
+          // defaultPassword: editingTeacher.defaultPassword,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const updatedTeacher = result.data || result; // Handle both data.data and direct data response
+        const updatedTeachers = teachers.map(teacher => 
+          teacher._id === editingTeacher._id ? updatedTeacher : teacher
+        );
+        setTeachers(updatedTeachers);
+        setTeacherList(updatedTeachers);
+        alert("Teacher updated successfully!");
+        setActiveView('manage');
+        setEditingTeacher(null);
+      } else {
+        throw new Error("Failed to update teacher");
+      }
+    } catch (error) {
+      console.error("Error updating teacher:", error);
+      alert("Failed to update teacher. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderMenu = () => (
+    <div className="p-6 space-y-4">
+      <div className="text-center mb-6">
+        <h3 className="text-lg font-semibold text-gray-700 mb-2">Choose an action</h3>
+      </div>
+      
+      <div className="space-y-3">
+        <button
+          onClick={() => setActiveView('add')}
+          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+        >
+          <FaPlus />
+          Add New Teacher
+        </button>
+        
+        <button
+          onClick={() => setActiveView('manage')}
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+        >
+          <FaUsers />
+          Manage Teachers
+        </button>
+      </div>
+      
+      <div className="pt-4">
+        <button
+          onClick={() => setActiveModal(null)}
+          className="w-full px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderAddForm = () => (
+    <div className="p-6 space-y-4">
+      <div className="space-y-4">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Short Name"
+            value={newTeacher.shortName}
+            onChange={(e) => setNewTeacher({ ...newTeacher, shortName: e.target.value })}
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+          />
+        </div>
+
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={newTeacher.fullName}
+            onChange={(e) => setNewTeacher({ ...newTeacher, fullName: e.target.value })}
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+          />
+        </div>
+
+        <div className="relative">
+          <input
+            type="email"
+            placeholder="Educational Email"
+            value={newTeacher.educationalMail}
+            onChange={(e) => setNewTeacher({ ...newTeacher, educationalMail: e.target.value })}
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+          />
+        </div>
+
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Default Password"
+            value={newTeacher.defaultPassword}
+            onChange={(e) => setNewTeacher({ ...newTeacher, defaultPassword: e.target.value })}
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+          />
+        </div>
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        <button
+          onClick={handleAddTeacher}
+          disabled={isLoading}
+          className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          ) : (
+            <>
+              <FaPlus />
+              Add Teacher
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={() => setActiveView('menu')}
+          className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200"
+        >
+          Back
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderManageTeachers = () => (
+    <div className="p-6">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-700">Teacher List</h3>
+        <p className="text-sm text-gray-500">{teachers.length} teachers found</p>
+      </div>
+      
+      {teachers.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <FaUsers size={48} className="mx-auto mb-4 opacity-50" />
+          <p>No teachers found</p>
+        </div>
+      ) : (
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {teachers.map((teacher) => (
+            <div key={teacher._id} className="bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+              <div className="flex-1">
+                <h4 className="font-semibold text-gray-800">{teacher.fullName}</h4>
+                <p className="text-sm text-gray-600">{teacher.educationalMail}</p>
+                <p className="text-xs text-gray-500">@{teacher.shortName}</p>
+              </div>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEditTeacher(teacher)}
+                  className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition-colors"
+                  title="Edit Teacher"
+                >
+                  <FaEdit size={14} />
+                </button>
+                
+                <button
+                  onClick={() => handleDeleteTeacher(teacher._id)}
+                  disabled={isLoading}
+                  className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+                  title="Delete Teacher"
+                >
+                  <FaTrash size={14} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      <div className="pt-4">
+        <button
+          onClick={() => setActiveView('menu')}
+          className="w-full px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200"
+        >
+          Back to Menu
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderEditForm = () => (
+    <div className="p-6 space-y-4">
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-700">Edit Teacher</h3>
+        <p className="text-sm text-gray-500">Update teacher information</p>
+      </div>
+      
+      <div className="space-y-4">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Short Name"
+            value={editingTeacher.shortName}
+            onChange={(e) => setEditingTeacher({ ...editingTeacher, shortName: e.target.value })}
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+          />
+        </div>
+
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={editingTeacher.fullName}
+            onChange={(e) => setEditingTeacher({ ...editingTeacher, fullName: e.target.value })}
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+          />
+        </div>
+
+        <div className="relative">
+          <input
+            type="email"
+            placeholder="Educational Email"
+            value={editingTeacher.educationalMail}
+            onChange={(e) => setEditingTeacher({ ...editingTeacher, educationalMail: e.target.value })}
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+          />
+        </div>
+
+        {/* <div className="relative">
+          <input
+            type="text"
+            placeholder="Default Password"
+            value={editingTeacher.defaultPassword}
+            onChange={(e) => setEditingTeacher({ ...editingTeacher, defaultPassword: e.target.value })}
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
+          />
+        </div> */}
+      </div>
+
+      <div className="flex gap-3 pt-4">
+        <button
+          onClick={handleUpdateTeacher}
+          disabled={isLoading}
+          className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          ) : (
+            <>
+              <FaSave />
+              Update Teacher
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={() => setActiveView('manage')}
+          className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
+  const getTitle = () => {
+    switch (activeView) {
+      case 'add': return 'Add New Teacher';
+      case 'manage': return 'Manage Teachers';
+      case 'edit': return 'Edit Teacher';
+      default: return 'Teacher Management';
+    }
+  };
+
+  const getIcon = () => {
+    switch (activeView) {
+      case 'add': return <FaPlus className="text-blue-300" />;
+      case 'manage': return <FaUsers className="text-blue-300" />;
+      case 'edit': return <FaEdit className="text-blue-300" />;
+      default: return <FaUserGraduate className="text-blue-300" />;
     }
   };
 
@@ -67,80 +434,24 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
         {/* Header with gradient */}
         <div className="bg-gradient-to-r from-slate-800 to-blue-900 p-6 text-white">
           <h2 className="text-2xl font-bold flex items-center gap-3">
-            <FaUserGraduate className="text-blue-300" />
-            Add New Teacher
+            {getIcon()}
+            {getTitle()}
           </h2>
-          <p className="text-blue-200 text-sm mt-1">Create a new teacher account</p>
+          <p className="text-blue-200 text-sm mt-1">
+            {activeView === 'menu' && 'Manage your teaching staff'}
+            {activeView === 'add' && 'Create a new teacher account'}
+            {activeView === 'manage' && 'View and manage existing teachers'}
+            {activeView === 'edit' && 'Update teacher information'}
+          </p>
         </div>
 
-        <div className="p-6 space-y-4">
-          <div className="space-y-4">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Short Name"
-                value={newTeacher.shortName}
-                onChange={(e) => setNewTeacher({ ...newTeacher, shortName: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
-              />
-            </div>
+        {/* Content based on active view */}
+        {activeView === 'menu' && renderMenu()}
+        {activeView === 'add' && renderAddForm()}
+        {activeView === 'manage' && renderManageTeachers()}
+        {activeView === 'edit' && renderEditForm()}
 
-            <div className="relative">
-              <input
-                type="email"
-                placeholder="Educational Email"
-                value={newTeacher.educationalMail}
-                onChange={(e) => setNewTeacher({ ...newTeacher, educationalMail: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
-              />
-            </div>
-
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={newTeacher.fullName}
-                onChange={(e) => setNewTeacher({ ...newTeacher, fullName: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
-              />
-            </div>
-
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Default Password"
-                value={newTeacher.defaultPassword}
-                onChange={(e) => setNewTeacher({ ...newTeacher, defaultPassword: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors bg-gray-50 focus:bg-white"
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <button
-              onClick={handleAddTeacher}
-              disabled={isLoading}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isLoading ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              ) : (
-                <>
-                  <FaPlus />
-                  Add Teacher
-                </>
-              )}
-            </button>
-
-            <button
-              onClick={() => setActiveModal(null)}
-              className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-200"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-
+        {/* Close button */}
         <button
           onClick={() => setActiveModal(null)}
           className="absolute top-4 right-4 text-white hover:text-red-300 transition-colors"
@@ -151,7 +462,6 @@ const TeacherAdd = ({ setActiveModal, setTeacherList, teacherList }) => {
     </div>
   );
 };
-
 const ITEMS_PER_PAGE = 6;
 const ShowProject = ({ setActiveModal }) => {
   const [projects, setProjects] = useState([]);
@@ -1192,8 +1502,8 @@ const TeamList = ({ setActiveModal }) => {
                           onClick={() => setSelectedTeam(team)}
                           className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 md:px-4 md:py-2 rounded-lg flex items-center gap-1 md:gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-md text-sm md:text-lg"
                         >
-                          <FaEdit />
-                          Manage
+
+                          Assign Teacher
                         </button>
                         <button
                           onClick={() => handleEditTeam(team)}
@@ -1207,8 +1517,9 @@ const TeamList = ({ setActiveModal }) => {
                           className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-lg flex items-center gap-1 md:gap-2 hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 shadow-md text-sm md:text-lg"
                         >
                           <FaTrash />
-                          Delete
+                          <span className="hidden md:inline">Delete</span>
                         </button>
+
                       </div>
                     </div>
                   ))}
@@ -1611,12 +1922,12 @@ const AdminDashboard = () => {
                 <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-4 rounded-2xl w-fit mb-6 group-hover:scale-110 transition-transform duration-300">
                   <FaUserGraduate className="text-white text-3xl" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-3">Add Teachers</h3>
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">Teacher Management</h3>
                 <p className="text-gray-600 leading-relaxed">
                   Register new faculty members with default credentials and educational email addresses
                 </p>
                 <div className="mt-6 flex items-center text-green-600 font-semibold group-hover:text-green-700">
-                  <span>Add Teacher</span>
+                  <span>Teacher Management</span>
                   <svg className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
