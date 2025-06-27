@@ -25,8 +25,8 @@ const StudentDashboard = () => {
     const [teamName, setTeamName] = useState('');
     const [groupMembers, setGroupMembers] = useState([]);
     const [supervisor, setSupervisor] = useState("Saifur Rahman");
-    const [newTaskCount, setNewTaskCount] = useState(0);
-    const [lastTaskCheckTime, setLastTaskCheckTime] = useState(new Date());
+    // const [newTaskCount, setNewTaskCount] = useState(0);
+    // const [lastTaskCheckTime, setLastTaskCheckTime] = useState(new Date());
 
     useEffect(() => {
         const fetchTeamData = async () => {
@@ -39,35 +39,35 @@ const StudentDashboard = () => {
 
                 const decoded = jwtDecode(token);
                 const educationalMail = decoded.email;
-                console.log(educationalMail, 'mail');
+                // console.log(educationalMail, 'mail');
 
                 const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/myteam/${educationalMail}`);
                 const data = await response.json();
 
-                console.log(data);
+                // console.log(data);
                 if (response.ok) {
                     setGroupMembers(data.data[0].members);
                     setTeamName(data.data[0].teamName);
                     setSupervisor(data.data[0].assignedTeacher || "");
 
                     // Initialize last check time if not set
-                    const storedCheckTime = localStorage.getItem('lastTaskCheckTime');
-                    if (storedCheckTime) {
-                        setLastTaskCheckTime(new Date(storedCheckTime));
-                    }
+                    // const storedCheckTime = localStorage.getItem('lastTaskCheckTime');
+                    // if (storedCheckTime) {
+                    //     setLastTaskCheckTime(new Date(storedCheckTime));
+                    // }
 
                     // Fetch tasks to check for new ones
-                    const taskResponse = await fetch(
-                        `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${data.data[0].teamName}`
-                    );
-                    const taskData = await taskResponse.json();
-                    const fetchedTasks = taskData.data || [];
+                    // const taskResponse = await fetch(
+                    //     `https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/team/task/${data.data[0].teamName}`
+                    // );
+                    // const taskData = await taskResponse.json();
+                    // const fetchedTasks = taskData.data || [];
 
                     // Calculate new tasks (created after last check time)
-                    const count = fetchedTasks.filter(task =>
-                        new Date(task.createdAt) > new Date(lastTaskCheckTime)
-                    ).length;
-                    setNewTaskCount(count);
+                    // const count = fetchedTasks.filter(task =>
+                    //     new Date(task.createdAt) > new Date(lastTaskCheckTime)
+                    // ).length;
+                    // setNewTaskCount(count);
                 } else {
                     console.error(data.message || "Failed to fetch team");
                 }
@@ -82,15 +82,15 @@ const StudentDashboard = () => {
         const intervalId = setInterval(fetchTeamData, 60000); // Check every minute
 
         return () => clearInterval(intervalId);
-    }, [teamName, lastTaskCheckTime]);
+    }, [teamName]);
 
-    const handleTaskView = () => {
-        // Update last check time to now
-        const now = new Date();
-        setLastTaskCheckTime(now);
-        localStorage.setItem('lastTaskCheckTime', now.toISOString());
-        setNewTaskCount(0);
-    };
+    // const handleTaskView = () => {
+    //     // Update last check time to now
+    //     const now = new Date();
+    //     setLastTaskCheckTime(now);
+    //     localStorage.setItem('lastTaskCheckTime', now.toISOString());
+    //     setNewTaskCount(0);
+    // };
 
     const renderContent = () => {
         switch (activeMenu) {
@@ -101,7 +101,7 @@ const StudentDashboard = () => {
             case 'createProject':
                 return <CreateProject teamName={teamName} supervisor={supervisor} />;
             case 'showTask':
-                return <ShowTask teamName={teamName} onTaskView={handleTaskView} />;
+                return <ShowTask teamName={teamName}  />;
             case 'upload':
                 return <Upload></Upload>;
             case 'showNotice':
@@ -139,7 +139,7 @@ const StudentDashboard = () => {
                             key: 'showTask',
                             label: 'Show Task',
                             icon: <CheckSquare size={18} />,
-                            badge: newTaskCount > 0 ? newTaskCount : null
+                            // badge: newTaskCount > 0 ? newTaskCount : null
                         },
                         { key: 'showNotice', label: 'Show Notice', icon: <Bell size={18} /> },
                         { key: '/studentHome', label: 'Home', icon: <Home size={18} /> },
@@ -1149,11 +1149,11 @@ const CreateProject = ({ teamName, supervisor }) => {
 
 
 
-const ShowTask = ({ teamName, onTaskView }) => {
+const ShowTask = ({ teamName,  }) => {
     const [tasks, setTasks] = useState([]);
     const [newTaskCount, setNewTaskCount] = useState(0);
     const [lastChecked, setLastChecked] = useState(new Date());
-    console.log(onTaskView.setNewTaskCount, 'fromshowtask')
+    // console.log(onTaskView.setNewTaskCount, 'fromshowtask')
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -1192,11 +1192,11 @@ const ShowTask = ({ teamName, onTaskView }) => {
         if (teamName) fetchTasks();
     }, [teamName, lastChecked]);
 
-    useEffect(() => {
-        if (onTaskView) {
-            onTaskView();
-        }
-    }, [onTaskView]);
+    // useEffect(() => {
+    //     if (onTaskView) {
+    //         onTaskView();
+    //     }
+    // }, [onTaskView]);
 
     const toggleCompletion = async (id) => {
         const updatedTasks = tasks.map((task) => {
@@ -1317,19 +1317,19 @@ const ShowTask = ({ teamName, onTaskView }) => {
 
 const ShowNotice = ({ teamName }) => {
     const [notices, setNotices] = useState([]);
-    console.log(teamName, 'from show task');
+    // console.log(teamName, 'from show notice');
 
     useEffect(() => {
         const fetchTasks = async () => {
             try {
                 const response = await axios.get(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice/${teamName}`);
-                const fetchedTasks = response.data.data || [];
+                const fetchedNotices = response.data.data || [];
                 console.log(fetchTasks)
-                console.log(response.data, 'from show task');
-                setNotices(fetchedTasks);
+                console.log(response.data, 'from show notice');
+                setNotices(fetchedNotices);
             } catch (error) {
-                toast.error("Failed to fetch tasks");
-                toast.error("Error fetching tasks:", error);
+                toast.error("Failed to fetch Notices");
+                toast.error("Error fetching Notice:", error);
             }
         };
 
