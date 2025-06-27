@@ -25,6 +25,9 @@ const StudentDashboard = () => {
     const [teamName, setTeamName] = useState('');
     const [groupMembers, setGroupMembers] = useState([]);
     const [supervisor, setSupervisor] = useState("");
+    const [intake, setIntake] = useState("");
+    const [teamId, setTeamId] = useState("");
+    const [teacherId, setTeacherId] = useState("");
     // const [newTaskCount, setNewTaskCount] = useState(0);
     // const [lastTaskCheckTime, setLastTaskCheckTime] = useState(new Date());
 
@@ -49,7 +52,11 @@ const StudentDashboard = () => {
                     setGroupMembers(data.data[0].members);
                     setTeamName(data.data[0].teamName);
                     setSupervisor(data.data[0].assignedTeacher || "");
+                    setIntake(data.data[0].members[0].intake || "");
+                    setTeamId(data.data[0]._id || "");
+                    setTeacherId(data.data[0].teacherId || "");
 
+                    // console.log(intake,teamId,teacherId,'from student')
                     // Initialize last check time if not set
                     // const storedCheckTime = localStorage.getItem('lastTaskCheckTime');
                     // if (storedCheckTime) {
@@ -101,9 +108,9 @@ const StudentDashboard = () => {
             case 'createProject':
                 return <CreateProject teamName={teamName} supervisor={supervisor} />;
             case 'showTask':
-                return <ShowTask teamName={teamName}  />;
+                return <ShowTask teamName={teamName} />;
             case 'upload':
-                return <Upload></Upload>;
+                return <Upload intake={intake} teamId={teamId} teacherId={teacherId} teamName={teamName}></Upload>;
             case 'showNotice':
                 return <ShowNotice teamName={teamName} />;
             default:
@@ -505,9 +512,18 @@ const MyTeam = ({ teamName, supervisor, groupMembers }) => {
 };
 
 
-const Upload = () => {
+
+
+
+
+const Upload = ({ intake, teamName, teamId, teacherId }) => {
     const [selectedFile, setSelectedFile] = useState(null);
-    const [fileType, setFileType] = useState('Research Paper');
+    const [fileType, setFileType] = useState('Pdf');
+    const [isUploading, setIsUploading] = useState(false);
+    // const [downloadUrl, setDownloadUrl] = useState("");
+    // const [fileName, setFileName] = useState("");
+    const [projectTitle, setProjectTitle] = useState('');
+
 
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
@@ -522,20 +538,75 @@ const Upload = () => {
         e.preventDefault();
     };
 
-    const handleUpload = () => {
+    const handleUpload = async () => {
         if (!selectedFile) {
             alert("Please select a file to upload.");
             return;
         }
 
-        // Handle file upload logic here (e.g., formData and API call)
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-        formData.append("fileType", fileType);
+        setIsUploading(true);
 
-        // Example logging
-        console.log("Uploading", selectedFile.name, "as", fileType);
-        alert("File uploaded successfully!");
+        try {
+            // Create FormData object
+            const formData = new FormData();
+            formData.append("file", selectedFile);
+            // formData.append("fileType", fileType);
+            formData.append("intake", intake);
+            formData.append("team_id", teamId);
+
+            // API call
+            const response = await fetch('https://edef-103-133-174-208.ngrok-free.app/api/v1/upload', {
+                method: 'POST',
+                body: formData,
+                // Don't set Content-Type header when using FormData
+                // The browser will set it automatically with the boundary
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                console.log(response, 'from api 1');
+                const result = await response.json();
+
+                // console.log("Upload successful:", result);
+                alert(`${result.error}, ${result.details.message} `);
+
+                // throw new Error(`HTTP error! status: ${response}`);
+            }
+
+
+
+            // Reset form after successful upload
+            setSelectedFile(null);
+            setFileType('Research Paper');
+            const response2 = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/submittedFile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // Added missing header
+                },
+                body: JSON.stringify({
+                    projectName: projectTitle,
+                    filename: selectedFile.name, // Fixed: use .name property instead of the File object
+                    downloadurl: result.downloadURL,
+                    teamName: teamName,
+                    intake: intake, // Fixed: corrected typo from 'inake' to 'intake'
+                    teacherId: teacherId
+                }),
+            });
+
+            if (!response2.ok) {
+                throw new Error(`HTTP error! status: ${response2.status}`);
+            }
+
+            const result2 = await response2.json();
+            console.log("Second API call successful:", result2);
+            alert("File uploaded successfully!");
+            setProjectTitle('')
+
+        } catch (error) {
+            console.error("Upload failed:", error);
+            alert("Upload failed. Please try again.");
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     return (
@@ -553,6 +624,7 @@ const Upload = () => {
                     onChange={handleFileChange}
                     className="hidden"
                     id="fileInput"
+                    accept={fileType === 'Pdf' ? '.pdf' : '.zip'}
                 />
                 <label htmlFor="fileInput" className="cursor-pointer text-blue-600 hover:underline">
                     {selectedFile ? (
@@ -565,12 +637,23 @@ const Upload = () => {
                     )}
                 </label>
             </div>
+            <label className="block text-sm font-medium text-blue-700  pt-2 mb-2">
+                Project Title <span className="text-red-500">*</span>
+            </label>
+            <input
+                type="text"
+                value={projectTitle}
+                onChange={(e) => setProjectTitle(e.target.value)}
+                className="w-full border-2 placeholder:text-slate-400 border-blue-500 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder='Enter Exact Project Title...'
+                required
+            />
 
             {/* File Type Selection */}
             <div className="mt-6">
                 <h4 className="text-blue-700 font-semibold mb-2">Select File Type:</h4>
                 <div className="flex flex-wrap gap-4">
-                    {['Research Paper', 'Code (zip)', 'Dataset', 'Other Document'].map((type) => (
+                    {['Pdf', 'Zip File'].map((type) => (
                         <label key={type} className="flex items-center gap-2 text-blue-800">
                             <input
                                 type="radio"
@@ -588,14 +671,22 @@ const Upload = () => {
             <div className="mt-6 text-right">
                 <button
                     onClick={handleUpload}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
+                    disabled={isUploading}
+                    className={`px-6 py-2 rounded-lg transition ${isUploading
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                        } text-white`}
                 >
-                    Upload
+                    {isUploading ? 'Uploading...' : 'Upload'}
                 </button>
             </div>
         </div>
     );
 };
+
+
+
+
 
 
 
@@ -1149,7 +1240,7 @@ const CreateProject = ({ teamName, supervisor }) => {
 
 
 
-const ShowTask = ({ teamName,  }) => {
+const ShowTask = ({ teamName, }) => {
     const [tasks, setTasks] = useState([]);
     const [newTaskCount, setNewTaskCount] = useState(0);
     const [lastChecked, setLastChecked] = useState(new Date());
