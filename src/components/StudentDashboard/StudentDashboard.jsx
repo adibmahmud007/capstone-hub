@@ -539,75 +539,78 @@ const Upload = ({ intake, teamName, teamId, teacherId }) => {
     };
 
     const handleUpload = async () => {
-        if (!selectedFile) {
-            alert("Please select a file to upload.");
-            return;
-        }
+    if (!selectedFile) {
+        alert("Please select a file to upload.");
+        return;
+    }
 
-        setIsUploading(true);
+    setIsUploading(true);
 
-        try {
-            // Create FormData object
-            const formData = new FormData();
-            formData.append("file", selectedFile);
-            // formData.append("fileType", fileType);
-            formData.append("intake", intake);
-            formData.append("team_id", teamId);
+    try {
+        // Create FormData object
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("intake", intake);
+        formData.append("team_id", teamId);
 
-            // API call
-            const response = await fetch('https://edef-103-133-174-208.ngrok-free.app/api/v1/upload', {
-                method: 'POST',
-                body: formData,
-                // Don't set Content-Type header when using FormData
-                // The browser will set it automatically with the boundary
-            });
+        // First API call
+        const response = await fetch('https://edef-103-133-174-208.ngrok-free.app/api/v1/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (response.ok) {
+            // First API succeeded
             const result = await response.json();
-            if (!response.ok) {
-                console.log(response, 'from api 1');
-                const result = await response.json();
+            console.log("First API call successful:", result);
 
-                // console.log("Upload successful:", result);
-                alert(`${result.error}, ${result.details.message} `);
-
-                // throw new Error(`HTTP error! status: ${response}`);
-            }
-
-
-
-            // Reset form after successful upload
-            setSelectedFile(null);
-            setFileType('Research Paper');
+            // Second API call
             const response2 = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/submittedFile', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json', // Added missing header
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     projectName: projectTitle,
-                    filename: selectedFile.name, // Fixed: use .name property instead of the File object
+                    filename: selectedFile.name,
                     downloadurl: result.downloadURL,
                     teamName: teamName,
-                    intake: intake, // Fixed: corrected typo from 'inake' to 'intake'
+                    intake: intake,
                     teacherId: teacherId
                 }),
             });
 
-            if (!response2.ok) {
-                throw new Error(`HTTP error! status: ${response2.status}`);
+            if (response2.ok) {
+                // Both API calls succeeded
+                const result2 = await response2.json();
+                console.log("Second API call successful:", result2);
+                alert("File uploaded successfully!");
+                
+                // Reset form after successful upload
+                setSelectedFile(null);
+                setFileType('');
+                setProjectTitle('');
+            } else {
+                // Second API failed
+                const errorResult2 = await response2.json();
+                console.error("Second API call failed:", errorResult2);
+                alert(`Second API failed: ${errorResult2.error || 'Unknown error'}`);
             }
 
-            const result2 = await response2.json();
-            console.log("Second API call successful:", result2);
-            alert("File uploaded successfully!");
-            setProjectTitle('')
-
-        } catch (error) {
-            console.error("Upload failed:", error);
-            alert("Upload failed. Please try again.");
-        } finally {
-            setIsUploading(false);
+        } else {
+            // First API failed
+            const resultmessage = await response.json();
+            console.error("First API call failed:", resultmessage);
+            alert(`Upload failed: ${resultmessage.error || 'Unknown error'}${resultmessage.details?.message ? ', ' + resultmessage.details.message : ''}`);
         }
-    };
+
+    } catch (error) {
+        console.error("Upload failed:", error);
+        alert("Upload failed. Please try again.");
+    } finally {
+        setIsUploading(false);
+    }
+};
 
     return (
         <div className="max-w-xl mx-auto p-6 mt-10 bg-blue-50 rounded-xl shadow-lg border border-blue-200">
