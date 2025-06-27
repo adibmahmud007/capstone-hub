@@ -1052,52 +1052,90 @@ const ShowNotice = () => {
 };
 
 
-import { CheckCircle, XCircle, Download, User, Calendar, FileText } from 'lucide-react';
+import { CheckCircle, XCircle, Download, User, Calendar, FileText, AlertCircle  } from 'lucide-react';
 
 const Approve = () => {
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      studentName: "Alice Johnson",
-      projectName: "AI-Powered Chatbot for Customer Service",
-      requestDate: "2024-06-20",
-      documents: ["code", "dataset", "report"],
-      status: "pending"
-    },
-    {
-      id: 2,
-      studentName: "Bob Smith",
-      projectName: "Machine Learning Stock Prediction Model",
-      requestDate: "2024-06-22",
-      documents: ["code", "report", "proposal"],
-      status: "pending"
-    },
-    {
-      id: 3,
-      studentName: "Carol Davis",
-      projectName: "IoT Smart Home Automation System",
-      requestDate: "2024-06-24",
-      documents: ["code", "dataset", "report", "proposal"],
-      status: "pending"
-    },
-    {
-      id: 4,
-      studentName: "David Wilson",
-      projectName: "Blockchain-based Voting System",
-      requestDate: "2024-06-25",
-      documents: ["code", "report"],
-      status: "pending"
-    }
-  ]);
-
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showDeclineModal, setShowDeclineModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [declineReason, setDeclineReason] = useState('');
+  const [processingRequests, setProcessingRequests] = useState(new Set());
 
-  const handleApprove = (requestId) => {
-    setRequests(prev => prev.map(req => 
-      req.id === requestId ? { ...req, status: 'approved' } : req
-    ));
+  // Fetch requests from API
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    try {
+      setLoading(true);
+      const teacherToken = localStorage.getItem('teacherToken');
+      
+      if (!teacherToken) {
+        setError('No teacher token found. Please log in again.');
+        return;
+      }
+
+      const response = await fetch('https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/submittedFilebyteacher', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${teacherToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setRequests(data.data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching requests:', err);
+      setError('Failed to fetch project requests. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprove = async (requestId) => {
+    try {
+      setProcessingRequests(prev => new Set(prev).add(requestId));
+      const teacherToken = localStorage.getItem('teacherToken');
+      
+      if (!teacherToken) {
+        setError('No teacher token found. Please log in again.');
+        return;
+      }
+
+      const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/submittedFile/approve/${requestId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${teacherToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Refresh the data after successful approval
+      await fetchRequests();
+      setError(null);
+    } catch (err) {
+      console.error('Error approving request:', err);
+      setError('Failed to approve request. Please try again.');
+    } finally {
+      setProcessingRequests(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(requestId);
+        return newSet;
+      });
+    }
   };
 
   const handleDeclineClick = (request) => {
@@ -1105,18 +1143,50 @@ const Approve = () => {
     setShowDeclineModal(true);
   };
 
-  const handleDeclineConfirm = () => {
-    if (declineReason.trim()) {
-      setRequests(prev => prev.map(req => 
-        req.id === selectedRequest.id 
-          ? { ...req, status: 'declined', declineReason } 
-          : req
-      ));
+  const handleDeclineConfirm = async () => {
+    if (!declineReason.trim()) {
+      return;
+    }
+
+    try {
+      setProcessingRequests(prev => new Set(prev).add(selectedRequest._id));
+      const teacherToken = localStorage.getItem('teacherToken');
+      
+      if (!teacherToken) {
+        setError('No teacher token found. Please log in again.');
+        return;
+      }
+
+      const response = await fetch(`https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/submittedFile/decline/${selectedRequest._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${teacherToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: declineReason
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Close modal and refresh data
       setShowDeclineModal(false);
       setDeclineReason('');
       setSelectedRequest(null);
-      // In a real app, you would send the decline message to the student here
-      console.log(`Decline message sent to ${selectedRequest.studentName}: ${declineReason}`);
+      await fetchRequests();
+      setError(null);
+    } catch (err) {
+      console.error('Error declining request:', err);
+      setError('Failed to decline request. Please try again.');
+    } finally {
+      setProcessingRequests(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(selectedRequest?._id);
+        return newSet;
+      });
     }
   };
 
@@ -1126,18 +1196,34 @@ const Approve = () => {
     setSelectedRequest(null);
   };
 
-  const getDocumentIcon = (docType) => {
+  const getFileIcon = (filename) => {
+    const extension = filename.split('.').pop().toLowerCase();
     const icons = {
-      code: "💻",
-      dataset: "📊",
-      report: "📄",
-      proposal: "📋"
+      pdf: "📄",
+      doc: "📄",
+      docx: "📄",
+      txt: "📄",
+      zip: "📦",
+      rar: "📦",
+      jpg: "🖼️",
+      jpeg: "🖼️",
+      png: "🖼️",
+      gif: "🖼️",
+      js: "💻",
+      py: "💻",
+      java: "💻",
+      cpp: "💻",
+      html: "💻",
+      css: "💻",
+      json: "📊",
+      csv: "📊",
+      xlsx: "📊"
     };
-    return icons[docType] || "📎";
+    return icons[extension] || "📎";
   };
 
   const getStatusColor = (status) => {
-    switch(status) {
+    switch(status?.toLowerCase()) {
       case 'approved': return 'text-green-600 bg-green-50';
       case 'declined': return 'text-red-600 bg-red-50';
       default: return 'text-yellow-600 bg-yellow-50';
@@ -1145,47 +1231,81 @@ const Approve = () => {
   };
 
   const getStatusText = (status) => {
-    switch(status) {
+    switch(status?.toLowerCase()) {
       case 'approved': return 'Approved';
       case 'declined': return 'Declined';
       default: return 'Pending';
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch {
+      return dateString;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading project requests...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen max-w-6xl mx-auto rounded-lg bg-white">
       {/* Header */}
-      <div className="bg-white text-blue-600 rounded-xl text-center p-3 ">
+      <div className="bg-white text-blue-600 rounded-xl text-center p-3">
         <h1 className="text-3xl font-bold">Project Download Requests</h1>
         <p className="text-blue-500 font-semibold mt-2">Review and manage student project download requests</p>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-md flex items-center">
+          <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+          <p className="text-red-700">{error}</p>
+          <button
+            onClick={fetchRequests}
+            className="ml-auto text-red-600 hover:text-red-800 underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="p-6 max-w-6xl mx-auto">
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Pending Requests</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Project Requests</h2>
           <p className="text-gray-600">Review student requests for project document downloads</p>
         </div>
 
         {/* Request Cards */}
         <div className="space-y-6">
           {requests.map((request) => (
-            <div key={request.id} className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+            <div key={request._id} className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
               <div className="p-6">
                 {/* Header */}
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {request.projectName}
+                      {request.projectName || 'Untitled Project'}
                     </h3>
                     <div className="flex items-center space-x-4 text-sm text-gray-600">
                       <div className="flex items-center space-x-1">
                         <User className="w-4 h-4" />
-                        <span>{request.studentName}</span>
+                        <span>{request.teamName || 'Unknown Team'}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
-                        <span>{request.requestDate}</span>
+                        <span>Intake: {request.intake || 'N/A'}</span>
                       </div>
                     </div>
                   </div>
@@ -1194,27 +1314,32 @@ const Approve = () => {
                   </div>
                 </div>
 
-                {/* Documents */}
+                {/* File Information */}
                 <div className="mb-6">
                   <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
                     <Download className="w-4 h-4 mr-2" />
-                    Requested Documents:
+                    Requested File:
                   </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {request.documents.map((doc, index) => (
-                      <span 
-                        key={index}
-                        className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm border border-blue-200"
-                      >
-                        <span className="mr-2">{getDocumentIcon(doc)}</span>
-                        {doc.charAt(0).toUpperCase() + doc.slice(1)}
-                      </span>
-                    ))}
+                  <div className="flex items-center space-x-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <span className="text-xl">{getFileIcon(request.filename || '')}</span>
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{request.filename || 'Unknown File'}</p>
+                      {request.downloadurl && (
+                        <a
+                          href={request.downloadurl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 text-sm underline"
+                        >
+                          View File
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Decline Reason (if declined) */}
-                {request.status === 'declined' && request.declineReason && (
+                {request.status?.toLowerCase() === 'declined' && request.declineReason && (
                   <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
                     <p className="text-sm text-red-700">
                       <strong>Decline Reason:</strong> {request.declineReason}
@@ -1223,18 +1348,20 @@ const Approve = () => {
                 )}
 
                 {/* Action Buttons */}
-                {request.status === 'pending' && (
+                {request.status?.toLowerCase() === 'pending' && (
                   <div className="flex space-x-3">
                     <button
-                      onClick={() => handleApprove(request.id)}
-                      className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
+                      onClick={() => handleApprove(request._id)}
+                      disabled={processingRequests.has(request._id)}
+                      className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      <span>Approve</span>
+                      <span>{processingRequests.has(request._id) ? 'Approving...' : 'Approve'}</span>
                     </button>
                     <button
                       onClick={() => handleDeclineClick(request)}
-                      className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
+                      disabled={processingRequests.has(request._id)}
+                      className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
                     >
                       <XCircle className="w-4 h-4" />
                       <span>Decline</span>
@@ -1247,11 +1374,11 @@ const Approve = () => {
         </div>
 
         {/* Empty State */}
-        {requests.filter(req => req.status === 'pending').length === 0 && (
+        {!loading && requests.length === 0 && (
           <div className="text-center py-12">
             <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending Requests</h3>
-            <p className="text-gray-600">All project download requests have been reviewed.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Project Requests</h3>
+            <p className="text-gray-600">No project download requests found.</p>
           </div>
         )}
       </div>
@@ -1265,7 +1392,7 @@ const Approve = () => {
                 Decline Request
               </h3>
               <p className="text-gray-600 mb-4">
-                Please provide a reason for declining <strong>{selectedRequest?.studentName}&apos;s</strong> request for <strong>&quot;{selectedRequest?.projectName}&quot;</strong>:
+                Please provide a reason for declining <strong>{selectedRequest?.teamName}</strong>&apos;s request for <strong>&quot;{selectedRequest?.projectName}&quot;</strong>:
               </p>
               <textarea
                 value={declineReason}
@@ -1283,10 +1410,10 @@ const Approve = () => {
                 </button>
                 <button
                   onClick={handleDeclineConfirm}
-                  disabled={!declineReason.trim()}
+                  disabled={!declineReason.trim() || processingRequests.has(selectedRequest?._id)}
                   className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-md transition-colors duration-200"
                 >
-                  Decline Request
+                  {processingRequests.has(selectedRequest?._id) ? 'Declining...' : 'Decline Request'}
                 </button>
               </div>
             </div>
@@ -1296,7 +1423,6 @@ const Approve = () => {
     </div>
   );
 };
-
 
 
 
