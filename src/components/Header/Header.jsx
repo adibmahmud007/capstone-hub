@@ -15,12 +15,13 @@ const Header = () => {
 
   const isStudent = location.pathname.includes("student");
   const isTeacher = location.pathname.includes("teacher");
+  console.log(isStudent,isTeacher,'from header');
 
   const homePath = isStudent
     ? "/studentHome"
     : isTeacher
-    ? "/teacherHome"
-    : "/";
+      ? "/teacherHome"
+      : "/";
 
   const handleLogout = async () => {
     const startTime = Date.now();
@@ -29,7 +30,13 @@ const Header = () => {
     setLogoutState({ loading: true, error: null });
 
     try {
-      const token = localStorage.getItem("token");
+      let token;
+      if (isStudent) {
+        token = localStorage.getItem("studentToken");
+      }else if(isTeacher){
+        token = localStorage.getItem("teacherToken");
+      }
+
       if (!token) {
         throw new Error("No active session found");
       }
@@ -50,7 +57,12 @@ const Header = () => {
         throw new Error(errorData.message || "Logout failed");
       }
 
-      localStorage.removeItem("token");
+      if (isStudent) {
+        localStorage.removeItem("studentToken");
+      }else if(isTeacher){
+        localStorage.removeItem("teacherToken");
+      }
+      
 
       const elapsed = Date.now() - startTime;
       if (elapsed < MIN_LOADING_TIME) {
@@ -125,10 +137,9 @@ const Header = () => {
         <div className="flex items-center space-x-4 flex-shrink-0">
           <button
             className={`bg-gradient-to-r from-red-600 to-red-700 px-5 py-2 rounded-lg font-semibold shadow-md transition-all duration-300 ease-in-out
-              ${
-                logoutState.loading
-                  ? "opacity-60 cursor-not-allowed"
-                  : "hover:from-red-700 hover:to-red-800"
+              ${logoutState.loading
+                ? "opacity-60 cursor-not-allowed"
+                : "hover:from-red-700 hover:to-red-800"
               }`}
             onClick={handleLogout}
             disabled={logoutState.loading}

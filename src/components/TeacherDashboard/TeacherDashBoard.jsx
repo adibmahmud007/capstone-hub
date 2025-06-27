@@ -23,7 +23,7 @@ const TeamDetails = () => {
   useEffect(() => {
     const fetchTeamData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('teacherToken');
         const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/by-teacher", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -161,7 +161,7 @@ const AssignTask = () => {
   useEffect(() => {
     const fetchTeamData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('teacherToken');
         const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/by-teacher", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -212,7 +212,7 @@ const AssignTask = () => {
     e.preventDefault();
     setSubmitting(true);
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('teacherToken');
     if (!token) {
       toast.dismiss("❌ Token missing. Please login again.");
       setSubmitting(false);
@@ -670,7 +670,7 @@ const AddNotice = () => {
   useEffect(() => {
     const fetchTeamData = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("teacherToken");
         const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/by-teacher", {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -42,7 +42,15 @@ const Login = () => {
                 const decoded = jwtDecode(token);
                 const role = decoded.role;
 
-                localStorage.setItem("token", token);
+                if (role === "student") {
+                    localStorage.setItem("studentToken", token);
+                } else if (role === "teacher") {
+                    localStorage.setItem("teacherToken", token);
+                } else {
+                    localStorage.setItem("adminToken", token);
+                }
+
+                // localStorage.setItem("token", token);
                 toast.success(
                     `Signed in to ${role.charAt(0).toUpperCase() + role.slice(1)} Portal`
                 );

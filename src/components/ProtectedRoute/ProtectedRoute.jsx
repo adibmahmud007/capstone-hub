@@ -4,11 +4,18 @@ import { Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = ({ children, role }) => {
-  const token = localStorage.getItem("token");
+  let token;
+      if (role==="student") {
+        token = localStorage.getItem("studentToken");
+      }else if(role==="teacher"){
+        token = localStorage.getItem("teacherToken");
+      }else{
+        token = localStorage.getItem("adminToken");
+      }
 
   // Not logged in at all
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   try {

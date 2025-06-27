@@ -24,14 +24,14 @@ const StudentDashboard = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [teamName, setTeamName] = useState('');
     const [groupMembers, setGroupMembers] = useState([]);
-    const [supervisor, setSupervisor] = useState("Saifur Rahman");
+    const [supervisor, setSupervisor] = useState("");
     // const [newTaskCount, setNewTaskCount] = useState(0);
     // const [lastTaskCheckTime, setLastTaskCheckTime] = useState(new Date());
 
     useEffect(() => {
         const fetchTeamData = async () => {
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('studentToken');
                 if (!token) {
                     console.error("No token found.");
                     return;

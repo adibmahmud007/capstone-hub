@@ -1276,7 +1276,7 @@ const TeamList = ({ setActiveModal }) => {
     if (!confirmDelete) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("adminToken");
 
       const response = await fetch(
         `https://capstone-repo-2933d2307df0.herokuapp.com/api/student/team/${teamId}`,
@@ -1379,7 +1379,7 @@ const TeamList = ({ setActiveModal }) => {
   const handleSaveTeam = async () => {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("adminToken");
 
       // Get the first member's educational email (assuming team leader or primary member)
       const primaryMember = editFormData.members[0];
@@ -1759,7 +1759,7 @@ const AdminDashboard = () => {
     setLoading(true); // Start loader
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("adminToken");
       if (!token) {
         throw new Error("No active session found");
       }
@@ -1780,7 +1780,7 @@ const AdminDashboard = () => {
         throw new Error(errorData.message || "Logout failed");
       }
 
-      localStorage.removeItem("token");
+      localStorage.removeItem("adminToken");
 
       const elapsed = Date.now() - startTime;
       if (elapsed < MIN_LOADING_TIME) {
