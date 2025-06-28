@@ -16,7 +16,7 @@ import {
   FaCog,
   FaSearch, FaEye, FaSave, FaTrash, FaCalendarAlt, FaCode, FaTags, FaGraduationCap
 } from "react-icons/fa";
-import { FolderCog,Lightbulb } from 'lucide-react';
+import { FolderCog, Lightbulb } from 'lucide-react';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom"
 
@@ -1816,16 +1816,21 @@ const AdminDashboard = () => {
             </div>
             <div className="flex items-center gap-4">
               {/* Step 2: Cog Icon Div */}
-              <div
-                onClick={() => setShowLogout(!showLogout)}
-                className="bg-gradient-to-r from-slate-100 to-blue-200 p-3 rounded-xl cursor-pointer hover:shadow-md transition duration-200 inline-block"
-              >
-                <FaCog className="text-black text-xl" />
-              </div>
+              <div className="flex flex-col items-start">
+                {/* Settings cog with rotation animation */}
+                <div
+                  onClick={() => setShowLogout(!showLogout)}
+                  className={`bg-gradient-to-r from-slate-100 to-blue-200 p-3 rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 inline-block ${showLogout ? "rotate-90" : "rotate-0"
+                    }`}
+                >
+                  <FaCog className="text-black text-xl" />
+                </div>
 
-              {/* Step 3: Conditionally show Logout */}
-              {showLogout && (
-                <div className="mt-2">
+                {/* Logout button with smooth slide-down animation */}
+                <div
+                  className={`transition-all duration-500 ease-in-out overflow-hidden ${showLogout ? "max-h-20 opacity-100 mt-2" : "max-h-0 opacity-0"
+                    }`}
+                >
                   <button
                     onClick={handleLogout}
                     disabled={loading}
@@ -1861,7 +1866,7 @@ const AdminDashboard = () => {
                     )}
                   </button>
                 </div>
-              )}
+              </div>
 
             </div>
           </div>
