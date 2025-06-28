@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
- 
+
 import { useState, useEffect, useMemo } from "react";
 import { FaUsers, FaTasks, FaClipboardList, FaRegStickyNote, FaStore } from "react-icons/fa";
 import { Menu, X } from 'lucide-react';
@@ -715,49 +715,49 @@ const AddNotice = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!selectedTeam.section || !selectedTeam.teamName) {
-    toast.error("Please select a team first.");
-    return;
-  }
+    if (!selectedTeam.section || !selectedTeam.teamName) {
+      toast.error("Please select a team first.");
+      return;
+    }
 
-  const wordCount = content.trim().split(/\s+/).filter(w => w).length;
-  if (wordCount > 150) {
-    toast.error("Notice cannot exceed 150 words.");
-    return;
-  }
+    const wordCount = content.trim().split(/\s+/).filter(w => w).length;
+    if (wordCount > 150) {
+      toast.error("Notice cannot exceed 150 words.");
+      return;
+    }
 
-  setSubmitting(true);
+    setSubmitting(true);
 
-  const noticeData = {
-    teamName: selectedTeam.teamName,
-    noticeTitle: title,
-    noticeDetails: content,
+    const noticeData = {
+      teamName: selectedTeam.teamName,
+      noticeTitle: title,
+      noticeDetails: content,
+    };
+
+    try {
+      const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(noticeData),
+      });
+
+      if (!response.ok) throw new Error("Failed to create notice");
+
+      toast.success("Notice added successfully!");
+      setTitle('');
+      setContent('');
+      setSelectedTeam(null); // reset correctly
+    } catch (error) {
+      console.error("Error creating notice:", error);
+      toast.error("Failed to add notice. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
-
-  try {
-    const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/teacher/notice", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(noticeData),
-    });
-
-    if (!response.ok) throw new Error("Failed to create notice");
-
-    toast.success("Notice added successfully!");
-    setTitle('');
-    setContent('');
-    setSelectedTeam(null); // reset correctly
-  } catch (error) {
-    console.error("Error creating notice:", error);
-    toast.error("Failed to add notice. Please try again.");
-  } finally {
-    setSubmitting(false);
-  }
-};
 
 
 
@@ -1052,7 +1052,7 @@ const ShowNotice = () => {
 };
 
 
-import { CheckCircle, XCircle, Download, User, Calendar, FileText, AlertCircle  } from 'lucide-react';
+import { CheckCircle, XCircle, Download, User, Calendar, FileText, AlertCircle } from 'lucide-react';
 
 const Approve = () => {
   const [requests, setRequests] = useState([]);
@@ -1072,7 +1072,7 @@ const Approve = () => {
     try {
       setLoading(true);
       const teacherToken = localStorage.getItem('teacherToken');
-      
+
       if (!teacherToken) {
         setError('No teacher token found. Please log in again.');
         return;
@@ -1105,7 +1105,7 @@ const Approve = () => {
     try {
       setProcessingRequests(prev => new Set(prev).add(requestId));
       const teacherToken = localStorage.getItem('teacherToken');
-      
+
       if (!teacherToken) {
         setError('No teacher token found. Please log in again.');
         return;
@@ -1151,7 +1151,7 @@ const Approve = () => {
     try {
       setProcessingRequests(prev => new Set(prev).add(selectedRequest._id));
       const teacherToken = localStorage.getItem('teacherToken');
-      
+
       if (!teacherToken) {
         setError('No teacher token found. Please log in again.');
         return;
@@ -1223,7 +1223,7 @@ const Approve = () => {
   };
 
   const getStatusColor = (status) => {
-    switch(status?.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'approved': return 'text-green-600 bg-green-50';
       case 'declined': return 'text-red-600 bg-red-50';
       default: return 'text-yellow-600 bg-yellow-50';
@@ -1231,7 +1231,7 @@ const Approve = () => {
   };
 
   const getStatusText = (status) => {
-    switch(status?.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case 'approved': return 'Approved';
       case 'declined': return 'Declined';
       default: return 'Pending';
@@ -1289,88 +1289,91 @@ const Approve = () => {
 
         {/* Request Cards */}
         <div className="space-y-6">
-          {requests.map((request) => (
-            <div key={request._id} className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
-              <div className="p-6">
-                {/* Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {request.projectName || 'Untitled Project'}
-                    </h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <User className="w-4 h-4" />
-                        <span>{request.teamName || 'Unknown Team'}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-4 h-4" />
-                        <span>Intake: {request.intake || 'N/A'}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)}`}>
-                    {getStatusText(request.status)}
-                  </div>
-                </div>
-
-                {/* File Information */}
-                <div className="mb-6">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
-                    <Download className="w-4 h-4 mr-2" />
-                    Requested File:
-                  </h4>
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                    <span className="text-xl">{getFileIcon(request.filename || '')}</span>
+          {[...requests]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort newest first
+            .map((request) => (
+              <div key={request._id} className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
+                <div className="p-6">
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{request.filename || 'Unknown File'}</p>
-                      {request.downloadurl && (
-                        <a
-                          href={request.downloadurl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 text-sm underline"
-                        >
-                          View File
-                        </a>
-                      )}
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        {request.projectName || 'Untitled Project'}
+                      </h3>
+                      <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <div className="flex items-center space-x-1">
+                          <User className="w-4 h-4" />
+                          <span>{request.teamName || 'Unknown Team'}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>Intake: {request.intake || 'N/A'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(request.status)}`}>
+                      {getStatusText(request.status)}
                     </div>
                   </div>
+
+                  {/* File Information */}
+                  <div className="mb-6">
+                    <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                      <Download className="w-4 h-4 mr-2" />
+                      Requested File:
+                    </h4>
+                    <div className="flex items-center space-x-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <span className="text-xl">{getFileIcon(request.filename || '')}</span>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{request.filename || 'Unknown File'}</p>
+                        {request.downloadurl && (
+                          <a
+                            href={request.downloadurl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 text-sm underline"
+                          >
+                            View File
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Decline Reason (if declined) */}
+                  {request.status?.toLowerCase() === 'declined' && request.declineReason && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                      <p className="text-sm text-red-700">
+                        <strong>Decline Reason:</strong> {request.declineReason}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  {request.status?.toLowerCase() === 'pending' && (
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => handleApprove(request._id)}
+                        disabled={processingRequests.has(request._id)}
+                        className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        <span>{processingRequests.has(request._id) ? 'Approving...' : 'Approve'}</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeclineClick(request)}
+                        disabled={processingRequests.has(request._id)}
+                        className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        <span>Decline</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
-
-                {/* Decline Reason (if declined) */}
-                {request.status?.toLowerCase() === 'declined' && request.declineReason && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                    <p className="text-sm text-red-700">
-                      <strong>Decline Reason:</strong> {request.declineReason}
-                    </p>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                {request.status?.toLowerCase() === 'pending' && (
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => handleApprove(request._id)}
-                      disabled={processingRequests.has(request._id)}
-                      className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                      <span>{processingRequests.has(request._id) ? 'Approving...' : 'Approve'}</span>
-                    </button>
-                    <button
-                      onClick={() => handleDeclineClick(request)}
-                      disabled={processingRequests.has(request._id)}
-                      className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition-colors duration-200 font-medium"
-                    >
-                      <XCircle className="w-4 h-4" />
-                      <span>Decline</span>
-                    </button>
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
+            ))}
+
         </div>
 
         {/* Empty State */}
