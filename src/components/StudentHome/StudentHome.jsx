@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "../Header/Header";
-import {Lightbulb} from 'lucide-react'
+// import {Lightbulb} from 'lucide-react'
 const ITEMS_PER_PAGE = 8;
 
 const Home = () => {
@@ -9,6 +9,8 @@ const Home = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const [selectedProject, setSelectedProject] = useState(null);
+    const [downloadLinks, setDownloadLinks] = useState([]);
+    const [loadingDownloads, setLoadingDownloads] = useState(false);
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -25,6 +27,41 @@ const Home = () => {
         };
         fetchProjects();
     }, []);
+
+    const fetchProjectDownloads = async (projectTitle) => {
+        setLoadingDownloads(true);
+        try {
+            const response = await fetch(
+                `https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/downloadlinks/${encodeURIComponent(projectTitle)}`
+            );
+            const result = await response.json();
+            console.log(result);
+            
+            setDownloadLinks(result.data || []);
+            console.log(downloadLinks,'from fetch projects download')
+        } catch (error) {
+            console.error(`Error fetching downloads for ${projectTitle}:`, error);
+            setDownloadLinks([]);
+        } finally {
+            setLoadingDownloads(false);
+        }
+    };
+
+    const handleViewDetails = async (project) => {
+        setSelectedProject(project);
+        setDownloadLinks([]); // Reset downloads
+        await fetchProjectDownloads(project.projectTitle);
+    };
+
+    const handleDownload = (downloadLink, fileName) => {
+        const link = document.createElement('a');
+        link.href = downloadLink;
+        link.download = fileName || 'download';
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     const filteredProjects = projects.filter((project) =>
         project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase())
@@ -59,7 +96,6 @@ const Home = () => {
         </div>
     );
 
-
     return (
         <div className="min-h-screen bg-gradient-to-t from-white via-indigo-50 to-indigo-100 flex flex-col transition duration-300 ease-in-out">
             <Header />
@@ -79,7 +115,6 @@ const Home = () => {
                                 setCurrentPage(1);
                             }}
                         />
-
 
                         <span className="absolute inset-y-0 left-0 flex items-center pl-5 text-blue-900">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -148,7 +183,7 @@ const Home = () => {
 
                                         {/* Button */}
                                         <button
-                                            onClick={() => setSelectedProject(project)}
+                                            onClick={() => handleViewDetails(project)}
                                             className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 group-hover:from-indigo-700 group-hover:to-indigo-800 shadow-lg hover:shadow-xl transform hover:scale-105"
                                         >
                                             <span className="relative z-10 flex items-center justify-center">
@@ -247,6 +282,61 @@ const Home = () => {
                                 </p>
                             </div>
 
+                            {/* Downloads Section */}
+                            <div className="mb-8">
+                                <h3 className="text-xl font-bold text-green-900 mb-3 flex items-center gap-2">
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                                    </svg>
+                                    Downloads
+                                </h3>
+                                
+                                {loadingDownloads ? (
+                                    <div className="flex items-center justify-center py-8 bg-gray-50 rounded-xl">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                                            <span className="text-gray-600 font-medium">Loading downloads...</span>
+                                        </div>
+                                    </div>
+                                ) : downloadLinks.length > 0 ? (
+                                    <div className="bg-green-50 p-4 rounded-xl border-l-4 border-green-500">
+                                        <div className="grid gap-3">
+                                            {downloadLinks.map((link, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => handleDownload(link.downloadurl, link.fileName)}
+                                                    className="flex items-center gap-3 w-full p-3 bg-white hover:bg-green-100 border border-green-200 rounded-lg transition-all duration-200 text-left group"
+                                                >
+                                                    <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center group-hover:bg-green-600 transition-colors">
+                                                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="font-medium text-gray-900 group-hover:text-green-700">
+                                                            {link.fileName || `Download ${index + 1}`}
+                                                        </p>
+                                                        <p className="text-sm text-gray-500">
+                                                            Click to download
+                                                        </p>
+                                                    </div>
+                                                    <svg className="w-5 h-5 text-gray-400 group-hover:text-green-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                                                    </svg>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-gray-50 p-6 rounded-xl text-center">
+                                        <svg className="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <p className="text-gray-500 font-medium">No downloads available for this project</p>
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Project Details Grid */}
                             <div className="grid md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
@@ -300,11 +390,13 @@ const Home = () => {
                             {selectedProject.furtherImprovement && (
                                 <div className="mt-8">
                                     <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Lightbulb className="w-5 h-5 text-amber-500" />
+                                        <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.477.859h4z" />
+                                        </svg>
                                         Future Improvements
                                     </h3>
                                     <div className="bg-gradient-to-r from-amber-50 to-yellow-50 p-6 rounded-xl border-l-4 border-amber-500">
-                                        <div className="overflow-y-auto max-h-64 pr-2"> {/* Added max height and scroll */}
+                                        <div className="overflow-y-auto max-h-64 pr-2">
                                             <p className="text-gray-700 leading-relaxed break-words whitespace-pre-wrap">
                                                 {selectedProject.furtherImprovement}
                                             </p>
