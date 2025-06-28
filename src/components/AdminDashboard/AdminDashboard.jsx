@@ -1790,7 +1790,7 @@ const AdminDashboard = () => {
       }
 
       toast.success("Logged out successfully");
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
       toast.error(error.message || "Something went wrong. Please try again.");
