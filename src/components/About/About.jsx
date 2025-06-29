@@ -1,7 +1,11 @@
+import Header from "../Header/Header";
+
 const About = () => {
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-3xl font-bold text-blue-800 mb-4">About OpenSapace</h1>
+    <div className="w-full h-screen mx-auto">
+    <Header></Header>
+      <div className="max-w-5xl mx-auto py-12">
+        <h1 className="text-3xl font-bold text-blue-800 mb-4">About OpenSapace</h1>
       <p className="text-gray-700 leading-relaxed mb-4">
         OpenSapace is a centralized repository system designed to showcase and manage final year capstone projects submitted by students across various departments.
         It serves as a digital archive that promotes transparency, accessibility, and collaboration within the academic community.
@@ -13,6 +17,7 @@ const About = () => {
       <p className="text-gray-700 leading-relaxed">
         Developed with modern technologies, OpenSapace is intuitive, mobile-friendly, and continuously evolving to provide a seamless experience for all users.
       </p>
+      </div>
     </div>
   );
 };

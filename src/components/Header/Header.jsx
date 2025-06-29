@@ -20,8 +20,8 @@ const Header = () => {
   const homePath = isStudent
     ? "/studentHome"
     : isTeacher
-      ? "/teacherHome"
-      : "/";
+    ? "/teacherHome"
+    : "/";
 
   const handleLogout = async () => {
     const startTime = Date.now();
