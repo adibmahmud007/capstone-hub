@@ -91,7 +91,7 @@ const MainHome = () => {
                                 <a href="/" className="flex items-center space-x-2 text-blue-200 font-semibold hover:text-white transition-colors duration-200">
                                     <span>Home</span>
                                 </a>
-                                <a href="/contacts" className="flex items-center space-x-2 text-blue-300 hover:text-white transition-colors duration-200">
+                                <a href="/contact" className="flex items-center space-x-2 text-blue-300 hover:text-white transition-colors duration-200">
                                     <Phone className="w-4 h-4" />
                                     <span>Contacts</span>
                                 </a>
