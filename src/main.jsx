@@ -19,12 +19,26 @@ import AdminDashboard from './components/AdminDashboard/AdminDashboard';
 import TeacherHome from './components/TeacherHome/TeacherHome';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; // make sure this path is correct
 import MainHome from './components/MainHome/MainHome';
+import About from './components/About/About';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <MainHome></MainHome>
   },
+  {
+    path: '/about',
+    element: <About></About>
+  },
+  {
+    path: '/contact',
+    element: <About></About>
+  },
+  {
+    path: '/help',
+    element: <About></About>
+  },
+
   {
     path: '/register',
     element: <Registration />
