@@ -554,7 +554,7 @@ const Upload = ({ intake, teamName, teamId, teacherId }) => {
         formData.append("team_id", teamId);
 
         // First API call
-        const response = await fetch('https://edef-103-133-174-208.ngrok-free.app/api/v1/upload', {
+        const response = await fetch('https://254a-103-133-174-208.ngrok-free.app/api/v1/upload', {
             method: 'POST',
             body: formData,
         });

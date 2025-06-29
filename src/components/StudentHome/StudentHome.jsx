@@ -4,79 +4,80 @@ import Header from "../Header/Header";
 const ITEMS_PER_PAGE = 8;
 
 const Home = () => {
-    const [projects, setProjects] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [loading, setLoading] = useState(true);
-    const [selectedProject, setSelectedProject] = useState(null);
-    const [downloadLinks, setDownloadLinks] = useState([]);
-    const [loadingDownloads, setLoadingDownloads] = useState(false);
+const [projects, setProjects] = useState([]);
+const [searchTerm, setSearchTerm] = useState("");
+const [currentPage, setCurrentPage] = useState(1);
+const [loading, setLoading] = useState(true);
+const [selectedProject, setSelectedProject] = useState(null);
+const [downloadLinks, setDownloadLinks] = useState([]);
+const [loadingDownloads, setLoadingDownloads] = useState(false);
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project");
-                const result = await response.json();
-                console.log(result.data);
-                setProjects(result.data || []);
-            } catch (error) {
-                console.error("Error fetching projects:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchProjects();
-    }, []);
-
-    const fetchProjectDownloads = async (projectTitle) => {
-        setLoadingDownloads(true);
+useEffect(() => {
+    const fetchProjects = async () => {
         try {
-            const response = await fetch(
-                `https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/downloadlinks/${encodeURIComponent(projectTitle)}`
-            );
+            const response = await fetch("https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project");
             const result = await response.json();
-            console.log(result);
-            
-            setDownloadLinks(result.data || []);
-            console.log(downloadLinks,'from fetch projects download')
+            console.log(result.data);
+            setProjects(result.data || []);
         } catch (error) {
-            console.error(`Error fetching downloads for ${projectTitle}:`, error);
-            setDownloadLinks([]);
+            console.error("Error fetching projects:", error);
         } finally {
-            setLoadingDownloads(false);
+            setLoading(false);
         }
     };
+    fetchProjects();
+}, []);
 
-    const handleViewDetails = async (project) => {
-        setSelectedProject(project);
-        setDownloadLinks([]); // Reset downloads
-        await fetchProjectDownloads(project.projectTitle);
-    };
+const fetchProjectDownloads = async (projectTitle) => {
+    setLoadingDownloads(true);
+    try {
+        const response = await fetch(
+            `https://capstone-repo-2933d2307df0.herokuapp.com/api/internal/project/downloadlinks/${encodeURIComponent(projectTitle)}`
+        );
+        const result = await response.json();
+        console.log(result);
+        
+        setDownloadLinks(result.data || []);
+        console.log(downloadLinks,'from fetch projects download')
+    } catch (error) {
+        console.error(`Error fetching downloads for ${projectTitle}:`, error);
+        setDownloadLinks([]);
+    } finally {
+        setLoadingDownloads(false);
+    }
+};
 
-    const handleDownload = (downloadLink, fileName) => {
-        const link = document.createElement('a');
-        link.href = downloadLink;
-        link.download = fileName || 'download';
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+const handleViewDetails = async (project) => {
+    setSelectedProject(project);
+    setDownloadLinks([]); // Reset downloads
+    await fetchProjectDownloads(project.projectTitle);
+};
 
-    const filteredProjects = projects.filter((project) =>
-        project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+const handleDownload = (downloadLink, fileName) => {
+    const link = document.createElement('a');
+    link.href = downloadLink;
+    link.download = fileName || 'download';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
-    const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentItems = filteredProjects.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+const filteredProjects = projects.filter((project) =>
+    project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.supervisor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.teamName.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
-    const goToPage = (page) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-        }
-    };
+const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
+const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+const currentItems = filteredProjects.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page);
+    }
+};
     // Enhanced Loader Component
     const LoadingSpinner = () => (
         <div className="flex flex-col items-center justify-center py-16">

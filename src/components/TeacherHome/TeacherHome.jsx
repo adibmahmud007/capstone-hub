@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "../Header/Header";
-import {Lightbulb} from 'lucide-react'
+import { Lightbulb } from 'lucide-react'
 
 const ITEMS_PER_PAGE = 8;
 
@@ -27,7 +27,9 @@ const TeacherHome = () => {
     }, []);
 
     const filteredProjects = projects.filter((project) =>
-        project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase())
+        project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.supervisor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.teamName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);

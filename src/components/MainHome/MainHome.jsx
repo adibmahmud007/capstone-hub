@@ -31,7 +31,9 @@ const MainHome = () => {
     }, []);
 
     const filteredProjects = projects.filter((project) =>
-        project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase())
+        project.projectTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.supervisor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.teamName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE);
