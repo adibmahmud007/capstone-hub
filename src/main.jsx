@@ -20,6 +20,8 @@ import TeacherHome from './components/TeacherHome/TeacherHome';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'; // make sure this path is correct
 import MainHome from './components/MainHome/MainHome';
 import About from './components/About/About';
+import Contact from './components/Contact/Contact';
+import Help from './components/Help/Help';
 
 const router = createBrowserRouter([
   {
@@ -32,11 +34,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/contact',
-    element: <About></About>
+    element: <Contact></Contact>
   },
   {
     path: '/help',
-    element: <About></About>
+    element: <Help></Help>
   },
 
   {
