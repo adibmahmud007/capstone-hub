@@ -442,6 +442,28 @@ const ShowTask = () => {
     }
   };
 
+  // Function to get status badge styling
+  const getStatusBadge = (status) => {
+    const statusLower = status?.toLowerCase() || 'pending';
+    
+    const statusStyles = {
+      pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      completed: 'bg-green-100 text-green-800 border-green-300',
+      'in progress': 'bg-blue-100 text-blue-800 border-blue-300',
+      updated: 'bg-purple-100 text-purple-800 border-purple-300',
+      overdue: 'bg-red-100 text-red-800 border-red-300',
+      cancelled: 'bg-gray-100 text-gray-800 border-gray-300'
+    };
+
+    const style = statusStyles[statusLower] || statusStyles.pending;
+    
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium border ${style}`}>
+        {status || 'Pending'}
+      </span>
+    );
+  };
+
   return (
     <div className="w-full mx-auto mt-10 bg-white p-6 rounded-2xl shadow-xl">
       <h2 className="text-3xl font-bold text-blue-700 text-center mb-8">📋 Assigned Tasks</h2>
@@ -457,13 +479,14 @@ const ShowTask = () => {
                 <th className="px-4 py-3 text-left">Team</th>
                 <th className="px-4 min-w-[300px] py-3 text-left">Assigned Task</th>
                 <th className="px-4 min-w-[150px] py-3 text-left">Remarks</th>
+                <th className="px-4 min-w-[120px] py-3 text-center">Status</th>
                 <th className="px-4 py-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {tasks.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="text-center py-6 text-gray-400 italic">
+                  <td colSpan="6" className="text-center py-6 text-gray-400 italic">
                     No tasks assigned yet.
                   </td>
                 </tr>
@@ -474,7 +497,10 @@ const ShowTask = () => {
                     <td className="px-4 py-3">{task.teamName}</td>
                     <td className="px-4 py-3">{task.assignedTask}</td>
                     <td className="px-4 py-3">{task.remarks}</td>
-                    <td className="px-4 flex items-center justify-center  py-3 text-center space-x-2">
+                    <td className="px-4 py-3 text-center">
+                      {getStatusBadge(task.status)}
+                    </td>
+                    <td className="px-4 flex items-center justify-center py-3 text-center space-x-2">
                       <button
                         onClick={() => deleteTask(task._id)}
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
